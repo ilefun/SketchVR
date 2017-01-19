@@ -1,0 +1,16 @@
+*.obj
+*.sdf
+*.log
+*.dll
+*.exe
+*.ilk
+*.pdb
+*.idb
+*.exp
+*.lib
+*.tlog
+*.pri
+*.db
+*.xml
+*.intermediate
+*.opendb
