@@ -23,12 +23,22 @@ void face_data(CXmlExporter *exporter,int group_id) {
 	int vertex_num;
 	int *vertex_num_per_face;
 	int face_num;
-	int *face_vertex_index;
+	double *face_normal;
 	VectorHandle vertices_handle;
 	VectorHandle vertices_face_handle;
 	VectorHandle face_vindex_handle;
+	VectorHandle face_normal_handle;
 
-	GetGroupFaceDataById(exporter, group_id, &vertices, &vertex_num, &vertex_num_per_face, &face_num, &face_vertex_index, &vertices_handle, &vertices_face_handle, &face_vindex_handle);
+	GetGroupFaceDataById(exporter,
+						 group_id,
+						 &vertices,
+						 &vertex_num,
+						 &vertex_num_per_face,
+						 &face_num,
+						 &face_normal,
+						 &vertices_handle,
+						 &vertices_face_handle,
+						 &face_normal_handle);
 
 }
 

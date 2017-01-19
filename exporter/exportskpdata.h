@@ -18,7 +18,8 @@ int PushVertex(std::vector<CPoint3d> *collector, const CPoint3d *pt, CPoint3d &o
 
 void GetFaceData(std::vector<int> *v_per_face_list,
                     std::vector<int> *face_vertex_list,
-                    std::vector<CPoint3d> *vertices_collector,
+                    std::vector<double> *vertices_list,
+                    std::vector<double> *normal_list,
                     const XmlEntitiesInfo *entities);
 
 EXPORT  int GetGroupNum(CXmlExporter *exporter);
@@ -35,14 +36,14 @@ EXPORT void ReleaseExporter(CXmlExporter *exporter);
 //get geometry face data from exporter
 EXPORT bool GetGroupFaceDataById(CXmlExporter *exporter,
                         int group_id,
-                    	double **vertices,   //vertex position list
-                    	int *vertex_num,   //vertex num
-                    	int **vertex_num_per_face,   //vertex num of each face
-                    	int *face_num,   //face count of the object
-                    	int **face_vertex_index,   //vertex position index of each face
+                        double **vertices,   //vertex position list
+                        int *vertex_num,   //vertex num
+                        int **vertex_num_per_face,   //vertex num of each face
+                        int *face_num,   //face count of the object
+                        double **face_normal,
                     	VectorHandle *vertices_handle,
                     	VectorHandle *vertices_face_handle,
-                    	VectorHandle *face_vindex_handle);
+                        VectorHandle *face_normal_handle);
 
 //get front uv or back uv data for each face
 EXPORT bool GetFaceUV(CXmlExporter *exporter,

@@ -25,27 +25,6 @@ int PushVertex(std::vector<CPoint3d> *collector,const CPoint3d &pt)
 		return nearest_index;
 }	
 
-void GetFaceData(std::vector<int> *v_per_face_list,
-					std::vector<int> *face_vertex_list,
-					std::vector<CPoint3d> *vertices_collector,
-					const XmlEntitiesInfo *entities)
-{
-	for (size_t i = 0; i<entities->faces_.size(); i++)
-	{
-		if (entities->faces_[i].has_single_loop_)
-			v_per_face_list->push_back(entities->faces_[i].vertices_.size());
-		else
-			for (size_t j = 0; j<entities->faces_[i].vertices_.size() / 3; j++)
-				v_per_face_list->push_back(3);
-
-		for (size_t j = 0; j<entities->faces_[i].vertices_.size(); j++)
-		{
-			int current_id = PushVertex(vertices_collector, entities->faces_[i].vertices_[j].vertex_);
-			face_vertex_list->push_back(current_id);
-		}
-	}
-}
-
 EXPORT CXmlExporter* GetExporter(const char *from_file, const char *to_folder )
 {
 	bool m_bExportMaterials = true;
@@ -120,6 +99,37 @@ EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int index,double trans
 		transform[i]=current_xform.values[i];
 }
 
+void GetFaceData(std::vector<int> *v_per_face_list,
+					std::vector<int> *face_vertex_list,
+					std::vector<double> *vertices_list,
+                    std::vector<double> *normal_list,
+					const XmlEntitiesInfo *entities)
+{
+	for (size_t i = 0; i<entities->faces_.size(); i++)
+	{
+		if (entities->faces_[i].has_single_loop_)
+			v_per_face_list->push_back(entities->faces_[i].vertices_.size());
+		else
+			for (size_t j = 0; j<entities->faces_[i].vertices_.size() / 3; j++)
+				v_per_face_list->push_back(3);
+		
+		for (size_t j = 0; j < entities->faces_[i].face_num; ++j)
+		{
+			normal_list->push_back(entities->faces_[i].face_normal_.x());
+			normal_list->push_back(entities->faces_[i].face_normal_.y());
+			normal_list->push_back(entities->faces_[i].face_normal_.z());
+		}
+
+		for (size_t j = 0; j<entities->faces_[i].vertices_.size(); j++)
+		{
+			vertices_list.push_back(entities->faces_[i].vertices_[j].x());
+			vertices_list.push_back(entities->faces_[i].vertices_[j].y());
+			vertices_list.push_back(entities->faces_[i].vertices_[j].z());
+		}
+	}
+}
+
+
 
 EXPORT bool GetGroupFaceDataById(CXmlExporter *exporter,
                         int group_id,
@@ -127,16 +137,15 @@ EXPORT bool GetGroupFaceDataById(CXmlExporter *exporter,
 						int *vertex_num,
 						int **vertex_num_per_face,
 						int *face_num,
-						int **face_vertex_index,
+						double **face_normal,
 						VectorHandle *vertices_handle,
 						VectorHandle *vertices_face_handle,
-						VectorHandle *face_vindex_handle )
+						VectorHandle *face_normal_handle)
 {
 	auto vertices_list = new std::vector<double>();
+	auto normal_list = new std::vector<double>();
 	auto v_per_face_list = new std::vector<int>();
 	auto face_vertex_list = new std::vector<int>();
-
-	std::vector<CPoint3d> vertices_collector;
 
 	XmlEntitiesInfo *current_entities;
 	if (group_id<0)
@@ -147,27 +156,21 @@ EXPORT bool GetGroupFaceDataById(CXmlExporter *exporter,
 
 	GetFaceData(v_per_face_list,
 					face_vertex_list,
-					&vertices_collector,
+					vertices_list,
+					normal_list,
 					current_entities);
-
-	//convert point to double array
-	for (size_t j = 0; j<vertices_collector.size(); j++)
-	{
-		vertices_list->push_back((vertices_collector)[j].x());
-		vertices_list->push_back((vertices_collector)[j].y());
-		vertices_list->push_back(-(vertices_collector)[j].z());
-	}
 
 	*vertices_handle = reinterpret_cast<VectorHandle>(vertices_list);
 	*vertices = vertices_list->data();
 	*vertex_num = int(vertices_list->size() / 3);
 
+	*face_normal_handle = reinterpret_cast<VectorHandle>(normal_list);
+	*face_normal = normal_list->data();
+
 	*vertices_face_handle = reinterpret_cast<VectorHandle>(v_per_face_list);
 	*vertex_num_per_face = v_per_face_list->data();
 	*face_num = int(v_per_face_list->size());
 
-	*face_vindex_handle=reinterpret_cast<VectorHandle>(face_vertex_list);
-	*face_vertex_index=face_vertex_list->data();
 
 #ifdef _DEBUG
 	cout << endl<<"Debug face data print------------------" << endl;
@@ -180,16 +183,11 @@ EXPORT bool GetGroupFaceDataById(CXmlExporter *exporter,
 	cout<<"Vertex num per face : " << endl;
 	for (int i = 0; i < *face_num; i++)
 		cout << *(*vertex_num_per_face+i) << " ";
-	
-	cout << endl << "Vertex index per face : " << endl;
-	int v_id = 0;
-	for (int i = 0; i < *face_num; i++)
-		for (int j = 0; j < *(*vertex_num_per_face + i); j++)
-		{
-			cout << *(*face_vertex_index + v_id) << " ";
-			v_id++;
-		}
 
+	cout<<"Face normal : " << endl;
+	for (int i = 0; i < (*face_num)*3 i+=3)
+		cout << *(*face_normal+i) << " "<< *(*face_normal + i+1)<< " "<<*(*face_normal + i+2)<<endl;
+	
 	cout <<endl<< "Debug data print ends------------------" << endl;
 
 #endif // _DEBUG
