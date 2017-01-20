@@ -22,6 +22,17 @@ void GetFaceData(std::vector<int> *v_per_face_list,
                     std::vector<double> *normal_list,
                     const XmlEntitiesInfo *entities);
 
+void GetUVData(bool front_or_back,
+                std::vector<double> *u_list,
+                std::vector<double> *v_list,
+                std::vector<int> *uv_id_list,
+                const XmlEntitiesInfo *entities);
+
+void GetFaceMaterialData(std::vector<int> *front_id,
+                         std::vector<int> *back_id,
+                         const XmlEntitiesInfo *entities);
+
+
 EXPORT  int GetGroupNum(CXmlExporter *exporter);
   
 EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int index,double transform[16]);
@@ -34,7 +45,7 @@ EXPORT CXmlExporter* GetExporter(const char *from_file, const char *to_folder);
 EXPORT void ReleaseExporter(CXmlExporter *exporter);
 
 //get geometry face data from exporter
-EXPORT bool GetGroupFaceDataById(CXmlExporter *exporter,
+EXPORT bool GetFace(CXmlExporter *exporter,
                         int group_id,
                         double **vertices,   //vertex position list
                         int *vertex_num,   //vertex num
@@ -47,12 +58,12 @@ EXPORT bool GetGroupFaceDataById(CXmlExporter *exporter,
 
 //get front uv or back uv data for each face
 EXPORT bool GetFaceUV(CXmlExporter *exporter,
+                        int group_id,
                         bool front_or_back,   //front uv or back uv
                         double **u,   //u list
                         double **v,   //v list
                         int *uv_num,   //u v list size
                         int **uv_id,   //uv id for each vertex of each face in uv list
-						int *uv_id_num,
                         VectorHandle *uv_id_handle,
                         VectorHandle *u_handle,
                         VectorHandle *v_handle );
@@ -73,6 +84,7 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
                             double *tex_tscale );
 
 EXPORT bool GetMaterialIDPerFace(CXmlExporter *exporter,
+                                int group_id,
 								int **front_material_id_per_face,//-1 means the face has no material
 								int **back_material_id_per_face,
 								int *face_num,

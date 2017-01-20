@@ -1,6 +1,6 @@
 #include "./exportskpdata.h"
 
-void group_data(CXmlExporter *exporter )
+int group_data(CXmlExporter *exporter )
 {
 	int grp_num = GetGroupNum(exporter);
 	cout << "Group num is : "<< grp_num<< endl;
@@ -17,7 +17,9 @@ void group_data(CXmlExporter *exporter )
 		}
 		cout << endl;
 	}
+	return grp_num;
 }
+
 void face_data(CXmlExporter *exporter,int group_id) {
 	double *vertices;
 	int vertex_num;
@@ -42,17 +44,24 @@ void face_data(CXmlExporter *exporter,int group_id) {
 
 }
 
-void face_uv(CXmlExporter *exporter,bool front_or_back) {
+void face_uv(CXmlExporter *exporter,bool front_or_back,int group_id) {
 	double *u;
 	double *v;
 	int uv_num;
 	int *uv_id;
-	int uv_id_num;
 	VectorHandle uv_id_handle;
 	VectorHandle u_handle;
 	VectorHandle v_handle;
 
-	GetFaceUV(exporter,front_or_back,&u,&v, &uv_num,&uv_id, &uv_id_num, &uv_id_handle,&u_handle,&v_handle);
+	GetFaceUV(exporter,
+			group_id,
+			front_or_back,
+	 		&u,
+			&v,
+			 &uv_num,
+	 		&uv_id,
+			 &uv_id_handle,
+	 		&u_handle,&v_handle);
 
 }
 
@@ -81,7 +90,7 @@ void material(CXmlExporter *exporter){
 	}
 }
 
-void face_material(CXmlExporter *exporter){
+void face_material(CXmlExporter *exporter,int group_id){
 
 	int *front_material_id_per_face;
 	int *back_material_id_per_face;
@@ -89,7 +98,7 @@ void face_material(CXmlExporter *exporter){
 	VectorHandle back_mat_handle;
 	int face_num;
 
-	GetMaterialIDPerFace(exporter,
+	GetMaterialIDPerFace(exporter,group_id,
 						&front_material_id_per_face,
 						&back_material_id_per_face,
 						&face_num,
@@ -107,16 +116,19 @@ int main(int argc,char *argv[])
   exporter=GetExporter(argv[1], argv[2]);
   if (exporter){
 	  exporter->skpdata_.debug_print();
-	  group_data(exporter);
-
-	  //face_data(exporter);
-
-	  //face_uv(exporter,true);
-	  //face_uv(exporter,false);
-
-	  //material(exporter);
-	  //face_material(exporter);
+	  int grp_num=group_data(exporter);
 	  
+	  // material(exporter);
+	  // for (int i = 0; i < grp_num; ++i)
+	  // {
+		 //  face_data(exporter,i);
+
+		 //  face_uv(exporter,i,true);
+		 //  face_uv(exporter,i,false);
+
+		 //  face_material(exporter,i);
+	  // }
+
 	  ReleaseExporter(exporter);
   }
   system("pause");

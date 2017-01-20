@@ -25,6 +25,101 @@ int PushVertex(std::vector<CPoint3d> *collector,const CPoint3d &pt)
 		return nearest_index;
 }	
 
+void GetFaceData(std::vector<int> *v_per_face_list,
+					std::vector<int> *face_vertex_list,
+					std::vector<double> *vertices_list,
+                    std::vector<double> *normal_list,
+					const XmlEntitiesInfo *entities)
+{
+	for (size_t i = 0; i<entities->faces_.size(); i++)
+	{
+		if (entities->faces_[i].has_single_loop_)
+			v_per_face_list->push_back(entities->faces_[i].vertices_.size());
+		else
+			for (size_t j = 0; j<entities->faces_[i].vertices_.size() / 3; j++)
+				v_per_face_list->push_back(3);
+		
+		for (size_t j = 0; j < entities->faces_[i].face_num; ++j)
+		{
+			normal_list->push_back(entities->faces_[i].face_normal_.x());
+			normal_list->push_back(entities->faces_[i].face_normal_.y());
+			normal_list->push_back(entities->faces_[i].face_normal_.z());
+		}
+
+		for (size_t j = 0; j<entities->faces_[i].vertices_.size(); j++)
+		{
+			vertices_list.push_back(entities->faces_[i].vertices_[j].x());
+			vertices_list.push_back(entities->faces_[i].vertices_[j].y());
+			vertices_list.push_back(entities->faces_[i].vertices_[j].z());
+		}
+	}
+}
+
+void GetUVData(bool front_or_back,
+				std::vector<double> *u_list,
+				std::vector<double> *v_list,
+				std::vector<int> *uv_id_list,
+				const XmlEntitiesInfo *entities)
+{
+	if (front_or_back)
+		for (size_t i = 0; i < entities.faces_.size(); i++) {
+			size_t vertices_size = entities.faces_[i].vertices_.size();
+
+			if (entities.faces_[i].has_front_texture_) {
+				for (size_t j = 0; j < vertices_size; j++) {
+					u_list.push_back(entities.faces_[i].vertices_[j].front_texture_coord_.x());
+					v_list.push_back(entities.faces_[i].vertices_[j].front_texture_coord_.y());
+
+					uv_id_list->push_back(u_list.size()-1);
+				}
+			}
+			else
+				for (size_t j = 0; j < vertices_size; ++j)
+					uv_id_list->push_back(-1);
+		}
+	else
+		for (size_t i = 0; i < entities.faces_.size(); i++) {
+			size_t vertices_size = entities.faces_[i].vertices_.size();
+
+			if (entities.faces_[i].has_back_texture_) {
+				for (size_t j = 0; j < vertices_size; j++) {
+					u_list.push_back(entities.faces_[i].vertices_[j].back_texture_coord_.x());
+					v_list.push_back(entities.faces_[i].vertices_[j].back_texture_coord_.y());
+
+					uv_id_list->push_back(u_list.size()-1);
+				}
+			}
+			else
+				for (size_t j = 0; j < vertices_size; ++j)
+					uv_id_list->push_back(-1);
+		}
+}
+
+void GetFaceMaterialData(std::vector<int> *front_id,std::vector<int> *back_id,const XmlEntitiesInfo *entities)
+{
+	for (size_t i = 0; i<entities.faces_.size(); i++)
+	{
+		int current_face_num=1;
+		if (!entities.faces_[i].has_single_loop_)
+			current_face_num=entities.faces_[i].vertices_.size() / 3;
+
+		if(name_id_map.count(entities.faces_[i].front_mat_name_))
+			for(int j=0;j<current_face_num;j++)
+				front_id->push_back(name_id_map[entities.faces_[i].front_mat_name_]);
+		else
+			for(int j=0;j<current_face_num;j++)
+				front_id->push_back(-1);
+
+		if(name_id_map.count(entities.faces_[i].back_mat_name_))
+			for(int j=0;j<current_face_num;j++)
+				back_id->push_back(name_id_map[entities.faces_[i].back_mat_name_]);
+		else
+			for(int j=0;j<current_face_num;j++)
+				back_id->push_back(-1);
+
+	}
+}
+
 EXPORT CXmlExporter* GetExporter(const char *from_file, const char *to_folder )
 {
 	bool m_bExportMaterials = true;
@@ -99,39 +194,7 @@ EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int index,double trans
 		transform[i]=current_xform.values[i];
 }
 
-void GetFaceData(std::vector<int> *v_per_face_list,
-					std::vector<int> *face_vertex_list,
-					std::vector<double> *vertices_list,
-                    std::vector<double> *normal_list,
-					const XmlEntitiesInfo *entities)
-{
-	for (size_t i = 0; i<entities->faces_.size(); i++)
-	{
-		if (entities->faces_[i].has_single_loop_)
-			v_per_face_list->push_back(entities->faces_[i].vertices_.size());
-		else
-			for (size_t j = 0; j<entities->faces_[i].vertices_.size() / 3; j++)
-				v_per_face_list->push_back(3);
-		
-		for (size_t j = 0; j < entities->faces_[i].face_num; ++j)
-		{
-			normal_list->push_back(entities->faces_[i].face_normal_.x());
-			normal_list->push_back(entities->faces_[i].face_normal_.y());
-			normal_list->push_back(entities->faces_[i].face_normal_.z());
-		}
-
-		for (size_t j = 0; j<entities->faces_[i].vertices_.size(); j++)
-		{
-			vertices_list.push_back(entities->faces_[i].vertices_[j].x());
-			vertices_list.push_back(entities->faces_[i].vertices_[j].y());
-			vertices_list.push_back(entities->faces_[i].vertices_[j].z());
-		}
-	}
-}
-
-
-
-EXPORT bool GetGroupFaceDataById(CXmlExporter *exporter,
+EXPORT bool GetFace(CXmlExporter *exporter,
                         int group_id,
 						double **vertices,
 						int *vertex_num,
@@ -197,12 +260,12 @@ EXPORT bool GetGroupFaceDataById(CXmlExporter *exporter,
 }
 
 EXPORT bool GetFaceUV(CXmlExporter *exporter,
+	int group_id,
 	bool front_or_back,
 	double **u,
 	double **v,
 	int *uv_num,
 	int **uv_id,
-	int *uv_id_num,
 	VectorHandle *uv_id_handle,
 	VectorHandle *u_handle,
 	VectorHandle *v_handle)
@@ -211,45 +274,14 @@ EXPORT bool GetFaceUV(CXmlExporter *exporter,
 	auto u_list = new std::vector<double>();
 	auto v_list = new std::vector<double>();
 
-	std::vector<CPoint3d> uv_collector;
-
-	int current_id = -1;
-	int current_face_id=0;
-	if (front_or_back)
-		for (size_t i = 0; i < exporter->skpdata_.entities_.faces_.size(); i++) {
-			size_t vertices_size = exporter->skpdata_.entities_.faces_[i].vertices_.size();
-
-			if (exporter->skpdata_.entities_.faces_[i].has_front_texture_) {
-				for (size_t j = 0; j < vertices_size; j++) {
-					current_id = PushVertex(&uv_collector, exporter->skpdata_.entities_.faces_[i].vertices_[j].front_texture_coord_);
-					uv_id_list->push_back(current_id);
-				}
-			}
-			else
-				for (size_t j = 0; j < vertices_size; ++j)
-					uv_id_list->push_back(-1);
-		}
+	XmlEntitiesInfo *current_entities;
+	if (group_id<0)
+		current_entities=&exporter->skpdata_.entities_;
 	else
-		for (size_t i = 0; i < exporter->skpdata_.entities_.faces_.size(); i++) {
-			size_t vertices_size = exporter->skpdata_.entities_.faces_[i].vertices_.size();
+		current_entities=exporter->GroupById(group_id)->entities_;
 
-			if (exporter->skpdata_.entities_.faces_[i].has_back_texture_) {
-				for (size_t j = 0; j < vertices_size; j++) {
-					current_id = PushVertex(&uv_collector, exporter->skpdata_.entities_.faces_[i].vertices_[j].back_texture_coord_);
-					uv_id_list->push_back(current_id);
-				}
-			}
-			else
-				for (size_t j = 0; j < vertices_size; ++j)
-					uv_id_list->push_back(-1);
-		}
-
-	
-	for (size_t j = 0; j < uv_collector.size(); j++)
-	{
-		u_list->push_back(uv_collector[j].x());
-		v_list->push_back(uv_collector[j].y());
-	}
+	// std::vector<CPoint3d> uv_collector;
+	GetUVData(front_or_back,u_list,v_list,uv_id_list,current_entities);
 
 	*u_handle = reinterpret_cast<VectorHandle>(u_list);
 	*v_handle = reinterpret_cast<VectorHandle>(v_list);
@@ -259,7 +291,6 @@ EXPORT bool GetFaceUV(CXmlExporter *exporter,
 
 	*uv_id_handle = reinterpret_cast<VectorHandle>(uv_id_list);
 	*uv_id = uv_id_list->data();
-	*uv_id_num= int(uv_id_list->size());
 
 #ifdef _DEBUG
 	cout << endl << "Debug face uv data print------------------" << endl;
@@ -346,7 +377,9 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 	return true;
 }
 
+
 EXPORT bool GetMaterialIDPerFace(CXmlExporter *exporter,
+	int group_id,
 	int **front_material_id_per_face,
 	int **back_material_id_per_face,
 	int *face_num,
@@ -361,28 +394,13 @@ EXPORT bool GetMaterialIDPerFace(CXmlExporter *exporter,
 	auto front_mat_id=new std::vector<int>;
 	auto back_mat_id=new std::vector<int>;
 
-	for (size_t i = 0; i<exporter->skpdata_.entities_.faces_.size(); i++)
-	{
-		int current_face_num=1;
-		if (!exporter->skpdata_.entities_.faces_[i].has_single_loop_)
-			current_face_num=exporter->skpdata_.entities_.faces_[i].vertices_.size() / 3;
+	XmlEntitiesInfo *current_entities;
+	if (group_id<0)
+		current_entities=&exporter->skpdata_.entities_;
+	else
+		current_entities=exporter->GroupById(group_id)->entities_;
 
-		if(name_id_map.count(exporter->skpdata_.entities_.faces_[i].front_mat_name_))
-			for(int j=0;j<current_face_num;j++)
-				front_mat_id->push_back(name_id_map[exporter->skpdata_.entities_.faces_[i].front_mat_name_]);
-		else
-			for(int j=0;j<current_face_num;j++)
-				front_mat_id->push_back(-1);
-
-		if(name_id_map.count(exporter->skpdata_.entities_.faces_[i].back_mat_name_))
-			for(int j=0;j<current_face_num;j++)
-				back_mat_id->push_back(name_id_map[exporter->skpdata_.entities_.faces_[i].back_mat_name_]);
-		else
-			for(int j=0;j<current_face_num;j++)
-				back_mat_id->push_back(-1);
-
-	}
-
+	GetFaceMaterialData(front_mat_id,back_mat_id,current_entities);
 
 	*face_num=front_mat_id->size();
 	*front_material_id_per_face=front_mat_id->data();
