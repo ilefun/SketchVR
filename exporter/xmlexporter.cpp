@@ -357,6 +357,10 @@ void CXmlExporter::WriteMaterials() {
 
       }
     }
+    
+    for (size_t i = 0; i<skpdata_.materials_.size(); i++)
+      matname_id_map_[skpdata_.materials_[i].name_]=int(i);
+
   }
 }
 

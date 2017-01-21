@@ -11,6 +11,7 @@
 #include <SketchUpAPI/import_export/pluginprogresscallback.h>
 #include <SketchUpAPI/model/defs.h>
 
+#include <unordered_map>
 #include <vector>
 
 class CXmlExporter {
@@ -90,6 +91,7 @@ private:
 
 public:
 	XmlModelInfo skpdata_;
+	std::unordered_map<std::string, int> matname_id_map_;
 };
 
 #endif // SKPTOXML_COMMON_XMLEXPORTER_H

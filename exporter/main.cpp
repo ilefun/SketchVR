@@ -31,7 +31,7 @@ void face_data(CXmlExporter *exporter,int group_id) {
 	VectorHandle face_vindex_handle;
 	VectorHandle face_normal_handle;
 
-	GetGroupFaceDataById(exporter,
+	GetFace(exporter,
 						 group_id,
 						 &vertices,
 						 &vertex_num,
@@ -49,6 +49,7 @@ void face_uv(CXmlExporter *exporter,bool front_or_back,int group_id) {
 	double *v;
 	int uv_num;
 	int *uv_id;
+	int uv_id_num;
 	VectorHandle uv_id_handle;
 	VectorHandle u_handle;
 	VectorHandle v_handle;
@@ -60,6 +61,7 @@ void face_uv(CXmlExporter *exporter,bool front_or_back,int group_id) {
 			&v,
 			 &uv_num,
 	 		&uv_id,
+		    &uv_id_num,
 			 &uv_id_handle,
 	 		&u_handle,&v_handle);
 
@@ -115,19 +117,19 @@ int main(int argc,char *argv[])
   CXmlExporter *exporter=NULL;
   exporter=GetExporter(argv[1], argv[2]);
   if (exporter){
-	  exporter->skpdata_.debug_print();
+	  //exporter->skpdata_.debug_print();
 	  int grp_num=group_data(exporter);
 	  
-	  // material(exporter);
-	  // for (int i = 0; i < grp_num; ++i)
-	  // {
-		 //  face_data(exporter,i);
+	   //material(exporter);
+	   for (int i = -1; i < grp_num; ++i)
+	   {
+		   face_data(exporter,i);
 
-		 //  face_uv(exporter,i,true);
-		 //  face_uv(exporter,i,false);
+		   face_uv(exporter,true,i);
+		   //face_uv(exporter,false,i);
 
-		 //  face_material(exporter,i);
-	  // }
+		   //face_material(exporter,i);
+	   }
 
 	  ReleaseExporter(exporter);
   }
