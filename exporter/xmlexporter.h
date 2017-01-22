@@ -21,7 +21,6 @@ class CXmlExporter {
 
   // Convert
   bool Convert(const std::string& from_file,
-               const std::string& to_folder,
                SketchUpPluginProgressCallback* callback);
   
   void debug_print();
@@ -47,9 +46,6 @@ class CXmlExporter {
 private:
   // Clean up slapi objects
   void ReleaseModelObjects();
-
-  // Write texture files to the destination directory
-  void WriteTextureFiles();
 
   void WriteLayers();
   void WriteLayer(SULayerRef layer);
@@ -78,9 +74,9 @@ private:
   // SLAPI model and texture writer
   SUModelRef model_;
   SUTextureWriterRef texture_writer_;
+  SUImageRepRef image_rep_;
 
   std::string skp_file_;
-  std::string out_folder_;
 
   // Stack
   CInheritanceManager inheritance_manager_;

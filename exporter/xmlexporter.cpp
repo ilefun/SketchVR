@@ -29,6 +29,7 @@
 #include <SketchUpAPI/model/texture_writer.h>
 #include <SketchUpAPI/model/uv_helper.h>
 #include <SketchUpAPI/model/vertex.h>
+#include <SketchUpAPI/model/image_rep.h>
 
 using namespace XmlGeomUtils;
 
@@ -91,6 +92,7 @@ static std::string GetComponentDefinitionName(
 CXmlExporter::CXmlExporter() {
   SUSetInvalid(model_);
   SUSetInvalid(texture_writer_);
+  SUSetInvalid(image_rep_);
 }
 
 CXmlExporter::~CXmlExporter() {
@@ -100,6 +102,11 @@ void CXmlExporter::ReleaseModelObjects() {
   if (!SUIsInvalid(texture_writer_)) {
     SUTextureWriterRelease(&texture_writer_);
     SUSetInvalid(texture_writer_);
+  }
+
+  if (!SUIsInvalid(image_rep_)) {
+    SUImageRepRelease(&image_rep_);
+    SUSetInvalid(image_rep_);
   }
 
   if (!SUIsInvalid(model_)) {
@@ -142,11 +149,10 @@ void CXmlExporter::GetGroupChildren()
 }
 
 bool CXmlExporter::Convert(const std::string& from_file,
-    const std::string& to_folder,
     SketchUpPluginProgressCallback* progress_callback) {
   bool exported = false;
   skp_file_ = from_file;
-  out_folder_=to_folder;
+  // out_folder_=to_folder;
 
   try {
     // Initialize the SDK
@@ -164,9 +170,9 @@ bool CXmlExporter::Convert(const std::string& from_file,
     SUSetInvalid(texture_writer_);
     SU_CALL(SUTextureWriterCreate(&texture_writer_));
 
-    // Write textures
-    std::cout<<"Exporting texture Files..."<<std::endl;
-    WriteTextureFiles();
+    // Create a texture writer
+    SUSetInvalid(image_rep_);
+    SU_CALL(SUImageRepCreate(&image_rep_));
 
     // Write file header
     int major_ver = 0, minor_ver = 0, build_no = 0;
@@ -200,23 +206,6 @@ bool CXmlExporter::Convert(const std::string& from_file,
   ReleaseModelObjects();
 
   return exported;
-}
-
-void CXmlExporter::WriteTextureFiles() {
-  if (options_.export_materials()) {
-    // Load the textures into the texture writer
-    CXmlTextureHelper texture_helper;
-    size_t texture_count = texture_helper.LoadAllTextures(model_,
-        texture_writer_,
-        options_.export_materials_by_layer());
-    stats_.set_textures(texture_count);
-
-    // Write out all the textures to a the export folder  
-    if (texture_count > 0) {
-      SU_CALL(SUTextureWriterWriteAllTextures(texture_writer_,
-                                              out_folder_.c_str()));
-    }
-  }
 }
 
 void CXmlExporter::WriteLayers() {
@@ -293,6 +282,20 @@ static XmlMaterialInfo GetMaterialInfo(SUMaterialRef material) {
                                      &s_scale, &t_scale));
       info.texture_sscale_ = s_scale;
       info.texture_tscale_ = t_scale;
+      info.width_ = width;
+      info.height_ = height;
+
+      //Texture data
+      SU_CALL(SUTextureGetImageRep(texture,&image_rep_));
+      size_t data_size=0,data_size_per_pixel=0;
+      SU_CALL(SUImageRepGetDataSize(image_rep_,&data_size,&data_size_per_pixel));
+
+      info.data_size_=data_size;
+      info.data_size_per_pixel_=data_size_per_pixel;
+
+      size_t pd_size=info.data_size_*info.data_size_per_pixel_;
+      info.pixel_data_=new SUByte[pd_size];
+      SU_CALL(SUImageRepGetData(image_rep_,pd_size,info.pixel_data_));
     }
   }
 
