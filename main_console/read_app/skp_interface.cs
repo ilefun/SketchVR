@@ -56,44 +56,84 @@ namespace SkpInterface
             }
         }
 
+        //get exporter
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern IntPtr GetExporter(string from_file, string to_folder);
+        public static unsafe extern IntPtr GetExporter(string from_file);
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern void ReleaseExporter(IntPtr exporter);
 
+
+        //group data func
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern bool GetFaceData(IntPtr exporter,
+        public static unsafe extern int GetGroupNum(IntPtr exporter);
+
+        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern void GetGroupTransformById(IntPtr exporter,
+                                                            int group_id,
+                                                            double [] transform);
+
+        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern void GetGroupChildrenById(IntPtr exporter,
+                                                            int group_id,
+                                                            out int* children_id,
+                                                            out int children_num,
+                                                            out VectorIntSafeHandle children_id_handle
+                                                            );
+
+        public static unsafe void GetSkpGroupChildrenById(IntPtr exporter,
+                                                            int group_id,
+                                                            out int* children_id,
+                                                            out int children_num )
+        {
+            VectorIntSafeHandle _children_id_handle;
+
+            if (!GetGroupChildrenById(exporter,
+                                    group_id,
+                                    out int* children_id,
+                                    out int children_num,
+                                    out _children_id_handle))
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        //get face data
+        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern bool GetFace(IntPtr exporter,
+                                                int group_id,
                                                 out double* vertices,
                                                 out int vertex_num,
                                                 out int* vertex_num_per_face,
                                                 out int face_num,
-                                                out int* face_vertex_index,
+                                                out double **face_normal,
                                                 out VectorDoubleSafeHandle vertices_handle,
                                                 out VectorIntSafeHandle vertices_face_handle,
-                                                out VectorIntSafeHandle face_vindex_handle);
+                                                out VectorIntSafeHandle face_normal_handle);
 
 
-        public static unsafe void GetSkpFaceData(IntPtr exporter,
+        public static unsafe void GetSkpFace(IntPtr exporter,
+                                        int group_id,
                                         out double* vertices,
                                         out int vertex_num,
                                         out int* vertex_num_per_face,
                                         out int face_num,
-                                        out int* face_vertex_index)
+                                        out double* face_normals)
         {
             VectorDoubleSafeHandle _vertices_handle;
             VectorIntSafeHandle _vertices_face_handle;
-            VectorIntSafeHandle _face_vindex_handle;
+            VectorDoubleSafeHandle _face_normal_handle;
 
-            if (!GetFaceData(exporter,
+            if (!GetFace(exporter,
+                            group_id,
                             out vertices,
                             out vertex_num,
                             out vertex_num_per_face,
                             out face_num,
-                            out face_vertex_index,
+                            out face_normals,
                             out _vertices_handle,
                             out _vertices_face_handle,
-                            out _face_vindex_handle))
+                            out _face_normal_handle))
             {
                 throw new InvalidOperationException();
             }
@@ -102,6 +142,7 @@ namespace SkpInterface
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern bool GetFaceUV(IntPtr exporter,
+                                                    int group_id,
                                                     bool front_or_back,
                                                     out double* u,
                                                     out double* v,
@@ -113,6 +154,7 @@ namespace SkpInterface
                                                     out VectorDoubleSafeHandle v_handle);
 
         public static unsafe void GetSkpFaceUV(IntPtr exporter,
+                                                int group_id,
                                                 bool front_or_back,
                                                 out double* u,
                                                 out double* v,
@@ -125,6 +167,7 @@ namespace SkpInterface
             VectorIntSafeHandle _uv_id_handle;
 
             if (!GetFaceUV(exporter,
+                            group_id,
                             front_or_back,
                             out u,
                             out v,
@@ -162,6 +205,7 @@ namespace SkpInterface
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern bool GetMaterialIDPerFace(IntPtr exporter,
+                                int group_id,
                                 out int* front_material_id_per_face,
                                 out int* back_material_id_per_face,
                                 out int face_num,
@@ -169,6 +213,7 @@ namespace SkpInterface
                                 out VectorIntSafeHandle back_mat_handle);
 
         public static unsafe void GetSkpMaterialIDPerFace(IntPtr exporter,
+                                int group_id,
                                 out int* front_material_id_per_face,
                                 out int* back_material_id_per_face,
                                 out int face_num)
@@ -178,6 +223,7 @@ namespace SkpInterface
             VectorIntSafeHandle _back_mat_id_handle;
 
             if (!GetMaterialIDPerFace(exporter,
+                            group_id,
                             out front_material_id_per_face,
                             out back_material_id_per_face,
                             out face_num,

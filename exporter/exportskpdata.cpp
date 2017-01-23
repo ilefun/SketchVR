@@ -118,7 +118,7 @@ void GetFaceMaterialData(CXmlExporter *exporter,std::vector<int> *front_id,std::
 	}
 }
 
-EXPORT CXmlExporter* GetExporter(const char *from_file, const char *to_folder )
+EXPORT CXmlExporter* GetExporter(const char *from_file)
 {
 	bool m_bExportMaterials = true;
 	bool m_bExportFaces = true;
@@ -144,7 +144,7 @@ EXPORT CXmlExporter* GetExporter(const char *from_file, const char *to_folder )
 		exporter->SetOptions(options);
 
 		// Convert
-		converted = exporter->Convert(from_file, to_folder, NULL);
+		converted = exporter->Convert(from_file, NULL);
 	}
 	catch (...) {
 		converted = false;
@@ -170,11 +170,11 @@ EXPORT  int GetGroupNum(CXmlExporter *exporter)
 	return exporter->GroupNum();
 }
 
-EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,int index,int **children_id,VectorHandle *id_handle)
+EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,int group_id,int **children_id, int *children_num,VectorHandle *id_handle)
 {
 	auto id_list = new std::vector<int>();
 	
-	auto children_id_list= exporter->GroupChildrenById(index);
+	auto children_id_list= exporter->GroupChildrenById(group_id);
 	for (size_t i = 0; i < children_id_list.size(); ++i)
 	{
 		id_list->push_back(children_id_list[i]);
@@ -182,12 +182,13 @@ EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,int index,int **childre
 
 	*id_handle=reinterpret_cast<VectorHandle>(id_list);
 	*children_id=id_list->data();
+	*children_num=int(id_list.size());
 }
 
-EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int index,double transform[16])
+EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int group_id,double transform[16])
 {
 
-	SUTransformation current_xform=exporter->GroupById(index)->transform_;
+	SUTransformation current_xform=exporter->GroupById(group_id)->transform_;
 	for (int i = 0; i < 16; ++i)
 		transform[i]=current_xform.values[i];
 }

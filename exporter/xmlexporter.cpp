@@ -152,7 +152,6 @@ bool CXmlExporter::Convert(const std::string& from_file,
     SketchUpPluginProgressCallback* progress_callback) {
   bool exported = false;
   skp_file_ = from_file;
-  // out_folder_=to_folder;
 
   try {
     // Initialize the SDK
