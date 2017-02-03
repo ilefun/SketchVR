@@ -32,7 +32,6 @@ struct XmlMaterialInfo {
   double alpha_;
 
   bool has_texture_;
-  std::string texture_path_;
   double texture_sscale_;
   double texture_tscale_;
   size_t width_;

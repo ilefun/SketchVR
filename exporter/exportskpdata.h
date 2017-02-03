@@ -81,9 +81,14 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
                             bool *has_alpha,
                             double *alpha,
                             bool *has_texture,
-							char  *texture_path,
                             double *tex_sscale,
-                            double *tex_tscale );
+                            double *tex_tscale,
+                            int *data_size_per_pixel,
+                            int *data_size,
+                            int *width,
+                            int *height,
+                            double **pixel_data,
+                            VectorHandle *pixel_data_handle );
 
 EXPORT bool GetMaterialIDPerFace(CXmlExporter *exporter,
                                 int group_id,

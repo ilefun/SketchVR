@@ -83,11 +83,31 @@ void material(CXmlExporter *exporter){
         bool has_alpha=false;
         double alpha=1;
         bool has_texture=false;
-        char texture_path[100];
         double tex_sscale=1.0;
         double tex_tscale=1.0;	
 
-		GetMaterialData(exporter,  i, &has_color, color, &has_alpha, &alpha, &has_texture, texture_path, &tex_sscale, &tex_tscale);
+        int data_size_per_pixel=0;
+        int data_size=0;
+        int width=0;
+        int height=0;
+        double *pixel_data=NULL;
+		VectorHandle pixel_data_handle;
+
+		GetMaterialData(exporter,
+						  i,
+						 &has_color,
+						 color,
+						 &has_alpha,
+						 &alpha,
+						 &has_texture,
+						 &tex_sscale,
+						 &tex_tscale,
+						 &data_size_per_pixel,
+						 &data_size,
+						 &width,
+						 &height,
+						 &pixel_data,
+						 &pixel_data_handle);
 
 	}
 }

@@ -268,9 +268,9 @@ static XmlMaterialInfo GetMaterialInfo(SUMaterialRef material) {
     if (SUMaterialGetTexture(material, &texture) == SU_ERROR_NONE) {
       info.has_texture_ = true;
       // Texture path
-      CSUString texture_path;
-      SU_CALL(SUTextureGetFileName(texture, texture_path));
-      info.texture_path_ = texture_path.utf8();
+      // CSUString texture_path;
+      // SU_CALL(SUTextureGetFileName(texture, texture_path));
+      // info.texture_path_ = texture_path.utf8();
 
       // Texture scale
       size_t width = 0;

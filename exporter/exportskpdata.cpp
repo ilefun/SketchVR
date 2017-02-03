@@ -326,14 +326,22 @@ EXPORT const bool GetMaterialNameByID(CXmlExporter *exporter,int id,char *mat_na
 
 EXPORT bool GetMaterialData(CXmlExporter *exporter, 
 							int material_id,
+
                             bool *has_color,
                             double color[3],
+
                             bool *has_alpha,
                             double *alpha,
+
                             bool *has_texture,
-							char  *texture_path,
                             double *tex_sscale,
-                            double *tex_tscale )
+                            double *tex_tscale,
+                            int *data_size_per_pixel,
+                            int *data_size,
+                            int *width,
+                            int *height,
+                            double **pixel_data,
+                            VectorHandle *pixel_data_handle )
 {
 	size_t mat_num= exporter->skpdata_.materials_.size();
 	if(material_id>=mat_num) return false;
@@ -353,9 +361,17 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 
 	*has_texture=current_mat.has_texture_;
 	if(*has_texture) {
-		strcpy_s(texture_path,current_mat.texture_path_.length(),current_mat.texture_path_.c_str());
 		*tex_sscale=current_mat.texture_sscale_;
 		*tex_tscale=current_mat.texture_tscale_;
+		*data_size_per_pixel=current_mat.data_size_per_pixel_;
+		*data_size=current_mat.data_size_;
+		*width=current_mat.width_;
+		*height=current_mat.height_;
+
+		auto pixel_data_list = new std::vector<double>(*data_size*data_size_per_pixel);
+		for (size_t i = 0; i < pixel_data_list.size(); ++i)
+			pixel_data_list[i]=double(current_mat.pixel_data_[i])/255.0;
+		*pixel_data=pixel_data_list.data();
 		}
 #ifdef _DEBUG
 	cout << endl << "Material "<< material_id <<" Data print starts" << endl;
@@ -369,7 +385,11 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 
 	cout << "\tHas texture " << *has_texture << endl;
 	if (*has_texture)
-		cout << "\tTexture  " << texture_path << " " << *tex_sscale << " " << *tex_tscale << endl;
+	{
+		cout<<"\twidth : "<<*width<<"  height : "<<*height<<endl;
+		cout<<"\tdata size : "<<*data_size<<" * "<<*data_size_per_pixel<<endl;
+	}
+		// cout << "\tTexture  " << texture_path << " " << *tex_sscale << " " << *tex_tscale << endl;
 	cout << endl << "Material " << material_id << " Data print ends" << endl;
 #endif
 	return true;
