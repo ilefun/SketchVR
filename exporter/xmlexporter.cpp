@@ -227,10 +227,8 @@ void CXmlExporter::WriteLayers() {
   }
 }
 
-static XmlMaterialInfo GetMaterialInfo(SUMaterialRef &material, SUImageRepRef &image) {
+void CXmlExporter::GetMaterialInfo(SUMaterialRef material,XmlMaterialInfo &info) {
   assert(!SUIsInvalid(material));
-
-  XmlMaterialInfo info;
 
   // Name
   info.name_ = GetMaterialName(material);
@@ -285,20 +283,18 @@ static XmlMaterialInfo GetMaterialInfo(SUMaterialRef &material, SUImageRepRef &i
       info.height_ = height;
 
       //Texture data
-      SU_CALL(SUTextureGetImageRep(texture,&image));
+      SU_CALL(SUTextureGetImageRep(texture,&image_rep_));
       size_t data_size=0,data_size_per_pixel=0;
-      SU_CALL(SUImageRepGetDataSize(image,&data_size,&data_size_per_pixel));
+      SU_CALL(SUImageRepGetDataSize(image_rep_,&data_size,&data_size_per_pixel));
 
       info.data_size_=data_size;
       info.data_size_per_pixel_=data_size_per_pixel;
 
       size_t pd_size=info.data_size_*info.data_size_per_pixel_;
       info.pixel_data_=new SUByte[pd_size];
-      SU_CALL(SUImageRepGetData(image,pd_size,info.pixel_data_));
+      SU_CALL(SUImageRepGetData(image_rep_,pd_size,info.pixel_data_));
     }
   }
-
-  return info;
 }
 
 void CXmlExporter::WriteLayer(SULayerRef layer) {
@@ -315,7 +311,7 @@ void CXmlExporter::WriteLayer(SULayerRef layer) {
   info.has_material_info_ = false;
   if (SULayerGetMaterial(layer, &material) == SU_ERROR_NONE) {
     info.has_material_info_ = true;
-    info.material_info_ = GetMaterialInfo(material,image_rep_);
+    GetMaterialInfo(material,info.material_info_);
   }
 
   // Visibility
@@ -370,7 +366,8 @@ void CXmlExporter::WriteMaterial(SUMaterialRef material) {
   if (SUIsInvalid(material))
     return;
 
-  XmlMaterialInfo info = GetMaterialInfo(material,image_rep_);
+  XmlMaterialInfo info;
+  GetMaterialInfo(material,info);
   skpdata_.materials_.push_back(info);
 
 }
