@@ -131,11 +131,11 @@ void face_material(CXmlExporter *exporter,int group_id){
 
 int main(int argc,char *argv[])
 {
-  cout<<argv[1]<<" -> "<<argv[2]<<endl;
+  cout<<argv[1]<<endl;
 
 
   CXmlExporter *exporter=NULL;
-  exporter=GetExporter(argv[1], argv[2]);
+  exporter=GetExporter(argv[1]);
   if (exporter){
 	  //exporter->skpdata_.debug_print();
 	  int grp_num=group_data(exporter);

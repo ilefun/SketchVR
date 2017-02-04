@@ -182,7 +182,7 @@ EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,int group_id,int **chil
 
 	*id_handle=reinterpret_cast<VectorHandle>(id_list);
 	*children_id=id_list->data();
-	*children_num=int(id_list.size());
+	*children_num=int(id_list->size());
 }
 
 EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int group_id,double transform[16])
@@ -368,10 +368,10 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 		*width=current_mat.width_;
 		*height=current_mat.height_;
 
-		auto pixel_data_list = new std::vector<double>(*data_size*data_size_per_pixel);
-		for (size_t i = 0; i < pixel_data_list.size(); ++i)
-			pixel_data_list[i]=double(current_mat.pixel_data_[i])/255.0;
-		*pixel_data=pixel_data_list.data();
+		auto pixel_data_list = new std::vector<double>(*data_size**data_size_per_pixel);
+		for (size_t i = 0; i < pixel_data_list->size(); ++i)
+			(*pixel_data_list)[i]=double(current_mat.pixel_data_[i])/255.0;
+		*pixel_data=pixel_data_list->data();
 		}
 #ifdef _DEBUG
 	cout << endl << "Material "<< material_id <<" Data print starts" << endl;
