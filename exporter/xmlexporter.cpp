@@ -139,7 +139,7 @@ void CXmlExporter::GetGroupChildren()
       for (size_t k = 0; k < group_list_.size(); ++k)
       {
         if(grp_ptr==group_list_[k])
-          children_id.push_back(k);
+          children_id.push_back(int(k));
       }
 	  grp_ptr++;
     }

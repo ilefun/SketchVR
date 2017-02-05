@@ -236,6 +236,7 @@ EXPORT bool GetFace(CXmlExporter *exporter,
 
 #ifdef _DEBUG
 	cout << endl<<"Debug face data print------------------" << endl;
+	cout << "Group id is : " << group_id << endl;
 	cout << "Face num is : " << *face_num<< endl;
 
 	cout <<"Vertex num is : " <<*vertex_num << endl;

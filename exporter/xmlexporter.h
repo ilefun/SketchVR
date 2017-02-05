@@ -39,9 +39,11 @@ class CXmlExporter {
   std::vector<int> GroupChildrenById(int index){return group_children_[index];}
 
   //store group data
-  void CXmlExporter::GetGroupList(const XmlEntitiesInfo *entities);
+  void GetGroupList(const XmlEntitiesInfo *entities);
   
-  void CXmlExporter::GetGroupChildren();
+  void GetGroupChildren();
+
+  void GetMaterialInfo(SUMaterialRef material, XmlMaterialInfo &info);
 
 private:
   // Clean up slapi objects
