@@ -284,15 +284,15 @@ void CXmlExporter::GetMaterialInfo(SUMaterialRef material,XmlMaterialInfo &info)
 
       //Texture data
       SU_CALL(SUTextureGetImageRep(texture,&image_rep_));
-      size_t data_size=0,data_size_per_pixel=0;
-      SU_CALL(SUImageRepGetDataSize(image_rep_,&data_size,&data_size_per_pixel));
+      size_t data_size=0,bits_per_pixel=0;
+      SU_CALL(SUImageRepGetDataSize(image_rep_,&data_size,&bits_per_pixel));
 
       info.data_size_=data_size;
-      info.data_size_per_pixel_=data_size_per_pixel;
+      info.data_size_per_pixel_=bits_per_pixel/8;
 
-      size_t pd_size=info.data_size_*info.data_size_per_pixel_;
-      info.pixel_data_=new SUByte[pd_size];
-      SU_CALL(SUImageRepGetData(image_rep_,pd_size,info.pixel_data_));
+      // size_t pd_size=info.data_size_*info.data_size_per_pixel_;
+      info.pixel_data_=new SUByte[info.data_size_];
+      SU_CALL(SUImageRepGetData(image_rep_,info.data_size_,info.pixel_data_));
     }
   }
 }
