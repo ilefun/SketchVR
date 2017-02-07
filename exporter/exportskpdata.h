@@ -25,7 +25,6 @@ void GetFaceData(std::vector<int> *v_per_face_list,
 void GetUVData(bool front_or_back,
                 std::vector<double> *u_list,
                 std::vector<double> *v_list,
-                std::vector<int> *uv_id_list,
                 const XmlEntitiesInfo *entities);
 
 void GetFaceMaterialData(CXmlExporter *exporter,
@@ -70,9 +69,6 @@ EXPORT bool GetFaceUV(CXmlExporter *exporter,
                         double **u,   //u list
                         double **v,   //v list
                         int *uv_num,   //u v list size
-                        int **uv_id,   //uv id for each vertex of each face in uv list
-						int *uv_id_num,
-                        VectorHandle *uv_id_handle,
                         VectorHandle *u_handle,
                         VectorHandle *v_handle );
 

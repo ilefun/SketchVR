@@ -48,9 +48,7 @@ void face_uv(CXmlExporter *exporter,bool front_or_back,int group_id) {
 	double *u;
 	double *v;
 	int uv_num;
-	int *uv_id;
-	int uv_id_num;
-	VectorHandle uv_id_handle;
+
 	VectorHandle u_handle;
 	VectorHandle v_handle;
 
@@ -60,9 +58,6 @@ void face_uv(CXmlExporter *exporter,bool front_or_back,int group_id) {
 	 		&u,
 			&v,
 			 &uv_num,
-	 		&uv_id,
-		    &uv_id_num,
-			 &uv_id_handle,
 	 		&u_handle,&v_handle);
 
 }
@@ -140,12 +135,12 @@ int main(int argc,char *argv[])
 	  //exporter->skpdata_.debug_print();
 	  int grp_num=group_data(exporter);
 	  
-	   material(exporter);
+	   //material(exporter);
 	   for (int i = -1; i < grp_num; ++i)
 	   {
-		   //face_data(exporter,i);
+		   face_data(exporter,i);
 
-		   //face_uv(exporter,true,i);
+		   face_uv(exporter,true,i);
 		   //face_uv(exporter,false,i);
 
 		   //face_material(exporter,i);

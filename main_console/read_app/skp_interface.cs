@@ -147,9 +147,6 @@ namespace SkpInterface
                                                     out double* u,
                                                     out double* v,
                                                     out int uv_num,
-                                                    out int* uv_id,
-                                                    out int uv_id_num,
-                                                    out VectorIntSafeHandle uv_id_handle,
                                                     out VectorDoubleSafeHandle u_handle,
                                                     out VectorDoubleSafeHandle v_handle);
 
@@ -158,13 +155,10 @@ namespace SkpInterface
                                                 bool front_or_back,
                                                 out double* u,
                                                 out double* v,
-                                                out int uv_num,
-                                                out int* uv_id,
-                                                out int uv_id_num)
+                                                out int uv_num)
         {
             VectorDoubleSafeHandle _u_handle;
             VectorDoubleSafeHandle _v_handle;
-            VectorIntSafeHandle _uv_id_handle;
 
             if (!GetFaceUV(exporter,
                             group_id,
@@ -172,9 +166,6 @@ namespace SkpInterface
                             out u,
                             out v,
                             out uv_num,
-                            out uv_id,
-                            out uv_id_num,
-                            out _uv_id_handle,
                             out _u_handle,
                             out _v_handle))
             {
