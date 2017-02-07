@@ -26,7 +26,7 @@
 #include <SketchUpAPI/model/mesh_helper.h>
 #include <SketchUpAPI/model/model.h>
 #include <SketchUpAPI/model/texture.h>
-#include <SketchUpAPI/model/textgiure_writer.h>
+#include <SketchUpAPI/model/texture_writer.h>
 #include <SketchUpAPI/model/uv_helper.h>
 #include <SketchUpAPI/model/vertex.h>
 #include <SketchUpAPI/model/image_rep.h>
@@ -229,6 +229,7 @@ void CXmlExporter::WriteLayers() {
 
 XmlMaterialInfo CXmlExporter::GetMaterialInfo(SUMaterialRef material) {
   assert(!SUIsInvalid(material));
+
   XmlMaterialInfo info;
   // Name
   info.name_ = GetMaterialName(material);
@@ -291,9 +292,14 @@ XmlMaterialInfo CXmlExporter::GetMaterialInfo(SUMaterialRef material) {
       info.bits_per_pixel_=bits_per_pixel;
 
       info.pixel_data_=new SUByte[data_size];
-	    std::cout << width << " " << height << " " << data_size << " " << bits_per_pixel << std::endl;
+	    //std::cout << width << " " << height << " " << data_size << " " << bits_per_pixel << std::endl;
 	    // std::cout <<std::endl<<"===" <<SUImageRepGetData(image_rep_, info.data_size_, info.pixel_data_);
       SU_CALL(SUImageRepGetData(image_rep_, data_size,info.pixel_data_));
+	  //for (size_t i = 0; i < 10; i++)
+	  //{
+		 // std::cout << int(info.pixel_data_[i]) << " ";
+	  //}
+	  //std::cout << std::endl;
     }
   }
   return info;
@@ -352,7 +358,7 @@ void CXmlExporter::WriteMaterials() {
         std::vector<SUMaterialRef> materials(count);
         SU_CALL(SUModelGetMaterials(model_, count, &materials[0], &count));
         for (size_t i=0; i<count; i++) {
-			std::cout <<std::endl<<"mat index : "<< i << std::endl;
+			//std::cout <<std::endl<<"mat index : "<< i << std::endl;
           WriteMaterial(materials[i]);
         }
 
@@ -362,7 +368,7 @@ void CXmlExporter::WriteMaterials() {
 	for (size_t i = 0; i < skpdata_.materials_.size(); i++)
 	{
 		matname_id_map_[skpdata_.materials_[i].name_] = int(i);
-		std::cout << i<<" " << skpdata_.materials_[i].name_ << std::endl;
+		//std::cout << i<<" " << skpdata_.materials_[i].name_ << std::endl;
 	}
   }
 }

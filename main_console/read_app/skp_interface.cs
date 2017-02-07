@@ -228,7 +228,7 @@ namespace SkpInterface
             if (!GetMaterialData(exporter,
                             material_id,
                             out has_color,
-                            out color,
+                            color,
                             out has_alpha,
                             out alpha,
                             out has_texture,

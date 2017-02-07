@@ -387,8 +387,13 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 	cout << "\tHas texture " << *has_texture << endl;
 	if (*has_texture)
 	{
-		cout<<"\twidth : "<<*width<<"  height : "<<*height<<endl;
-		cout<<"\tdata size : "<<*data_size<<" * "<<*bits_per_pixel <<endl;
+		cout<<"\twidth : "<<*width<<",  height : "<<*height<<endl;
+		cout<<"\tdata size : "<<*data_size<<", bits_per_pixel : "<<*bits_per_pixel <<endl;
+		for (size_t i = 0; i < 10; i++)
+		{
+			cout << *(*pixel_data + i) << " ";
+		}
+		cout << endl;
 	}
 		// cout << "\tTexture  " << texture_path << " " << *tex_sscale << " " << *tex_tscale << endl;
 	cout << endl << "Material " << material_id << " Data print ends" << endl;

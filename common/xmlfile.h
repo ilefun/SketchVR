@@ -21,10 +21,10 @@ struct XmlMaterialInfo {
       has_texture_(false), texture_sscale_(0.0), texture_tscale_(0.0) {}
   
   ~XmlMaterialInfo(){
-    if(pixel_data_){
-     delete pixel_data_;
-     pixel_data_=NULL;
-    }
+    //if(pixel_data_){
+    // delete pixel_data_;
+    // pixel_data_=NULL;
+    //}
   }
 
   std::string name_;
