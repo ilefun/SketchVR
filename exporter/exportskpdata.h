@@ -36,9 +36,15 @@ void GetFaceMaterialData(CXmlExporter *exporter,
 
 EXPORT  int GetGroupNum(CXmlExporter *exporter);
   
-EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int group_id,double transform[16]);
+EXPORT  void GetGroupTransformById(CXmlExporter *exporter,
+                                    int group_id,
+                                    double transform[16]);
 
-EXPORT  void GetGroupChildrenById(CXmlExporter *exporter, int group_id, int **children_id, int *children_num,VectorHandle *id_handle);
+EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,
+                                 int group_id,
+                                 int **children_id,
+                                 int *children_num,
+                                 VectorHandle *id_handle);
 
 //get exporter instance for specified skp file
 EXPORT CXmlExporter* GetExporter(const char *from_file);

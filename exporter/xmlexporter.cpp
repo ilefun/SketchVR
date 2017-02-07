@@ -26,7 +26,7 @@
 #include <SketchUpAPI/model/mesh_helper.h>
 #include <SketchUpAPI/model/model.h>
 #include <SketchUpAPI/model/texture.h>
-#include <SketchUpAPI/model/texture_writer.h>
+#include <SketchUpAPI/model/textgiure_writer.h>
 #include <SketchUpAPI/model/uv_helper.h>
 #include <SketchUpAPI/model/vertex.h>
 #include <SketchUpAPI/model/image_rep.h>

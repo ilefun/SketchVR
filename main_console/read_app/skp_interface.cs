@@ -90,8 +90,8 @@ namespace SkpInterface
 
             if (!GetGroupChildrenById(exporter,
                                     group_id,
-                                    out int* children_id,
-                                    out int children_num,
+                                    out *children_id,
+                                    out children_num,
                                     out _children_id_handle))
             {
                 throw new InvalidOperationException();
@@ -197,10 +197,53 @@ namespace SkpInterface
                             out bool has_alpha,
                             out double alpha,
                             out bool has_texture,
-                            [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder texture_path,
                             out double tex_sscale,
-                            out double tex_tscale);
+                            out double tex_tscale,
+                            out int bits_per_pixel,
+                            out int data_size,
+                            out int width,
+                            out int height,
+                            out double* pixel_data,
+                            out VectorIntSafeHandle pixel_data_handle
+                            );
 
+
+        public static unsafe void GetSkpMaterialData(IntPtr exporter,
+                            int group_id,
+                            int material_id,
+                            out bool has_color,
+                            double[] color,
+                            out bool has_alpha,
+                            out double alpha,
+                            out bool has_texture,
+                            out int bits_per_pixel,
+                            out int data_size,
+                            out int width,
+                            out int height,
+                            out double* pixel_data)
+        {
+            VectorIntSafeHandle _pixel_data_handle;
+            double t_scale,s_scale;
+
+            if (!GetMaterialData(exporter,
+                            material_id,
+                            out has_color,
+                            out color,
+                            out has_alpha,
+                            out alpha,
+                            out has_texture,
+                            out s_scale,
+                            out t_scale,
+                            out bits_per_pixel,
+                            out data_size,
+                            out width,
+                            out height,
+                            out *pixel_data,
+                            out _pixel_data_handle)
+            {
+                throw new InvalidOperationException();
+            }
+        }
 
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
