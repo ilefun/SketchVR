@@ -71,7 +71,7 @@ namespace SkpInterface
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern void GetGroupTransformById(IntPtr exporter,
                                                             int group_id,
-                                                            double [] transform);
+                                                            double[] transform);
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern void GetGroupChildrenById(IntPtr exporter,
@@ -84,18 +84,16 @@ namespace SkpInterface
         public static unsafe void GetSkpGroupChildrenById(IntPtr exporter,
                                                             int group_id,
                                                             out int* children_id,
-                                                            out int children_num )
+                                                            out int children_num)
         {
             VectorIntSafeHandle _children_id_handle;
 
-            if (!GetGroupChildrenById(exporter,
-                                    group_id,
-                                    out *children_id,
-                                    out children_num,
-                                    out _children_id_handle))
-            {
-                throw new InvalidOperationException();
-            }
+            GetGroupChildrenById(exporter,
+                                group_id,
+                                out children_id,
+                                out children_num,
+                                out _children_id_handle);
+
         }
 
         //get face data
@@ -106,10 +104,10 @@ namespace SkpInterface
                                                 out int vertex_num,
                                                 out int* vertex_num_per_face,
                                                 out int face_num,
-                                                out double **face_normal,
+                                                out double* face_normal,
                                                 out VectorDoubleSafeHandle vertices_handle,
                                                 out VectorIntSafeHandle vertices_face_handle,
-                                                out VectorIntSafeHandle face_normal_handle);
+                                                out VectorDoubleSafeHandle face_normal_handle);
 
 
         public static unsafe void GetSkpFace(IntPtr exporter,
@@ -214,7 +212,7 @@ namespace SkpInterface
                             out double* pixel_data)
         {
             VectorIntSafeHandle _pixel_data_handle;
-            double t_scale,s_scale;
+            double t_scale, s_scale;
 
             if (!GetMaterialData(exporter,
                             material_id,
@@ -229,8 +227,8 @@ namespace SkpInterface
                             out data_size,
                             out width,
                             out height,
-                            out *pixel_data,
-                            out _pixel_data_handle)
+                            out pixel_data,
+                            out _pixel_data_handle))
             {
                 throw new InvalidOperationException();
             }

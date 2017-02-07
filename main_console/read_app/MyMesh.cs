@@ -43,7 +43,7 @@ public class MyMesh : MonoBehaviour {
         // tSingleMeshInfo.meshData.FilePath = Application.dataPath + "/Resources/uv_test1cube";
 
         //测试颜色模型
-        tSingleMeshInfo.meshData.PathName = "D:/sketchup/cube.skp";
+        tSingleMeshInfo.meshData.PathName = "D:/sketchup/cube_group.skp";
         tSingleMeshInfo.meshData.FilePath = "D:/sketchup/reader_data";
         //liuliang测试直接运行场景测试
         if (tSingleMeshInfo.getmeshData().FileType == "DEF")
@@ -101,7 +101,7 @@ public class MyMesh : MonoBehaviour {
                     int _face_num;
                     double* _face_normal;
 
-                    SkpInterface.SkpDLL.GetSkpFaceData(_skp_exporter,-1,
+                    SkpInterface.SkpDLL.GetSkpFace(_skp_exporter,-1,
                                 out _vertices,
                                 out _vertex_num,
                                 out _vertex_num_per_face,
@@ -117,8 +117,6 @@ public class MyMesh : MonoBehaviour {
                     double* u;//u value list
                     double* v;//v value list
                     int uv_num = 0;//u v list length
-                    int* uv_id;//the index of uv for each face-vertex
-                    int uv_id_num = 0; //the length of uv_id
                     SkpInterface.SkpDLL.GetSkpFaceUV(_skp_exporter,-1,
                                                     true,//true for front uv,false for back uv
                                                     out u,
@@ -189,7 +187,7 @@ public class MyMesh : MonoBehaviour {
                     int* front_mat_id;//front material
                     int* back_mat_id;//
                     int id_num = 0;
-                    SkpInterface.SkpDLL.GetSkpMaterialIDPerFace(_skp_exporter,
+                    SkpInterface.SkpDLL.GetSkpMaterialIDPerFace(_skp_exporter, -1,
                                                                 out front_mat_id,
                                                                 out back_mat_id,
                                                                 out id_num);
