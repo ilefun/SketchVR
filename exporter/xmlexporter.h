@@ -43,7 +43,7 @@ class CXmlExporter {
   
   void GetGroupChildren();
 
-  void GetMaterialInfo(SUMaterialRef material, XmlMaterialInfo &info);
+  XmlMaterialInfo GetMaterialInfo(SUMaterialRef material);
 
 private:
   // Clean up slapi objects

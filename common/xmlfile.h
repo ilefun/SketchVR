@@ -21,8 +21,10 @@ struct XmlMaterialInfo {
       has_texture_(false), texture_sscale_(0.0), texture_tscale_(0.0) {}
   
   ~XmlMaterialInfo(){
-    if(pixel_data_)
-      delete pixel_data_;
+    if(pixel_data_){
+     delete pixel_data_;
+     pixel_data_=NULL;
+    }
   }
 
   std::string name_;
@@ -37,7 +39,7 @@ struct XmlMaterialInfo {
   size_t width_;
   size_t height_;
 
-  size_t data_size_per_pixel_;
+  size_t bits_per_pixel_;
   size_t data_size_;
   SUByte *pixel_data_;
 };

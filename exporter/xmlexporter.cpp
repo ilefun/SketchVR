@@ -227,9 +227,9 @@ void CXmlExporter::WriteLayers() {
   }
 }
 
-void CXmlExporter::GetMaterialInfo(SUMaterialRef material,XmlMaterialInfo &info) {
+XmlMaterialInfo CXmlExporter::GetMaterialInfo(SUMaterialRef material) {
   assert(!SUIsInvalid(material));
-
+  XmlMaterialInfo info;
   // Name
   info.name_ = GetMaterialName(material);
 
@@ -281,20 +281,22 @@ void CXmlExporter::GetMaterialInfo(SUMaterialRef material,XmlMaterialInfo &info)
       info.texture_tscale_ = t_scale;
       info.width_ = width;
       info.height_ = height;
-
+    
       //Texture data
       SU_CALL(SUTextureGetImageRep(texture,&image_rep_));
       size_t data_size=0,bits_per_pixel=0;
       SU_CALL(SUImageRepGetDataSize(image_rep_,&data_size,&bits_per_pixel));
 
       info.data_size_=data_size;
-      info.data_size_per_pixel_=bits_per_pixel/8;
+      info.bits_per_pixel_=bits_per_pixel;
 
-      // size_t pd_size=info.data_size_*info.data_size_per_pixel_;
-      info.pixel_data_=new SUByte[info.data_size_];
-      SU_CALL(SUImageRepGetData(image_rep_,info.data_size_,info.pixel_data_));
+      info.pixel_data_=new SUByte[data_size];
+	    std::cout << width << " " << height << " " << data_size << " " << bits_per_pixel << std::endl;
+	    // std::cout <<std::endl<<"===" <<SUImageRepGetData(image_rep_, info.data_size_, info.pixel_data_);
+      SU_CALL(SUImageRepGetData(image_rep_, data_size,info.pixel_data_));
     }
   }
+  return info;
 }
 
 void CXmlExporter::WriteLayer(SULayerRef layer) {
@@ -311,7 +313,7 @@ void CXmlExporter::WriteLayer(SULayerRef layer) {
   info.has_material_info_ = false;
   if (SULayerGetMaterial(layer, &material) == SU_ERROR_NONE) {
     info.has_material_info_ = true;
-    GetMaterialInfo(material,info.material_info_);
+	info.material_info_=GetMaterialInfo(material);
   }
 
   // Visibility
@@ -350,25 +352,25 @@ void CXmlExporter::WriteMaterials() {
         std::vector<SUMaterialRef> materials(count);
         SU_CALL(SUModelGetMaterials(model_, count, &materials[0], &count));
         for (size_t i=0; i<count; i++) {
+			std::cout <<std::endl<<"mat index : "<< i << std::endl;
           WriteMaterial(materials[i]);
         }
 
       }
     }
     
-    for (size_t i = 0; i<skpdata_.materials_.size(); i++)
-      matname_id_map_[skpdata_.materials_[i].name_]=int(i);
-
+	for (size_t i = 0; i < skpdata_.materials_.size(); i++)
+	{
+		matname_id_map_[skpdata_.materials_[i].name_] = int(i);
+		std::cout << i<<" " << skpdata_.materials_[i].name_ << std::endl;
+	}
   }
 }
 
 void CXmlExporter::WriteMaterial(SUMaterialRef material) {
   if (SUIsInvalid(material))
-    return;
-
-  XmlMaterialInfo info;
-  GetMaterialInfo(material,info);
-  skpdata_.materials_.push_back(info);
+    return;  
+  skpdata_.materials_.push_back(GetMaterialInfo(material));
 
 }
 

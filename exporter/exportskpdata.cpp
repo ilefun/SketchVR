@@ -337,7 +337,7 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
                             bool *has_texture,
                             double *tex_sscale,
                             double *tex_tscale,
-                            int *data_size_per_pixel,
+                            int *bits_per_pixel,
                             int *data_size,
                             int *width,
                             int *height,
@@ -364,12 +364,12 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 	if(*has_texture) {
 		*tex_sscale=current_mat.texture_sscale_;
 		*tex_tscale=current_mat.texture_tscale_;
-		*data_size_per_pixel=current_mat.data_size_per_pixel_;
+		*bits_per_pixel=current_mat.bits_per_pixel_;
 		*data_size=current_mat.data_size_;
 		*width=current_mat.width_;
 		*height=current_mat.height_;
 
-		auto pixel_data_list = new std::vector<double>(*data_size**data_size_per_pixel);
+		auto pixel_data_list = new std::vector<double>(*data_size);
 		for (size_t i = 0; i < pixel_data_list->size(); ++i)
 			(*pixel_data_list)[i]=double(current_mat.pixel_data_[i])/255.0;
 		*pixel_data=pixel_data_list->data();
@@ -388,7 +388,7 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 	if (*has_texture)
 	{
 		cout<<"\twidth : "<<*width<<"  height : "<<*height<<endl;
-		cout<<"\tdata size : "<<*data_size<<" * "<<*data_size_per_pixel<<endl;
+		cout<<"\tdata size : "<<*data_size<<" * "<<*bits_per_pixel <<endl;
 	}
 		// cout << "\tTexture  " << texture_path << " " << *tex_sscale << " " << *tex_tscale << endl;
 	cout << endl << "Material " << material_id << " Data print ends" << endl;
