@@ -158,6 +158,13 @@ EXPORT void ReleaseExporter(CXmlExporter *exporter)
 {
 	if (exporter)
 	{
+		//release pixel data memory
+		for (size_t i = 0; i < exporter->materials_.size(); ++i)
+			if(exporter->materials_[i].pixel_data_){
+			    delete exporter->materials_[i].pixel_data_;
+			    exporter->materials_[i].pixel_data_=NULL;
+			}
+
 		delete exporter;
 		exporter = NULL;
 		cout << endl<<"Release skp exporter memory." << endl;
