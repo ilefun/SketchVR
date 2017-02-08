@@ -6,24 +6,6 @@ using namespace std;
 
 typedef intptr_t VectorHandle;
 
-int PushVertex(std::vector<CPoint3d> *collector,const CPoint3d &pt)
-{
-	int nearest_index = -1;
-	for(size_t i = 0;i<collector->size();i++)
-		if ((*collector)[i].near_to(pt)) {
-			nearest_index = i;
-			break;
-		}
-
-	if (nearest_index == -1)
-	{
-		collector->push_back(pt);
-		return int(collector->size()) - 1;
-	}
-	else
-		return nearest_index;
-}	
-
 void GetFaceData(std::vector<int> *v_per_face_list,
 					std::vector<int> *face_vertex_list,
 					std::vector<double> *vertices_list,
@@ -159,10 +141,10 @@ EXPORT void ReleaseExporter(CXmlExporter *exporter)
 	if (exporter)
 	{
 		//release pixel data memory
-		for (size_t i = 0; i < exporter->materials_.size(); ++i)
-			if(exporter->materials_[i].pixel_data_){
-			    delete exporter->materials_[i].pixel_data_;
-			    exporter->materials_[i].pixel_data_=NULL;
+		for (size_t i = 0; i < exporter->skpdata_.materials_.size(); ++i)
+			if(exporter->skpdata_.materials_[i].pixel_data_){
+			    delete exporter->skpdata_.materials_[i].pixel_data_;
+			    exporter->skpdata_.materials_[i].pixel_data_=NULL;
 			}
 
 		delete exporter;
@@ -178,12 +160,20 @@ EXPORT  int GetGroupNum(CXmlExporter *exporter)
 
 EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,int group_id,int **children_id, int *children_num,VectorHandle *id_handle)
 {
+
 	auto id_list = new std::vector<int>();
-	
-	auto children_id_list= exporter->GroupChildrenById(group_id);
-	for (size_t i = 0; i < children_id_list.size(); ++i)
-	{
-		id_list->push_back(children_id_list[i]);
+	if (group_id < 0) {
+		for (size_t i = 0; i < exporter->GroupNum(); ++i)
+		{
+			id_list->push_back(i);
+		}
+	}
+	else {
+		auto children_id_list = exporter->GroupChildrenById(group_id);
+		for (size_t i = 0; i < children_id_list.size(); ++i)
+		{
+			id_list->push_back(children_id_list[i]);
+		}
 	}
 
 	*id_handle=reinterpret_cast<VectorHandle>(id_list);
@@ -193,10 +183,16 @@ EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,int group_id,int **chil
 
 EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int group_id,double transform[16])
 {
-
-	SUTransformation current_xform=exporter->GroupById(group_id)->transform_;
-	for (int i = 0; i < 16; ++i)
-		transform[i]=current_xform.values[i];
+	if (group_id < 0) {
+		double default_xform[16] = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+		for (size_t i = 0; i < 16; i++)
+			transform[i] = default_xform[i];
+	}
+	else {
+		SUTransformation current_xform = exporter->GroupById(group_id)->transform_;
+		for (int i = 0; i < 16; ++i)
+			transform[i] = current_xform.values[i];
+	}
 }
 
 EXPORT bool GetFace(CXmlExporter *exporter,

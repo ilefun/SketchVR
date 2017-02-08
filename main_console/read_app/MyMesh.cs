@@ -13,7 +13,8 @@ using System.Text;
 using System.Security;
 using SkpInterface;
 //使用call_me接口；
-public class MyMesh : MonoBehaviour {
+public class MyMesh : MonoBehaviour
+{
 
     //public FBXImporter fbxImporter;
     //用于存储绘制三角形的顶点坐标  
@@ -27,14 +28,14 @@ public class MyMesh : MonoBehaviour {
     //定义一个链表用于记录所有点的坐标  
     private List<Vector3> list;
 
-    Mesh  m_mesh;
+    Mesh m_mesh;
     float m_speed = 10.0f;
     float m_rotationY = 0.0f;
 
     void Start()
     {
 
-    
+
         MeshInfo tSingleMeshInfo = MeshInfo.getInstance();
         //liuliang测试直接运行场景测试
         tSingleMeshInfo.getmeshData().FileType = "SKP";
@@ -48,51 +49,57 @@ public class MyMesh : MonoBehaviour {
         //liuliang测试直接运行场景测试
         if (tSingleMeshInfo.getmeshData().FileType == "DEF")
         {
-            GameObject  newObject = Instantiate(Resources.Load("DefaultMesh")) as GameObject;
+            GameObject newObject = Instantiate(Resources.Load("DefaultMesh")) as GameObject;
             newObject.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
             newObject.transform.position = new Vector3(0.0f, 0.0f, 0.0f);
             return;
         }
-      
+
         if (tSingleMeshInfo.getmeshData().FileType == "SKP")
         {
-
+            Debug.Log("Start loading " + tSingleMeshInfo.meshData.PathName);
             IntPtr _skp_exporter = IntPtr.Zero;
             _skp_exporter = SkpInterface.SkpDLL.GetExporter(tSingleMeshInfo.meshData.PathName);
-            Debug.Log("加载模型2");
-        
-
+            
             if (_skp_exporter.ToInt32() > 0)
             {
                 unsafe
                 {
                     //group hierachy test
-                    int _group_num=SkpInterface.SkpDLL.GetGroupNum(_skp_exporter);
+                    int _group_num = SkpInterface.SkpDLL.GetGroupNum(_skp_exporter);
                     Debug.Log("group num =" + _group_num);
 
 
                     //get group xform value
-                    double []xform = new double[16];
-                    SkpInterface.SkpDLL.GetGroupTransformById(_skp_exporter,-1,xform);
-                    int x_id = 0;
-                    Debug.Log("xform is");
-                    while (x_id < 16)
-                    {
-                        Debug.Log(xform[x_id]);
-                        x_id++;
-                    }
+                    double[] xform = new double[16];
+                    SkpInterface.SkpDLL.GetGroupTransformById(_skp_exporter, -1, xform);
+                    Debug.Log("xform : " + xform[0] + " " + xform[1] + " " + xform[2] + " " + xform[3]);
+                    Debug.Log("xform : " + xform[4] + " " + xform[5] + " " + xform[6] + " " + xform[7]);
+                    Debug.Log("xform : " + xform[8] + " " + xform[9] + " " + xform[10] + " " + xform[11]);
+                    Debug.Log("xform : " + xform[12] + " " + xform[13] + " " + xform[14] + " " + xform[15]);
+
 
 
                     //get group children
                     int* _children_id;
-                    int _children_num;
+                    int _children_num=0;
                     SkpInterface.SkpDLL.GetSkpGroupChildrenById(_skp_exporter,
                                                                 -1,
                                                                 out _children_id,
                                                                 out _children_num);
-                    Debug.Log("children of -1 group = "+_children_num);
-
-
+                    Debug.Log("children num of -1 : " + _children_num);
+                    //test children xform of group -1
+                    //int grp_id = 0;
+                    //while (grp_id < _children_num)
+                    //{
+                    //    Debug.Log("xform debug id : "+grp_id+"----------------");
+                    //    SkpInterface.SkpDLL.GetGroupTransformById(_skp_exporter, *(_children_id+grp_id), xform);
+                    //    Debug.Log("xform " + grp_id + " : " + xform[0] + " " + xform[1] + " " + xform[2] + " " + xform[3]);
+                    //    Debug.Log("xform " + grp_id + " : " + xform[4] + " " + xform[5] + " " + xform[6] + " " + xform[7]);
+                    //    Debug.Log("xform " + grp_id + " : " + xform[8] + " " + xform[9] + " " + xform[10] + " " + xform[11]);
+                    //    Debug.Log("xform " + grp_id + " : " + xform[12] + " " + xform[13] + " " + xform[14] + " " + xform[15]);
+                    //    grp_id++;
+                    //}
 
                     //get face data
                     double* _vertices;
@@ -101,14 +108,14 @@ public class MyMesh : MonoBehaviour {
                     int _face_num;
                     double* _face_normal;
 
-                    SkpInterface.SkpDLL.GetSkpFace(_skp_exporter,-1,
+                    SkpInterface.SkpDLL.GetSkpFace(_skp_exporter, -1,
                                 out _vertices,
                                 out _vertex_num,
                                 out _vertex_num_per_face,
                                 out _face_num,
                                 out _face_normal);
-                    Debug.Log("vertex num =" + _vertex_num);
-                    Debug.Log("face num =" + _face_num);
+                    Debug.Log("vertex num : " + _vertex_num);
+                    Debug.Log("face num : " + _face_num);
 
 
 
@@ -117,7 +124,7 @@ public class MyMesh : MonoBehaviour {
                     double* u;//u value list
                     double* v;//v value list
                     int uv_num = 0;//u v list length
-                    SkpInterface.SkpDLL.GetSkpFaceUV(_skp_exporter,-1,
+                    SkpInterface.SkpDLL.GetSkpFaceUV(_skp_exporter, -1,
                                                     true,//true for front uv,false for back uv
                                                     out u,
                                                     out v,
@@ -130,8 +137,8 @@ public class MyMesh : MonoBehaviour {
 
                     ////material test---------------------------------------------------
                     int mat_num = SkpInterface.SkpDLL.GetMaterialNum(_skp_exporter);//get the num of materials
-                    Debug.Log("yj_mat_num ： " + mat_num);
-                                           
+                    Debug.Log("material num ： " + mat_num);
+
                     int mat_index = 0;
                     while (mat_index < mat_num)
                     {
@@ -139,7 +146,7 @@ public class MyMesh : MonoBehaviour {
 
                         SkpInterface.SkpDLL.GetMaterialNameByID(_skp_exporter, mat_index, mat_name); //get the material name by id
                         //string str = new string(materialName);
-                        Debug.Log("material name -------" + mat_name.ToString());
+                        Debug.Log("material name "+mat_index+" : "+ mat_name.ToString());
 
                         // bool has_color = false;
                         // double []color = new double[3];
@@ -178,40 +185,40 @@ public class MyMesh : MonoBehaviour {
                         //     Debug.Log("Texture------" + mat_index + " " + tex_path.ToString());
                         // }
                         mat_index++;
-                      
-         
+
+
                     }
 
 
                     //----------------------------------------------------------------------
-                    int* front_mat_id;//front material
-                    int* back_mat_id;//
-                    int id_num = 0;
-                    SkpInterface.SkpDLL.GetSkpMaterialIDPerFace(_skp_exporter, -1,
-                                                                out front_mat_id,
-                                                                out back_mat_id,
-                                                                out id_num);
+                    //int* front_mat_id;//front material
+                    //int* back_mat_id;//
+                    //int id_num = 0;
+                    //SkpInterface.SkpDLL.GetSkpMaterialIDPerFace(_skp_exporter, -1,
+                    //                                            out front_mat_id,
+                    //                                            out back_mat_id,
+                    //                                            out id_num);
 
 
-                    int mat_index_per_face = 0;
-                    Debug.Log("mat id per face:" + id_num);
-                    Debug.Log("mesh.triangles:" + mesh.triangles.Length);
-                   
+                    //int mat_index_per_face = 0;
+                    //Debug.Log("mat id per face:" + id_num);
+                    //Debug.Log("mesh.triangles:" + mesh.triangles.Length);
+
                     //mesh.
-                    Debug.Log("加载模型3");
- 
+                    Debug.Log("Sketchup model load ends.");
+
                 }
 
                 //print something...
             }
 
-           
+
             SkpInterface.SkpDLL.ReleaseExporter(_skp_exporter);
         }
 
         if (tSingleMeshInfo.getmeshData().FileType == "FBX")
         {
-           // fbxImporter.ImportAllFBX(tSingleMeshInfo.meshData.PathName);
+            // fbxImporter.ImportAllFBX(tSingleMeshInfo.meshData.PathName);
         }
         return;
     }
@@ -224,12 +231,12 @@ public class MyMesh : MonoBehaviour {
 
     public int[] GetRangeArray(int[] SourceArray, int StartIndex, int EndIndex)
     {
-           int[] result = new int[EndIndex - StartIndex + 1];
-           for (int i = 0; i <= EndIndex - StartIndex; i++) 
-               result[i] = SourceArray[i + StartIndex];
-            return result;
-     }
-    IEnumerator IGetSKPTexture(string filePath,int materialIndex)
+        int[] result = new int[EndIndex - StartIndex + 1];
+        for (int i = 0; i <= EndIndex - StartIndex; i++)
+            result[i] = SourceArray[i + StartIndex];
+        return result;
+    }
+    IEnumerator IGetSKPTexture(string filePath, int materialIndex)
     {
         WWW www = new WWW("file:///C:/Users/Administrator/Desktop/uv_test1cube/Wood_Floor_Dark.jpg");
         yield return www.isDone;

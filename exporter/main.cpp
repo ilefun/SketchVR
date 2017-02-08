@@ -3,19 +3,35 @@
 int group_data(CXmlExporter *exporter )
 {
 	int grp_num = GetGroupNum(exporter);
-	cout << "Group num is : "<< grp_num<< endl;
-	for (size_t i = 0; i < grp_num; i++)
+	cout << "Group num is : "<< grp_num<< endl<<endl;
+	for (int i = -1; i < grp_num; i++)
 	{
 		double xform[16];
 		cout << "Group index : " << i<<endl;
 		GetGroupTransformById(exporter, i, xform);
 
 		cout << "Group xform is : ";
-		for (size_t i = 0; i < 16; i++)
+		for (size_t j = 0; j < 16; j++)
 		{
-			cout << xform[i] << " ";
+			cout << xform[j] << " ";
 		}
 		cout << endl;
+
+
+		int* children_id_list;
+		int children_num;
+		VectorHandle children_id_handle;;
+
+		GetGroupChildrenById(exporter, i, &children_id_list, &children_num, &children_id_handle);
+		cout << "Children num is : " << children_num<<endl;
+		if (children_num > 0) {
+			cout << "Children id : ";
+			for (size_t k = 0; k < children_num; k++)
+			{
+				cout << *(children_id_list + k) << " ";
+			}
+			cout << endl;
+		}
 	}
 	return grp_num;
 }

@@ -13,9 +13,6 @@ typedef intptr_t VectorHandle;
 #define EXPORT extern "C" __declspec(dllexport)
 
 
-//merge the nearest vertex,return the vertex id
-int PushVertex(std::vector<CPoint3d> *collector, const CPoint3d *pt, CPoint3d &out_pt);
-
 void GetFaceData(std::vector<int> *v_per_face_list,
                     std::vector<int> *face_vertex_list,
                     std::vector<double> *vertices_list,
