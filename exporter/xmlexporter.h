@@ -38,6 +38,8 @@ class CXmlExporter {
 
   std::vector<int> GroupChildrenById(int index){return group_children_[index];}
 
+  std::vector<int> RootGroupChildren();
+
   //store group data
   void GetGroupList(const XmlEntitiesInfo *entities);
   

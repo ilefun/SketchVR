@@ -45,7 +45,6 @@ public class MyMesh : MonoBehaviour
 
         //测试颜色模型
         tSingleMeshInfo.meshData.PathName = "D:/sketchup/cube_group.skp";
-        tSingleMeshInfo.meshData.FilePath = "D:/sketchup/reader_data";
         //liuliang测试直接运行场景测试
         if (tSingleMeshInfo.getmeshData().FileType == "DEF")
         {
@@ -73,11 +72,10 @@ public class MyMesh : MonoBehaviour
                     //get group xform value
                     double[] xform = new double[16];
                     SkpInterface.SkpDLL.GetGroupTransformById(_skp_exporter, -1, xform);
-                    Debug.Log("xform : " + xform[0] + " " + xform[1] + " " + xform[2] + " " + xform[3]);
-                    Debug.Log("xform : " + xform[4] + " " + xform[5] + " " + xform[6] + " " + xform[7]);
-                    Debug.Log("xform : " + xform[8] + " " + xform[9] + " " + xform[10] + " " + xform[11]);
-                    Debug.Log("xform : " + xform[12] + " " + xform[13] + " " + xform[14] + " " + xform[15]);
-
+                    Debug.Log("root xform : \n" + xform[0] + " " + xform[1] + " " + xform[2] + " " + xform[3] +
+                                            "\n" + xform[4] + " " + xform[5] + " " + xform[6] + " " + xform[7] +
+                                            "\n" + xform[8] + " " + xform[9] + " " + xform[10] + " " + xform[11] +
+                                            "\n" + xform[12] + " " + xform[13] + " " + xform[14] + " " + xform[15]);
 
 
                     //get group children
@@ -87,19 +85,19 @@ public class MyMesh : MonoBehaviour
                                                                 -1,
                                                                 out _children_id,
                                                                 out _children_num);
-                    Debug.Log("children num of -1 : " + _children_num);
+                    Debug.Log("children num of root : " + _children_num);
                     //test children xform of group -1
-                    //int grp_id = 0;
-                    //while (grp_id < _children_num)
-                    //{
-                    //    Debug.Log("xform debug id : "+grp_id+"----------------");
-                    //    SkpInterface.SkpDLL.GetGroupTransformById(_skp_exporter, *(_children_id+grp_id), xform);
-                    //    Debug.Log("xform " + grp_id + " : " + xform[0] + " " + xform[1] + " " + xform[2] + " " + xform[3]);
-                    //    Debug.Log("xform " + grp_id + " : " + xform[4] + " " + xform[5] + " " + xform[6] + " " + xform[7]);
-                    //    Debug.Log("xform " + grp_id + " : " + xform[8] + " " + xform[9] + " " + xform[10] + " " + xform[11]);
-                    //    Debug.Log("xform " + grp_id + " : " + xform[12] + " " + xform[13] + " " + xform[14] + " " + xform[15]);
-                    //    grp_id++;
-                    //}
+                    int grp_id = 0;
+                    while (grp_id < _children_num)
+                    {
+                        Debug.Log("root children id xform : " + grp_id + "----------------");
+                        SkpInterface.SkpDLL.GetGroupTransformById(_skp_exporter, *(_children_id + grp_id), xform);
+                        Debug.Log(" xform : \n" + xform[0] + " " + xform[1] + " " + xform[2] + " " + xform[3] +
+                                                    "\n" + xform[4] + " " + xform[5] + " " + xform[6] + " " + xform[7] +
+                                                    "\n" + xform[8] + " " + xform[9] + " " + xform[10] + " " + xform[11] +
+                                                    "\n" + xform[12] + " " + xform[13] + " " + xform[14] + " " + xform[15]);
+                        grp_id++;
+                    }
 
                     //get face data
                     double* _vertices;
@@ -145,47 +143,53 @@ public class MyMesh : MonoBehaviour
                         StringBuilder mat_name = new StringBuilder(100);
 
                         SkpInterface.SkpDLL.GetMaterialNameByID(_skp_exporter, mat_index, mat_name); //get the material name by id
-                        //string str = new string(materialName);
                         Debug.Log("material name "+mat_index+" : "+ mat_name.ToString());
 
-                        // bool has_color = false;
-                        // double []color = new double[3];
-                        // bool has_alpha = false;
-                        // double alpha = 1;
-                        // bool has_texture = false;
-                        // StringBuilder tex_path = new StringBuilder(100);
-                        // double tex_sscale = 1.0;
-                        // double tex_tscale = 1.0;
-                        // StringBuilder tex_p = new StringBuilder();
-                        // SkpInterface.SkpDLL.GetSkpMaterialData(_skp_exporter,
-                        //          mat_index,
-                        //          out has_color,
-                        //          color,
-                        //          out has_alpha,
-                        //          out alpha,
-                        //          out has_texture,
-                        //          tex_path,
-                        //          out tex_sscale,
-                        //          out tex_tscale);
+                        bool has_color = false;
+                        double[] color = new double[3];
+                        bool has_alpha = false;
+                        double alpha = 1;
+                        bool has_texture = false;
+                        int bits_per_pixel=0;
+                        int data_size=0;
+                        int width=0, height=0;
+                        double* pixel_data;
+                        SkpInterface.SkpDLL.GetSkpMaterialData(_skp_exporter,-1,
+                                                                mat_index,
+                                                                out has_color,
+                                                                color,
+                                                                out has_alpha,
+                                                                out alpha,
+                                                                out has_texture,
+                                                                out bits_per_pixel,
+                                                                out data_size,
+                                                                out width,
+                                                                out height,
+                                                                out pixel_data);
 
-                        // //Debug.Log("materail -------"+ mat_index);
+                        Debug.Log("Material id -------" + mat_index);
 
-                        // if (has_color)
-                        // {
-                        //       Debug.Log("Color -------"+ mat_index + " "+color[0]+" "+color[1]+" "+color[2]);
+                        if (has_color)
+                        {
+                            Debug.Log("Color: " + mat_index + " " + color[0] + " " + color[1] + " " + color[2]);
+                        }
+                        if (has_alpha)
+                        {
+                            Debug.Log("Alpha: " + mat_index + " " + alpha);
+                        }
+                        if (has_texture)
+                        {
+                            //如果纹理存在，应该打印出纹理路径
+                            Debug.Log("Texture: " + mat_index + " width:" +width+" height: "+height+" data size: "+data_size+" bits per pixel: "+bits_per_pixel);
+                            if (bits_per_pixel / 8 == 3)
+                                Debug.Log("RGB");
+                            else
+                                Debug.Log("RGBA");
+                            Debug.Log("Texture color first 4: " + pixel_data[0] + " " + pixel_data[1] + " " + pixel_data[2] + " " + pixel_data[3]);
+                            Debug.Log("Texture color last 4: " + pixel_data[data_size - 3] + " " + pixel_data[data_size - 2] + " " + pixel_data[data_size - 1] + " " + pixel_data[data_size-1]);
 
-                        // }
-                        // if (has_alpha)
-                        // {
-                        //     Debug.Log("Alpha-------" + mat_index + " " + alpha);
-                        // }
-                        // if (has_texture)
-                        // {
-                        //     //如果纹理存在，应该打印出纹理路径
-                        //     Debug.Log("Texture------" + mat_index + " " + tex_path.ToString());
-                        // }
+                        }
                         mat_index++;
-
 
                     }
 

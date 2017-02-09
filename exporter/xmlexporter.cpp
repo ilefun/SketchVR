@@ -128,6 +128,22 @@ void CXmlExporter::GetGroupList(const XmlEntitiesInfo *entities)
   }
 }
 
+std::vector<int> CXmlExporter::RootGroupChildren() {
+	auto grp_ptr = skpdata_.entities_.groups_.data();
+	std::vector<int> children_id;
+
+	for (size_t i = 0; i < skpdata_.entities_.groups_.size(); ++i)
+	{
+		for (size_t k = 0; k < group_list_.size(); ++k)
+		{
+			if (grp_ptr == group_list_[k])
+				children_id.push_back(int(k));
+		}
+		grp_ptr++;
+	}
+	return children_id;
+}
+
 void CXmlExporter::GetGroupChildren()
 {
   for (size_t i = 0; i < group_list_.size(); ++i)
@@ -143,7 +159,6 @@ void CXmlExporter::GetGroupChildren()
       }
 	  grp_ptr++;
     }
-    
     group_children_.push_back(children_id);
   }
 }

@@ -7,7 +7,7 @@ int group_data(CXmlExporter *exporter )
 	for (int i = -1; i < grp_num; i++)
 	{
 		double xform[16];
-		cout << "Group index : " << i<<endl;
+		cout << "Group id : " << i<<endl;
 		GetGroupTransformById(exporter, i, xform);
 
 		cout << "Group xform is : ";
@@ -30,8 +30,9 @@ int group_data(CXmlExporter *exporter )
 			{
 				cout << *(children_id_list + k) << " ";
 			}
-			cout << endl;
 		}
+		cout << endl << endl;
+
 	}
 	return grp_num;
 }

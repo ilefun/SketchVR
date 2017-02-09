@@ -162,20 +162,17 @@ EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,int group_id,int **chil
 {
 
 	auto id_list = new std::vector<int>();
-	if (group_id < 0) {
-		for (size_t i = 0; i < exporter->GroupNum(); ++i)
-		{
-			id_list->push_back(i);
-		}
-	}
-	else {
-		auto children_id_list = exporter->GroupChildrenById(group_id);
-		for (size_t i = 0; i < children_id_list.size(); ++i)
-		{
-			id_list->push_back(children_id_list[i]);
-		}
-	}
+	std::vector<int> children_id_list;
+	if (group_id < 0)
+		children_id_list = exporter->RootGroupChildren();
+	else 
+		children_id_list = exporter->GroupChildrenById(group_id);
 
+	for (size_t i = 0; i < children_id_list.size(); ++i)
+	{
+		id_list->push_back(children_id_list[i]);
+	}
+	
 	*id_handle=reinterpret_cast<VectorHandle>(id_list);
 	*children_id=id_list->data();
 	*children_num=int(id_list->size());
@@ -240,19 +237,19 @@ EXPORT bool GetFace(CXmlExporter *exporter,
 	cout << endl<<"Debug face data print------------------" << endl;
 	cout << "Group id is : " << group_id << endl;
 	cout << "Face num is : " << *face_num<< endl;
+	if (*face_num > 0) {
+		cout << "Vertex num is : " << *vertex_num << endl;
+		for (int i = 0; i < (*vertex_num) * 3; i += 3)
+			cout << *(*vertices + i) << " " << *(*vertices + i + 1) << " " << *(*vertices + i + 2) << endl;
 
-	cout <<"Vertex num is : " <<*vertex_num << endl;
-	for (int i = 0; i < (*vertex_num )*3; i+=3)
-		cout << *(*vertices+i) << " "<< *(*vertices + i+1)<< " "<<*(*vertices + i+2)<<endl;
+		cout << "Vertex num per face : " << endl;
+		for (int i = 0; i < *face_num; i++)
+			cout << *(*vertex_num_per_face + i) << " ";
 
-	cout<<"Vertex num per face : " << endl;
-	for (int i = 0; i < *face_num; i++)
-		cout << *(*vertex_num_per_face+i) << " ";
-
-	cout<<endl<<"Face normal : " << endl;
-	for (int i = 0; i < (*face_num)*3 ;i+=3)
-		cout << *(*face_normal+i) << " "<< *(*face_normal + i+1)<< " "<<*(*face_normal + i+2)<<endl;
-	
+		cout << endl << "Face normal : " << endl;
+		for (int i = 0; i < (*face_num) * 3; i += 3)
+			cout << *(*face_normal + i) << " " << *(*face_normal + i + 1) << " " << *(*face_normal + i + 2) << endl;
+	}
 	cout <<endl<< "Debug data print ends------------------" << endl;
 
 #endif // _DEBUG
