@@ -45,6 +45,7 @@ public class MyMesh : MonoBehaviour
 
         //测试颜色模型
         tSingleMeshInfo.meshData.PathName = "D:/sketchup/cube_group.skp";
+        tSingleMeshInfo.meshData.FilePath = "D:/sketchup/reader_data";
         //liuliang测试直接运行场景测试
         if (tSingleMeshInfo.getmeshData().FileType == "DEF")
         {
@@ -64,12 +65,15 @@ public class MyMesh : MonoBehaviour
             {
                 unsafe
                 {
-                    //group hierachy test
+                    //group num test,actually we have (_group_num+1) in the su scene.
+                    //use -1 as the root group id.Other groups are in range (0,_group_num)
+                    //-----------------------------------------------------------
                     int _group_num = SkpInterface.SkpDLL.GetGroupNum(_skp_exporter);
                     Debug.Log("group num =" + _group_num);
 
 
-                    //get group xform value
+                    //get group xform. 
+                    //----------------------------------------------------------
                     double[] xform = new double[16];
                     SkpInterface.SkpDLL.GetGroupTransformById(_skp_exporter, -1, xform);
                     Debug.Log("root xform : \n" + xform[0] + " " + xform[1] + " " + xform[2] + " " + xform[3] +
@@ -78,9 +82,13 @@ public class MyMesh : MonoBehaviour
                                             "\n" + xform[12] + " " + xform[13] + " " + xform[14] + " " + xform[15]);
 
 
-                    //get group children
-                    int* _children_id;
-                    int _children_num=0;
+
+
+
+                    //get group children of the specified id group.
+                    //-----------------------------------------------------
+                    int* _children_id;//the id list of the children
+                    int _children_num=0;//the num of the children
                     SkpInterface.SkpDLL.GetSkpGroupChildrenById(_skp_exporter,
                                                                 -1,
                                                                 out _children_id,
@@ -99,7 +107,12 @@ public class MyMesh : MonoBehaviour
                         grp_id++;
                     }
 
-                    //get face data
+
+
+
+
+
+                    //get face data---------------------------------------------------
                     double* _vertices;
                     int _vertex_num;
                     int* _vertex_num_per_face;
@@ -118,6 +131,9 @@ public class MyMesh : MonoBehaviour
 
 
 
+
+
+
                     //uv test-----------------------------------------------------
                     double* u;//u value list
                     double* v;//v value list
@@ -128,6 +144,9 @@ public class MyMesh : MonoBehaviour
                                                     out v,
                                                     out uv_num);
                     Debug.Log("uv_num ： " + uv_num);
+
+
+
 
 
 
@@ -194,19 +213,30 @@ public class MyMesh : MonoBehaviour
                     }
 
 
+
+
+
+
+
+
                     //----------------------------------------------------------------------
-                    //int* front_mat_id;//front material
-                    //int* back_mat_id;//
-                    //int id_num = 0;
-                    //SkpInterface.SkpDLL.GetSkpMaterialIDPerFace(_skp_exporter, -1,
-                    //                                            out front_mat_id,
-                    //                                            out back_mat_id,
-                    //                                            out id_num);
+                    int* front_mat_id;//front material
+                    int* back_mat_id;//
+                    int id_num = 0;//equal to the face num
+                    SkpInterface.SkpDLL.GetSkpMaterialIDPerFace(_skp_exporter, -1,
+                                                                out front_mat_id,
+                                                                out back_mat_id,
+                                                                out id_num);
 
 
-                    //int mat_index_per_face = 0;
-                    //Debug.Log("mat id per face:" + id_num);
-                    //Debug.Log("mesh.triangles:" + mesh.triangles.Length);
+                    Debug.Log("mat id num: " + id_num);
+                    int face_id = 0;
+                    while (face_id < id_num)
+                    {
+                        Debug.Log("Material for face id: "+ face_id+" Front mat id: "+front_mat_id[face_id]+" Back mat id: "+back_mat_id[face_id]);
+                        face_id++;
+                    }
+                    Debug.Log("mesh.triangles:" + mesh.triangles.Length);
 
                     //mesh.
                     Debug.Log("Sketchup model load ends.");
