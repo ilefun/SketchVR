@@ -233,7 +233,7 @@ EXPORT bool GetFace(CXmlExporter *exporter,
 	*face_num = int(v_per_face_list->size());
 
 
-#ifdef _DEBUG
+#ifdef PRINT_SKP_DATA
 	cout << endl<<"Debug face data print------------------" << endl;
 	cout << "Group id is : " << group_id << endl;
 	cout << "Face num is : " << *face_num<< endl;
@@ -252,7 +252,7 @@ EXPORT bool GetFace(CXmlExporter *exporter,
 	}
 	cout <<endl<< "Debug data print ends------------------" << endl;
 
-#endif // _DEBUG
+#endif // PRINT_SKP_DATA
 
 
 	return true;
@@ -284,7 +284,7 @@ EXPORT bool GetFaceUV(CXmlExporter *exporter,
 	*v = v_list->data();
 	*uv_num = int(u_list->size());
 
-#ifdef _DEBUG
+#ifdef PRINT_SKP_DATA
 	cout << endl << "Debug face uv data print------------------" << endl;
 	if (front_or_back)
 		cout << "[Front UV]" << endl;
@@ -296,7 +296,7 @@ EXPORT bool GetFaceUV(CXmlExporter *exporter,
 
 	cout << endl << "Debug face uv data print ends------------------" << endl;
 
-#endif // _DEBUG
+#endif // PRINT_SKP_DATA
 	return true;
 
 
@@ -362,7 +362,7 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 			(*pixel_data_list)[i]=double(current_mat.pixel_data_[i])/255.0;
 		*pixel_data=pixel_data_list->data();
 		}
-#ifdef _DEBUG
+#ifdef PRINT_SKP_DATA
 	cout << endl << "Material "<< material_id <<" Data print starts" << endl;
 	cout << "\tHas color " << *has_color << endl;
 	if (*has_color)
@@ -416,7 +416,7 @@ EXPORT bool GetMaterialIDPerFace(CXmlExporter *exporter,
 	*front_mat_handle = reinterpret_cast<VectorHandle>(front_mat_id);
 	*back_mat_handle = reinterpret_cast<VectorHandle>(back_mat_id);
 
-#ifdef _DEBUG
+#ifdef PRINT_SKP_DATA
 	cout << endl << "Face material print starts--------------" << endl;
 
 	cout << "Face num is : " << *face_num << endl;

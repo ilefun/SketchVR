@@ -8,6 +8,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerCommand>D:\sketchup\skp\binaries\sketchup\x64\read_skp.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>D:\sketchup\cube_group.skp</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>D:\sketchup\test_skp_file\test02.skp</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>
