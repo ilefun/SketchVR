@@ -108,7 +108,7 @@ struct XmlGroupInfo {
 };
 
 struct XmlComponentInstanceInfo {
-  std::string definition_name_;
+  std::string definition_guid_;
   std::string layer_name_;
   std::string material_name_;
   SUTransformation transform_;
@@ -123,7 +123,7 @@ struct XmlEntitiesInfo {
 };
 
 struct XmlComponentDefinitionInfo {
-  std::string name_;
+  std::string guid_;
   XmlEntitiesInfo entities_;
 };
 

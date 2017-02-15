@@ -157,10 +157,10 @@ int main(int argc,char *argv[])
 	   {
 		   face_data(exporter,i);
 
-		   //face_uv(exporter,true,i);
+		   face_uv(exporter,true,i);
 		   //face_uv(exporter,false,i);
 
-		   //face_material(exporter,i);
+		   face_material(exporter,i);
 	   }
 
 	  ReleaseExporter(exporter);
