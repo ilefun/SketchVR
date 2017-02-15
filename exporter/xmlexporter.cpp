@@ -82,10 +82,10 @@ static std::string GetLayerName(SULayerRef layer) {
 }
 
 // Utility function to get a component definition's name
-static std::string GetComponentDefinitionName(
+static std::string GetComponentDefinitionGuid(
     SUComponentDefinitionRef comp_def) {
   CSUString name;
-  SU_CALL(SUComponentDefinitionGetName(comp_def, name));
+  SU_CALL(SUComponentDefinitionGetGuid(comp_def, name));
   return name.utf8();
 }
 
@@ -149,7 +149,7 @@ void CXmlExporter::GetGroupChildren()
   for (size_t i = 0; i < group_list_.size(); ++i)
   {
     std::vector<int> children_id;
-	auto grp_ptr=group_list_[i]->entities_->groups_.data();
+	  auto grp_ptr=group_list_[i]->entities_->groups_.data();
     for (size_t j = 0; j < group_list_[i]->entities_->groups_.size(); ++j)
     {
       for (size_t k = 0; k < group_list_.size(); ++k)
@@ -194,15 +194,15 @@ bool CXmlExporter::Convert(const std::string& from_file,
 
      // Layers
   	std::cout << "Exporting layers..." << std::endl;
-     WriteLayers();
+    WriteLayers();
 
     // // Materials
   	std::cout << "Exporting materials..."<<std::endl;
     WriteMaterials();
 
     // // Component definitions
-    // HandleProgress(progress_callback, 40.0, "Writing Definitions...");
-    // WriteComponentDefinitions();
+    std::cout<<"Exporting component data..."<<std::endl;
+    WriteComponentDefinitions();
 
     // Geometry
     std::cout<<"Exporting geometry data..."<<std::endl;
@@ -425,13 +425,14 @@ void CXmlExporter::WriteComponentDefinitions() {
 }
 
 void CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
-  std::string name = GetComponentDefinitionName(comp_def);
-
+  XmlComponentDefinitionInfo xml_comp_info;
+  xml_comp_info.guid_ = GetComponentDefinitionGuid(comp_def);
 
   SUEntitiesRef entities = SU_INVALID;
   SUComponentDefinitionGetEntities(comp_def, &entities);
-  WriteEntities(entities,&skpdata_.entities_);
+  WriteEntities(entities,&xml_comp_info.entities_);
 
+  skpdata_.definitions_.push_back(xml_comp_info);
 
 }
 
@@ -448,26 +449,41 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       SUComponentDefinitionRef definition = SU_INVALID;
       SU_CALL(SUComponentInstanceGetDefinition(instance, &definition));
 
-      XmlComponentInstanceInfo instance_info;
+      // //store the component instances----------------------
+      // XmlComponentInstanceInfo instance_info;
       
-      // Layer
-      SULayerRef layer = SU_INVALID;
-      SUDrawingElementGetLayer(SUComponentInstanceToDrawingElement(instance),
-                               &layer);
-      if (!SUIsInvalid(layer))
-        instance_info.layer_name_ = GetLayerName(layer);
+      // // Layer
+      // SULayerRef layer = SU_INVALID;
+      // SUDrawingElementGetLayer(SUComponentInstanceToDrawingElement(instance),
+      //                          &layer);
+      // if (!SUIsInvalid(layer))
+      //   instance_info.layer_name_ = GetLayerName(layer);
 
-      // Material
-      SUMaterialRef material = SU_INVALID;
-      SUDrawingElementGetMaterial(SUComponentInstanceToDrawingElement(instance),
-                                  &material);
-      if (!SUIsInvalid(material))
-        instance_info.material_name_ = GetMaterialName(material);
+      // // Material
+      // SUMaterialRef material = SU_INVALID;
+      // SUDrawingElementGetMaterial(SUComponentInstanceToDrawingElement(instance),
+      //                             &material);
+      // if (!SUIsInvalid(material))
+      //   instance_info.material_name_ = GetMaterialName(material);
 
-      instance_info.definition_name_ = GetComponentDefinitionName(definition);
-      SU_CALL(SUComponentInstanceGetTransform(instance,
-                                              &instance_info.transform_));
+      // instance_info.definition_guid_ = GetComponentDefinitionGuid(definition);
+      // SU_CALL(SUComponentInstanceGetTransform(instance,
+      //                                         &instance_info.transform_));
 
+      // entity_info->component_instances_.push_back(instance_info);
+
+
+
+      // convert component to entities---------------
+      XmlGroupInfo info;
+      SU_CALL(SUComponentInstanceGetTransform(instance, &info.transform_));
+
+      // Write entities
+      SUEntitiesRef  comp_entity_ref = SU_INVALID;
+      SU_CALL(SUComponentDefinitionGetEntities(definition,&comp_entity_ref));
+      WriteEntities(comp_entity_ref,info.entities_);
+
+      entity_info->groups_.push_back(info);
     }
   }
 
@@ -479,7 +495,6 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
     SU_CALL(SUEntitiesGetGroups(entities, num_groups, &groups[0], &num_groups));
     for (size_t g = 0; g < num_groups; g++) {
       SUGroupRef group = groups[g];
-      SUComponentDefinitionRef group_component = SU_INVALID;
       SUEntitiesRef group_entities = SU_INVALID;
       SU_CALL(SUGroupGetEntities(group, &group_entities));
       inheritance_manager_.PushElement(group);
