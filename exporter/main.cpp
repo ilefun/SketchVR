@@ -152,7 +152,7 @@ int main(int argc,char *argv[])
 	  //exporter->skpdata_.debug_print();
 	  int grp_num=group_data(exporter);
 	  
-	   //material(exporter);
+	   material(exporter);
 	   for (int i = -1; i < grp_num; ++i)
 	   {
 		   face_data(exporter,i);

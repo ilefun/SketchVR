@@ -358,8 +358,9 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 		*height=current_mat.height_;
 
 		auto pixel_data_list = new std::vector<double>(*data_size);
-		for (size_t i = 0; i < pixel_data_list->size(); ++i)
-			(*pixel_data_list)[i]=double(current_mat.pixel_data_[i])/255.0;
+		for (size_t i = 0; i < pixel_data_list->size(); ++i) {
+			(*pixel_data_list)[i] = double(current_mat.pixel_data_[i]) / 255.0;
+		}
 		*pixel_data=pixel_data_list->data();
 		}
 #ifdef PRINT_SKP_DATA
