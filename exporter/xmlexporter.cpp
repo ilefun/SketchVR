@@ -82,10 +82,10 @@ static std::string GetLayerName(SULayerRef layer) {
 }
 
 // Utility function to get a component definition's name
-static std::string GetComponentDefinitionGuid(
+static std::string GetComponentDefinitionName(
     SUComponentDefinitionRef comp_def) {
   CSUString name;
-  SU_CALL(SUComponentDefinitionGetGuid(comp_def, name));
+  SU_CALL(SUComponentDefinitionGetName(comp_def, name));
   return name.utf8();
 }
 
@@ -201,19 +201,23 @@ bool CXmlExporter::Convert(const std::string& from_file,
     WriteMaterials();
 
     // // Component definitions
-    std::cout<<"Exporting component data..."<<std::endl;
-    WriteComponentDefinitions();
+    //std::cout<<"Exporting component data..."<<std::endl;
+    //WriteComponentDefinitions();
 
     // Geometry
     std::cout<<"Exporting geometry data..."<<std::endl;
     WriteGeometry();
 
+	std::cout << "Get Group List..." << std::endl;
     GetGroupList(&skpdata_.entities_);
     
+	std::cout << "Get Group Children..." << std::endl;
     GetGroupChildren();
 
   	std::cout << "Export complete." << std::endl;
     exported = true;
+
+	//SU_CALL(SUModelSaveToFile(model_,"D:\\sketchup\\test_skp_file\\out.skp"));
   } catch(...) {
     exported = false;
   }
@@ -426,7 +430,11 @@ void CXmlExporter::WriteComponentDefinitions() {
 
 void CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
   XmlComponentDefinitionInfo xml_comp_info;
-  xml_comp_info.guid_ = GetComponentDefinitionGuid(comp_def);
+  xml_comp_info.name_ = GetComponentDefinitionName(comp_def);
+#ifdef PRINT_SKP_DATA
+  std::cout << "Component Name : " << xml_comp_info.name_ << std::endl;
+
+#endif // PRINT_SKP_DATA
 
   SUEntitiesRef entities = SU_INVALID;
   SUComponentDefinitionGetEntities(comp_def, &entities);
@@ -441,6 +449,12 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
   size_t num_instances = 0;
   SU_CALL(SUEntitiesGetNumInstances(entities, &num_instances));
   if (num_instances > 0) {
+
+#ifdef PRINT_SKP_DATA
+	  std::cout << "Instance Num : " << num_instances << std::endl;
+
+#endif // PRINT_SKP_DATA
+
     std::vector<SUComponentInstanceRef> instances(num_instances);
     SU_CALL(SUEntitiesGetInstances(entities, num_instances,
                                    &instances[0], &num_instances));
@@ -448,29 +462,10 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       SUComponentInstanceRef instance = instances[c];
       SUComponentDefinitionRef definition = SU_INVALID;
       SU_CALL(SUComponentInstanceGetDefinition(instance, &definition));
-
-      // //store the component instances----------------------
-      // XmlComponentInstanceInfo instance_info;
+#ifdef PRINT_SKP_DATA
       
-      // // Layer
-      // SULayerRef layer = SU_INVALID;
-      // SUDrawingElementGetLayer(SUComponentInstanceToDrawingElement(instance),
-      //                          &layer);
-      // if (!SUIsInvalid(layer))
-      //   instance_info.layer_name_ = GetLayerName(layer);
-
-      // // Material
-      // SUMaterialRef material = SU_INVALID;
-      // SUDrawingElementGetMaterial(SUComponentInstanceToDrawingElement(instance),
-      //                             &material);
-      // if (!SUIsInvalid(material))
-      //   instance_info.material_name_ = GetMaterialName(material);
-
-      // instance_info.definition_guid_ = GetComponentDefinitionGuid(definition);
-      // SU_CALL(SUComponentInstanceGetTransform(instance,
-      //                                         &instance_info.transform_));
-
-      // entity_info->component_instances_.push_back(instance_info);
+      std::cout<<"Component name : "<< GetComponentDefinitionName(definition)<<std::endl;
+#endif // PRINT_SKP_DATA
 
 
 

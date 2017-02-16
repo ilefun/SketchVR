@@ -152,15 +152,15 @@ int main(int argc,char *argv[])
 	  //exporter->skpdata_.debug_print();
 	  int grp_num=group_data(exporter);
 	  
-	   material(exporter);
+	   //material(exporter);
 	   for (int i = -1; i < grp_num; ++i)
 	   {
 		   face_data(exporter,i);
 
-		   face_uv(exporter,true,i);
+		   //face_uv(exporter,true,i);
 		   //face_uv(exporter,false,i);
 
-		   face_material(exporter,i);
+		   //face_material(exporter,i);
 	   }
 
 	  ReleaseExporter(exporter);

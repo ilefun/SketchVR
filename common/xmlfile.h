@@ -123,7 +123,7 @@ struct XmlEntitiesInfo {
 };
 
 struct XmlComponentDefinitionInfo {
-  std::string guid_;
+  std::string name_;
   XmlEntitiesInfo entities_;
 };
 
