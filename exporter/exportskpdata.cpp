@@ -163,10 +163,13 @@ EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,int group_id,int **chil
 
 	auto id_list = new std::vector<int>();
 	std::vector<int> children_id_list;
-	if (group_id < 0)
-		children_id_list = exporter->RootGroupChildren();
-	else 
-		children_id_list = exporter->GroupChildrenById(group_id);
+	if (group_id >= -1)
+		if (group_id == -1)
+			children_id_list = exporter->RootGroupChildren();
+		else
+			children_id_list = exporter->GroupChildrenById(group_id);
+	else
+		return;
 
 	for (size_t i = 0; i < children_id_list.size(); ++i)
 	{
@@ -180,16 +183,17 @@ EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,int group_id,int **chil
 
 EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int group_id,double transform[16])
 {
-	if (group_id < 0) {
-		double default_xform[16] = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
-		for (size_t i = 0; i < 16; i++)
-			transform[i] = default_xform[i];
-	}
-	else {
-		SUTransformation current_xform = exporter->GroupById(group_id)->transform_;
-		for (int i = 0; i < 16; ++i)
-			transform[i] = current_xform.values[i];
-	}
+	if (group_id >= -1)
+		if (group_id ==-1) {
+			double default_xform[16] = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+			for (size_t i = 0; i < 16; i++)
+				transform[i] = default_xform[i];
+		}
+		else {
+			SUTransformation current_xform = exporter->GroupById(group_id)->transform_;
+			for (int i = 0; i < 16; ++i)
+				transform[i] = current_xform.values[i];
+		}
 }
 
 EXPORT bool GetFace(CXmlExporter *exporter,
@@ -209,11 +213,13 @@ EXPORT bool GetFace(CXmlExporter *exporter,
 	auto face_vertex_list = new std::vector<int>();
 
 	XmlEntitiesInfo *current_entities;
-	if (group_id<0)
-		current_entities=&exporter->skpdata_.entities_;
+	if (group_id >= -1)
+		if (group_id == -1)
+			current_entities = &exporter->skpdata_.entities_;
+		else
+			current_entities = exporter->GroupById(group_id)->entities_;
 	else
-		current_entities=exporter->GroupById(group_id)->entities_;
-
+		return false;
 
 	GetFaceData(v_per_face_list,
 					face_vertex_list,
@@ -271,11 +277,15 @@ EXPORT bool GetFaceUV(CXmlExporter *exporter,
 	auto v_list = new std::vector<double>();
 
 	XmlEntitiesInfo *current_entities;
-	if (group_id<0)
-		current_entities=&exporter->skpdata_.entities_;
+	if (group_id >= -1)
+		if (group_id==-1)
+			current_entities=&exporter->skpdata_.entities_;
+		else
+			current_entities=exporter->GroupById(group_id)->entities_;
 	else
-		current_entities=exporter->GroupById(group_id)->entities_;
-
+	{
+		return false;
+	}
 	GetUVData(front_or_back,u_list,v_list,current_entities);
 
 	*u_handle = reinterpret_cast<VectorHandle>(u_list);
@@ -403,10 +413,15 @@ EXPORT bool GetMaterialIDPerFace(CXmlExporter *exporter,
 	auto back_mat_id=new std::vector<int>;
 
 	XmlEntitiesInfo *current_entities;
-	if (group_id<0)
-		current_entities=&exporter->skpdata_.entities_;
+	if (group_id >= -1)
+		if (group_id==-1)
+			current_entities=&exporter->skpdata_.entities_;
+		else
+			current_entities=exporter->GroupById(group_id)->entities_;
 	else
-		current_entities=exporter->GroupById(group_id)->entities_;
+	{
+		return false;
+	}
 
 	GetFaceMaterialData(exporter,front_mat_id,back_mat_id,current_entities);
 
