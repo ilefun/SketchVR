@@ -1,4 +1,5 @@
 #include "./exportskpdata.h"
+#include <time.h>
 
 void face_data(CXmlExporter *exporter, int group_id) {
 	double *vertices;
@@ -140,6 +141,7 @@ int group_data(CXmlExporter *exporter )
 {
 	int grp_num = GetGroupNum(exporter);
 	cout << "Group num is : "<< grp_num<< endl<<endl;
+	cout << endl << "Root group id : " << -1 << endl;
 	group_id_data(exporter, -1);
 	return grp_num;
 }
@@ -148,16 +150,19 @@ int main(int argc,char *argv[])
 {
   cout<<argv[1]<<endl;
 
+  time_t start, end;
+  start = time(NULL);
 
   CXmlExporter *exporter=NULL;
   exporter=GetExporter(argv[1]);
   if (exporter){
 	  //exporter->skpdata_.debug_print();
 	  material(exporter);
-	  cout << endl << "Root group id : " << -1 << endl;
 	  int grp_num=group_data(exporter);
 	  
 	  ReleaseExporter(exporter);
   }
-  system("pause");
+  end = time(NULL);
+  cout<<"Finshed within time : "<<end - start<<"s";
+  //system("pause");
 }
