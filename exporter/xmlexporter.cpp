@@ -4,6 +4,7 @@
 #include <vector>
 #include <cassert>
 #include <iostream>
+#include <ctime>
 
 #include "./xmlexporter.h"
 #include "./xmltexturehelper.h"
@@ -32,6 +33,7 @@
 #include <SketchUpAPI/model/image_rep.h>
 
 using namespace XmlGeomUtils;
+using namespace std;
 
 // A simple SUStringRef wrapper class which makes usage simpler from C++.
 class CSUString {
@@ -167,6 +169,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
     SketchUpPluginProgressCallback* progress_callback) {
   bool exported = false;
   skp_file_ = from_file;
+  clock_t start, end;
 
   try {
     // Initialize the SDK
@@ -176,9 +179,19 @@ bool CXmlExporter::Convert(const std::string& from_file,
     SUSetInvalid(model_);
 
   	// Create the model from the src_file
+  #ifdef TIME_LOGGER
+    start = clock();
+  #endif
+
   	SUSetInvalid(model_);
   	SU_CALL(SUModelCreateFromFile(&model_, skp_file_.c_str()));
-  	std::cout << "Initialize skp file " << skp_file_ << " succesfully." << std::endl;
+  
+  #ifdef TIME_LOGGER
+    end = clock();
+    cout<<"Open file in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+  #endif
+  
+    std::cout << "Initialize skp file " << skp_file_ << " succesfully in "<< std::endl;
 
     // Create a texture writer
     SUSetInvalid(texture_writer_);
@@ -197,21 +210,37 @@ bool CXmlExporter::Convert(const std::string& from_file,
     WriteLayers();
 
     // // Materials
+  #ifdef TIME_LOGGER
+    start = clock();
+  #endif
   	std::cout << "Exporting materials..."<<std::endl;
     WriteMaterials();
+  #ifdef TIME_LOGGER
+    end = clock();
+    cout<<" Export materials in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+  #endif
 
     // // Component definitions
     //std::cout<<"Exporting component data..."<<std::endl;
     //WriteComponentDefinitions();
 
     // Geometry
+  #ifdef TIME_LOGGER
+    start = clock();
+  #endif
+
     std::cout<<"Exporting geometry data..."<<std::endl;
     WriteGeometry();
+  #ifdef TIME_LOGGER
+    
+    end = clock();
+    cout<<" Export geometry in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+  #endif
 
-	std::cout << "Get Group List..." << std::endl;
+  	std::cout << "Get Group List..." << std::endl;
     GetGroupList(&skpdata_.entities_);
     
-	std::cout << "Get Group Children..." << std::endl;
+  	std::cout << "Get Group Children..." << std::endl;
     GetGroupChildren();
 
   	std::cout << "Export complete." << std::endl;

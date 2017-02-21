@@ -14,6 +14,13 @@
 #include <unordered_map>
 #include <vector>
 
+// su coordinate system is right-z-up,use matrix 
+// 1 0 0 0
+// 0 0 1 0
+// 0 1 0 0
+// 0 0 0 1
+// to convert it to left-y-up hand.Transform the point with it.
+
 class CXmlExporter {
  public:
   CXmlExporter();

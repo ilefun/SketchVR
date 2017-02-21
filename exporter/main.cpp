@@ -1,5 +1,5 @@
 #include "./exportskpdata.h"
-#include <time.h>
+#include <ctime>
 
 void face_data(CXmlExporter *exporter, int group_id) {
 	double *vertices;
@@ -115,11 +115,40 @@ void group_id_data(CXmlExporter *exporter, int group_id) {
 	}
 	cout << endl;
 
+  #ifdef TIME_LOGGER
+    start = clock();
+  #endif
+
 	face_data(exporter, group_id);
+  #ifdef TIME_LOGGER
+    end = clock();
+    cout<<"Get Face data in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+  #endif
+
+
+
+
+  #ifdef TIME_LOGGER
+    start = clock();
+  #endif
+
 	face_uv(exporter,true, group_id);
+  #ifdef TIME_LOGGER
+    end = clock();
+    cout<<"Get face front uv in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+  #endif
+
 	face_uv(exporter,false,group_id);
 
+  #ifdef TIME_LOGGER
+    start = clock();
+  #endif
+
 	face_material(exporter,group_id);
+  #ifdef TIME_LOGGER
+    end = clock();
+    cout<<"Get face material in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+  #endif
 
 	int* children_id_list;
 	int children_num;
@@ -150,8 +179,10 @@ int main(int argc,char *argv[])
 {
   cout<<argv[1]<<endl;
 
-  time_t start, end;
-  start = time(NULL);
+  clock_t start, end;
+  srand ( time(NULL) );
+
+  start = clock();
 
   CXmlExporter *exporter=NULL;
   exporter=GetExporter(argv[1]);
@@ -162,7 +193,7 @@ int main(int argc,char *argv[])
 	  
 	  ReleaseExporter(exporter);
   }
-  end = time(NULL);
-  cout<<"Finshed within time : "<<end - start<<"s";
+  end = clock();
+  cout<<"Finshed within time : "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s";
   //system("pause");
 }
