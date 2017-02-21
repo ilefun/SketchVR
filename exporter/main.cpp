@@ -114,6 +114,7 @@ void group_id_data(CXmlExporter *exporter, int group_id) {
 		cout << xform[j] << " ";
 	}
 	cout << endl;
+	clock_t start, end;
 
   #ifdef TIME_LOGGER
     start = clock();
@@ -122,7 +123,7 @@ void group_id_data(CXmlExporter *exporter, int group_id) {
 	face_data(exporter, group_id);
   #ifdef TIME_LOGGER
     end = clock();
-    cout<<"Get Face data in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Get Face data in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   #endif
 
 
@@ -135,7 +136,7 @@ void group_id_data(CXmlExporter *exporter, int group_id) {
 	face_uv(exporter,true, group_id);
   #ifdef TIME_LOGGER
     end = clock();
-    cout<<"Get face front uv in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Get face front uv in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   #endif
 
 	face_uv(exporter,false,group_id);
@@ -147,7 +148,7 @@ void group_id_data(CXmlExporter *exporter, int group_id) {
 	face_material(exporter,group_id);
   #ifdef TIME_LOGGER
     end = clock();
-    cout<<"Get face material in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Get face material in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   #endif
 
 	int* children_id_list;
@@ -194,6 +195,6 @@ int main(int argc,char *argv[])
 	  ReleaseExporter(exporter);
   }
   end = clock();
-  cout<<"Finshed within time : "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s";
+  cout<<"Time Logger : Finshed in : "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s";
   //system("pause");
 }

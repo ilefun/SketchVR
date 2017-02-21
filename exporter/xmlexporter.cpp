@@ -188,10 +188,10 @@ bool CXmlExporter::Convert(const std::string& from_file,
   
   #ifdef TIME_LOGGER
     end = clock();
-    cout<<"Open file in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Open file in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   #endif
   
-    std::cout << "Initialize skp file " << skp_file_ << " succesfully in "<< std::endl;
+    std::cout << "Initialize skp file " << skp_file_ << std::endl;
 
     // Create a texture writer
     SUSetInvalid(texture_writer_);
@@ -217,7 +217,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
     WriteMaterials();
   #ifdef TIME_LOGGER
     end = clock();
-    cout<<" Export materials in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Export materials in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   #endif
 
     // // Component definitions
@@ -234,7 +234,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
   #ifdef TIME_LOGGER
     
     end = clock();
-    cout<<" Export geometry in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Export geometry in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   #endif
 
   	std::cout << "Get Group List..." << std::endl;
