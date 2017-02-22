@@ -198,7 +198,6 @@ namespace SkpInterface
 
 
         public static unsafe void GetSkpMaterialData(IntPtr exporter,
-                            int group_id,
                             int material_id,
                             out bool has_color,
                             double[] color,

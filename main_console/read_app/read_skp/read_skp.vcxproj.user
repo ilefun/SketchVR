@@ -3,10 +3,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>D:\sketchup\test_skp_file\comp_test.skp</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommand>D:\sketchup\skp\binaries\sketchup\x64\read_skp.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommand>D:\sketchup\skp\binaries\sketchup\x64\read_skp_release.exe</LocalDebuggerCommand>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommand>D:\sketchup\skp\binaries\sketchup\x64\read_skp.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommand>D:\sketchup\skp\binaries\sketchup\x64\read_skp_debug.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommandArguments>D:\sketchup\test_skp_file\comp_test.skp</LocalDebuggerCommandArguments>
   </PropertyGroup>
