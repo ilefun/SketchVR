@@ -14,15 +14,14 @@ using namespace std;
 
 XmlEntitiesInfo* GetEntitiesInfo(CXmlExporter *exporter, int group_id);
 
-void GetFaceData(std::vector<int> *v_per_face_list,
-                    std::vector<int> *face_vertex_list,
-                    std::vector<double> *vertices_list,
-                    std::vector<double> *normal_list,
+void GetFaceData(int v_per_face_list[],
+                    double vertices_list[],
+                    double normal_list[],
                     const XmlEntitiesInfo *entities);
 
 void GetUVData(bool front_or_back,
-                std::vector<double> *u_list,
-                std::vector<double> *v_list,
+                double u_list[],
+                double v_list[],
                 const XmlEntitiesInfo *entities);
 
 void GetFaceMaterialData(CXmlExporter *exporter,
@@ -122,7 +121,7 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
                             int *data_size,
                             int *width,
                             int *height,
-                            double **pixel_data);
+                            double pixel_data[]);
 
 
 

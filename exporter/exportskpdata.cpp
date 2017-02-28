@@ -217,6 +217,8 @@ EXPORT bool GetFace(CXmlExporter *exporter,
 						double face_normal[])
 {
 	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	if (current_entities==NULL)
+		return false;
 	GetFaceData(vertex_num_per_face,
 					vertices,
 					face_normal,
@@ -253,9 +255,11 @@ EXPORT int GetFaceUVDSize(CXmlExporter *exporter,
                         bool front_or_back )
 {
 	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	if (current_entities==NULL)
+		return 0;
 	int uv_size=0;
-	for (size_t i = 0; i < entities->faces_.size(); i++) 
-		uv_size+=int(entities->faces_[i].vertices_.size());
+	for (size_t i = 0; i < current_entities->faces_.size(); i++) 
+		uv_size+=int(current_entities->faces_[i].vertices_.size());
 	return uv_size;
 }
 
@@ -266,6 +270,8 @@ EXPORT bool GetFaceUV(CXmlExporter *exporter,
 						double v[])
 {
 	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	if (current_entities==NULL)
+		return false;
 	GetUVData(front_or_back,u,v,current_entities);
 
 #ifdef PRINT_SKP_DATA
@@ -296,6 +302,16 @@ EXPORT const bool GetMaterialNameByID(CXmlExporter *exporter,int id,char *mat_na
 	return true;
 }
 
+EXPORT int GetTexPixelDSize(CXmlExporter *exporter, 
+                            int material_id )
+{
+	if(material_id < exporter->skpdata_.materials_.size())
+	{
+		if(exporter->skpdata_.materials_[material_id].has_texture_)
+			return current_mat.data_size_;
+	}
+	return 0;
+}
 
 EXPORT bool GetMaterialData(CXmlExporter *exporter, 
 							int material_id,
@@ -313,8 +329,7 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
                             int *data_size,
                             int *width,
                             int *height,
-                            double **pixel_data,
-                            VectorHandle *pixel_data_handle )
+                            double pixel_data[] )
 {
 	size_t mat_num= exporter->skpdata_.materials_.size();
 	if(material_id>=mat_num) return false;
@@ -341,12 +356,10 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 		*width=current_mat.width_;
 		*height=current_mat.height_;
 
-		auto pixel_data_list = new std::vector<double>(*data_size);
-		for (size_t i = 0; i < pixel_data_list->size(); ++i) {
-			(*pixel_data_list)[i] = double(current_mat.pixel_data_[i]) / 255.0;
+		for (size_t i = 0; i < current_mat.data_size_; ++i) {
+			pixel_data[i] = double(current_mat.pixel_data_[i]) / 255.0;
 		}
-		*pixel_data=pixel_data_list->data();
-		}
+	}
 #ifdef PRINT_SKP_DATA
 	cout << endl << "Material "<< material_id <<" Data print starts" << endl;
 	cout << "\tHas color " << *has_color << endl;
@@ -386,16 +399,9 @@ EXPORT bool GetMaterialIDPerFace(CXmlExporter *exporter,
 	auto front_mat_id=new std::vector<int>;
 	auto back_mat_id=new std::vector<int>;
 
-	XmlEntitiesInfo *current_entities;
-	if (group_id >= -1 && group_id<exporter->GroupNum())
-		if (group_id==-1)
-			current_entities=&exporter->skpdata_.entities_;
-		else
-			current_entities=exporter->GroupById(group_id)->entities_;
-	else
-	{
+	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	if (current_entities==NULL)
 		return false;
-	}
 
 	GetFaceMaterialData(exporter,front_mat_id,back_mat_id,current_entities);
 
