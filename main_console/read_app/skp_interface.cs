@@ -11,51 +11,6 @@ namespace SkpInterface
 
     public partial class SkpDLL
     {
-        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern bool ReleaseDoubleHandle(IntPtr handle);
-
-        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern bool ReleaseIntHandle(IntPtr handle);
-
-        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern bool ReleaseBoolHandle(IntPtr handle);
-
-        public class VectorDoubleSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
-        {
-            public VectorDoubleSafeHandle()
-                : base(true)
-            {
-            }
-            protected override bool ReleaseHandle()
-            {
-                return ReleaseDoubleHandle(handle);
-            }
-        };
-
-        public class VectorIntSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
-        {
-            public VectorIntSafeHandle()
-                : base(true)
-            {
-            }
-            protected override bool ReleaseHandle()
-            {
-                return ReleaseIntHandle(handle);
-            }
-        };
-
-        public class VectorBoolSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
-        {
-            public VectorBoolSafeHandle()
-                : base(true)
-            {
-            }
-            protected override bool ReleaseHandle()
-            {
-                return ReleaseBoolHandle(handle);
-            }
-        }
-
         //get exporter
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern IntPtr GetExporter(string from_file);

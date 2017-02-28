@@ -4,41 +4,55 @@
 
 using namespace std;
 
-typedef intptr_t VectorHandle;
-
-void GetFaceData(std::vector<int> *v_per_face_list,
-					std::vector<int> *face_vertex_list,
-					std::vector<double> *vertices_list,
-                    std::vector<double> *normal_list,
+void GetFaceData(int v_per_face_list[],
+					double vertices_list[],
+                    double normal_list[],
 					const XmlEntitiesInfo *entities)
 {
 	for (size_t i = 0; i<entities->faces_.size(); i++)
 	{
 		if (entities->faces_[i].has_single_loop_)
-			v_per_face_list->push_back(entities->faces_[i].vertices_.size());
+			v_per_face_list[0]=entities->faces_[i].vertices_.size();
 		else
 			for (size_t j = 0; j<entities->faces_[i].vertices_.size() / 3; j++)
-				v_per_face_list->push_back(3);
+				v_per_face_list[j]=3;
 		
-		for (size_t j = 0; j < entities->faces_[i].face_num_; ++j)
+		for (size_t j = 0; j < entities->faces_[i].face_num_;)
 		{
-			normal_list->push_back(entities->faces_[i].face_normal_.x());
-			normal_list->push_back(entities->faces_[i].face_normal_.y());
-			normal_list->push_back(entities->faces_[i].face_normal_.z());
+			normal_list[j]=entities->faces_[i].face_normal_.x();
+			normal_list[j+1]=entities->faces_[i].face_normal_.y();
+			normal_list[j+2]=entities->faces_[i].face_normal_.z();
+			j+=3;
 		}
 
-		for (size_t j = 0; j<entities->faces_[i].vertices_.size(); j++)
+		for (size_t j = 0; j<entities->faces_[i].vertices_.size();)
 		{
-			vertices_list->push_back(entities->faces_[i].vertices_[j].vertex_.x());
-			vertices_list->push_back(entities->faces_[i].vertices_[j].vertex_.y());
-			vertices_list->push_back(entities->faces_[i].vertices_[j].vertex_.z());
+			vertices_list[j]=entities->faces_[i].vertices_[j].vertex_.x();
+			vertices_list[j+1]=entities->faces_[i].vertices_[j].vertex_.y();
+			vertices_list[j+2]=entities->faces_[i].vertices_[j].vertex_.z();
+			j+=3;
 		}
 	}
 }
 
+XmlEntitiesInfo* GetEntitiesInfo(CXmlExporter *exporter, int group_id)
+{
+	XmlEntitiesInfo *current_entities;
+	if (group_id >= -1 && group_id<exporter->GroupNum())
+
+		if (group_id==-1)
+			return &exporter->skpdata_.entities_;
+		else
+			return exporter->GroupById(group_id)->entities_;
+	else
+	{
+		return NULL;
+	}
+}
+
 void GetUVData(bool front_or_back,
-				std::vector<double> *u_list,
-				std::vector<double> *v_list,
+				double u_list[],
+				double v_list[],
 				const XmlEntitiesInfo *entities)
 {
 	if (front_or_back)
@@ -46,14 +60,14 @@ void GetUVData(bool front_or_back,
 			size_t vertices_size = entities->faces_[i].vertices_.size();
 			if (entities->faces_[i].has_front_texture_) {
 				for (size_t j = 0; j < vertices_size; j++) {
-					u_list->push_back(entities->faces_[i].vertices_[j].front_texture_coord_.x());
-					v_list->push_back(entities->faces_[i].vertices_[j].front_texture_coord_.y());
+					u_list[j]=entities->faces_[i].vertices_[j].front_texture_coord_.x();
+					v_list[j]=entities->faces_[i].vertices_[j].front_texture_coord_.y();
 				}
 			}
 			else
 				for (size_t j = 0; j < vertices_size; ++j) {
-					u_list->push_back(-100);
-					v_list->push_back(-100);
+					u_list[j]=-100;
+					v_list[j]=-100;
 				}
 		}
 	else
@@ -62,14 +76,14 @@ void GetUVData(bool front_or_back,
 
 			if (entities->faces_[i].has_back_texture_) {
 				for (size_t j = 0; j < vertices_size; j++) {
-					u_list->push_back(entities->faces_[i].vertices_[j].back_texture_coord_.x());
-					v_list->push_back(entities->faces_[i].vertices_[j].back_texture_coord_.y());
+					u_list[j]=entities->faces_[i].vertices_[j].back_texture_coord_.x();
+					v_list[j]=entities->faces_[i].vertices_[j].back_texture_coord_.y();
 				}
 			}
 			else
 				for (size_t j = 0; j < vertices_size; ++j) {
-					u_list->push_back(-100);
-					v_list->push_back(-100);
+					u_list[j]=-100;
+					v_list[j]=-100;
 				}
 		}
 }
@@ -158,27 +172,27 @@ EXPORT  int GetGroupNum(CXmlExporter *exporter)
 	return exporter->GroupNum();
 }
 
-EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,int group_id,int **children_id, int *children_num,VectorHandle *id_handle)
+EXPORT  int GetGroupChildrenNum(CXmlExporter *exporter, int group_id )
 {
+	if (group_id >= -1 && group_id<exporter->GroupNum())
+		if (group_id == -1)
+			return exporter->RootGroupChildren().size();
+		else
+			return exporter->GroupChildrenById(group_id).size();
+	return 0;
+}
 
-	auto id_list = new std::vector<int>();
+EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,int group_id,int children_id[])
+{
 	std::vector<int> children_id_list;
 	if (group_id >= -1 && group_id<exporter->GroupNum())
 		if (group_id == -1)
 			children_id_list = exporter->RootGroupChildren();
 		else
 			children_id_list = exporter->GroupChildrenById(group_id);
-	else
-		return;
 
-	for (size_t i = 0; i < children_id_list.size(); ++i)
-	{
-		id_list->push_back(children_id_list[i]);
-	}
-	
-	*id_handle=reinterpret_cast<VectorHandle>(id_list);
-	*children_id=id_list->data();
-	*children_num=int(id_list->size());
+		for (size_t i = 0; i < children_id_list.size(); ++i)
+			children_id[i]=children_id_list[i];
 }
 
 EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int group_id,double transform[16])
@@ -198,46 +212,15 @@ EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int group_id,double tr
 
 EXPORT bool GetFace(CXmlExporter *exporter,
                         int group_id,
-						double **vertices,
-						int *vertex_num,
-						int **vertex_num_per_face,
-						int *face_num,
-						double **face_normal,
-						VectorHandle *vertices_handle,
-						VectorHandle *vertices_face_handle,
-						VectorHandle *face_normal_handle)
+						double vertices[],
+						int vertex_num_per_face[],
+						double face_normal[])
 {
-	auto vertices_list = new std::vector<double>();
-	auto normal_list = new std::vector<double>();
-	auto v_per_face_list = new std::vector<int>();
-	auto face_vertex_list = new std::vector<int>();
-
-	XmlEntitiesInfo *current_entities;
-	if (group_id >= -1 && group_id<exporter->GroupNum())
-		if (group_id == -1)
-			current_entities = &exporter->skpdata_.entities_;
-		else
-			current_entities = exporter->GroupById(group_id)->entities_;
-	else
-		return false;
-
-	GetFaceData(v_per_face_list,
-					face_vertex_list,
-					vertices_list,
-					normal_list,
+	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	GetFaceData(vertex_num_per_face,
+					vertices,
+					face_normal,
 					current_entities);
-
-	*vertices_handle = reinterpret_cast<VectorHandle>(vertices_list);
-	*vertices = vertices_list->data();
-	*vertex_num = int(vertices_list->size() / 3);
-
-	*face_normal_handle = reinterpret_cast<VectorHandle>(normal_list);
-	*face_normal = normal_list->data();
-
-	*vertices_face_handle = reinterpret_cast<VectorHandle>(v_per_face_list);
-	*vertex_num_per_face = v_per_face_list->data();
-	*face_num = int(v_per_face_list->size());
-
 
 #ifdef PRINT_SKP_DATA
 	cout << endl<<"Debug face data print------------------" << endl;
@@ -264,36 +247,26 @@ EXPORT bool GetFace(CXmlExporter *exporter,
 	return true;
 }
 
+
+EXPORT int GetFaceUVDSize(CXmlExporter *exporter,
+                        int group_id,
+                        bool front_or_back )
+{
+	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	int uv_size=0;
+	for (size_t i = 0; i < entities->faces_.size(); i++) 
+		uv_size+=int(entities->faces_[i].vertices_.size());
+	return uv_size;
+}
+
 EXPORT bool GetFaceUV(CXmlExporter *exporter,
 						int group_id,
 						bool front_or_back,
-						double **u,
-						double **v,
-						int *uv_num,
-						VectorHandle *u_handle,
-						VectorHandle *v_handle)
+						double u[],
+						double v[])
 {
-	auto u_list = new std::vector<double>();
-	auto v_list = new std::vector<double>();
-
-	XmlEntitiesInfo *current_entities;
-	if (group_id >= -1 && group_id<exporter->GroupNum())
-
-		if (group_id==-1)
-			current_entities=&exporter->skpdata_.entities_;
-		else
-			current_entities=exporter->GroupById(group_id)->entities_;
-	else
-	{
-		return false;
-	}
-	GetUVData(front_or_back,u_list,v_list,current_entities);
-
-	*u_handle = reinterpret_cast<VectorHandle>(u_list);
-	*v_handle = reinterpret_cast<VectorHandle>(v_list);
-	*u = u_list->data();
-	*v = v_list->data();
-	*uv_num = int(u_list->size());
+	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	GetUVData(front_or_back,u,v,current_entities);
 
 #ifdef PRINT_SKP_DATA
 	cout << endl << "Debug face uv data print------------------" << endl;
@@ -451,26 +424,5 @@ EXPORT bool GetMaterialIDPerFace(CXmlExporter *exporter,
 	cout << endl << "Face material print ends--------------" << endl;
 #endif
 
-	return true;
-}
-
-EXPORT bool ReleaseDoubleHandle(VectorHandle handle)
-{
-	auto h = reinterpret_cast<std::vector<double>*>(handle);
-	delete h;
-	return true;
-}
-
-EXPORT bool ReleaseIntHandle(VectorHandle handle)
-{
-	auto h = reinterpret_cast<std::vector<int>*>(handle);
-	delete h;
-	return true;
-}
-
-EXPORT bool ReleaseBoolHandle(VectorHandle handle)
-{
-	auto h = reinterpret_cast<std::vector<bool>*>(handle);
-	delete h;
 	return true;
 }
