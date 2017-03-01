@@ -25,8 +25,8 @@ void GetUVData(bool front_or_back,
                 const XmlEntitiesInfo *entities);
 
 void GetFaceMaterialData(CXmlExporter *exporter,
-						 std::vector<int> *front_id,
-                         std::vector<int> *back_id,
+						 int front_id[],
+                         int back_id[],
                          const XmlEntitiesInfo *entities);
 
 
@@ -72,9 +72,9 @@ EXPORT void GetFaceDSize(CXmlExporter *exporter,
 //get geometry face data from exporter
 EXPORT bool GetFace(CXmlExporter *exporter,
                         int group_id,
-                        double **vertices,   //vertex position list
-                        int **vertex_num_per_face,   //vertex num of each face
-                        double **face_normal);
+                        double vertices[],   //vertex position list
+                        int vertex_num_per_face[],   //vertex num of each face
+                        double face_normal[]);
 
 
 
@@ -92,8 +92,8 @@ EXPORT int GetFaceUVDSize(CXmlExporter *exporter,
 EXPORT bool GetFaceUV(CXmlExporter *exporter,
                         int group_id,
                         bool front_or_back,   //front uv or back uv
-                        double **u,   //u list
-                        double **v)   //v list
+                        double u[],   //u list
+                        double v[])   //v list
 
 EXPORT int GetMaterialNum(CXmlExporter *exporter);
 
@@ -118,7 +118,6 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
                             double *tex_sscale,
                             double *tex_tscale,
                             int *bits_per_pixel,
-                            int *data_size,
                             int *width,
                             int *height,
                             double pixel_data[]);
@@ -129,7 +128,7 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 //Material per face--------------
 EXPORT bool GetMaterialIDPerFace(CXmlExporter *exporter,
                                 int group_id,
-								int **front_material_id_per_face,//-1 means the face has no material
-								int **back_material_id_per_face);
+								int front_material_id_per_face[],//-1 means the face has no material
+								int back_material_id_per_face[]);
 
 #endif

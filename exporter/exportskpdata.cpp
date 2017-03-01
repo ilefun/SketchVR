@@ -17,20 +17,18 @@ void GetFaceData(int v_per_face_list[],
 			for (size_t j = 0; j<entities->faces_[i].vertices_.size() / 3; j++)
 				v_per_face_list[j]=3;
 		
-		for (size_t j = 0; j < entities->faces_[i].face_num_;)
+		for (size_t j = 0; j < entities->faces_[i].face_num_;j++)
 		{
-			normal_list[j]=entities->faces_[i].face_normal_.x();
-			normal_list[j+1]=entities->faces_[i].face_normal_.y();
-			normal_list[j+2]=entities->faces_[i].face_normal_.z();
-			j+=3;
+			normal_list[j*3]=entities->faces_[i].face_normal_.x();
+			normal_list[j*3+1]=entities->faces_[i].face_normal_.y();
+			normal_list[j*3+2]=entities->faces_[i].face_normal_.z();
 		}
 
-		for (size_t j = 0; j<entities->faces_[i].vertices_.size();)
+		for (size_t j = 0; j<entities->faces_[i].vertices_.size();j++)
 		{
-			vertices_list[j]=entities->faces_[i].vertices_[j].vertex_.x();
-			vertices_list[j+1]=entities->faces_[i].vertices_[j].vertex_.y();
-			vertices_list[j+2]=entities->faces_[i].vertices_[j].vertex_.z();
-			j+=3;
+			vertices_list[j*3]=entities->faces_[i].vertices_[j].vertex_.x();
+			vertices_list[j*3+1]=entities->faces_[i].vertices_[j].vertex_.y();
+			vertices_list[j*3+2]=entities->faces_[i].vertices_[j].vertex_.z();
 		}
 	}
 }
@@ -88,8 +86,12 @@ void GetUVData(bool front_or_back,
 		}
 }
 
-void GetFaceMaterialData(CXmlExporter *exporter,std::vector<int> *front_id,std::vector<int> *back_id,const XmlEntitiesInfo *entities)
+void GetFaceMaterialData(CXmlExporter *exporter,
+						 int front_id[],
+                         int back_id[],
+                         const XmlEntitiesInfo *entities)
 {
+	int front_index=0,back_index=0;
 	for (size_t i = 0; i<entities->faces_.size(); i++)
 	{
 		int current_face_num=1;
@@ -98,17 +100,17 @@ void GetFaceMaterialData(CXmlExporter *exporter,std::vector<int> *front_id,std::
 
 		if(exporter->matname_id_map_.count(entities->faces_[i].front_mat_name_))
 			for(int j=0;j<current_face_num;j++)
-				front_id->push_back(exporter->matname_id_map_[entities->faces_[i].front_mat_name_]);
+				front_id[front_index++]=exporter->matname_id_map_[entities->faces_[i].front_mat_name_];
 		else
 			for(int j=0;j<current_face_num;j++)
-				front_id->push_back(-1);
+				front_id[front_index++]=-1;
 
 		if(exporter->matname_id_map_.count(entities->faces_[i].back_mat_name_))
 			for(int j=0;j<current_face_num;j++)
-				back_id->push_back(exporter->matname_id_map_[entities->faces_[i].back_mat_name_]);
+				back_id[back_index++]=exporter->matname_id_map_[entities->faces_[i].back_mat_name_];
 		else
 			for(int j=0;j<current_face_num;j++)
-				back_id->push_back(-1);
+				back_id[back_index++]=-1;
 
 	}
 }
@@ -210,6 +212,30 @@ EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int group_id,double tr
 		}
 }
 
+EXPORT void GetFaceDSize(CXmlExporter *exporter,
+                        int group_id,
+                        int *vertex_num,
+                        int *face_num )
+{
+	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	if (current_entities==NULL)
+		return ;
+
+	int v_num=0,f_num=0;
+	for (size_t i = 0; i<current_entities->faces_.size(); i++)
+	{
+		if (current_entities->faces_[i].has_single_loop_)
+		{
+			f_num++;
+			v_num+= entities->faces_[i].vertices_.size();
+		}
+		else{
+			f_num+=entities->faces_[i].vertices_.size() / 3;
+			v_num+= entities->faces_[i].vertices_.size();
+		}
+	}
+}
+
 EXPORT bool GetFace(CXmlExporter *exporter,
                         int group_id,
 						double vertices[],
@@ -305,11 +331,8 @@ EXPORT const bool GetMaterialNameByID(CXmlExporter *exporter,int id,char *mat_na
 EXPORT int GetTexPixelDSize(CXmlExporter *exporter, 
                             int material_id )
 {
-	if(material_id < exporter->skpdata_.materials_.size())
-	{
-		if(exporter->skpdata_.materials_[material_id].has_texture_)
-			return current_mat.data_size_;
-	}
+	if(exporter->skpdata_.materials_.at(material_id).has_texture_)
+		return exporter->skpdata_.materials_[material_id].data_size_;
 	return 0;
 }
 
@@ -326,15 +349,11 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
                             double *tex_sscale,
                             double *tex_tscale,
                             int *bits_per_pixel,
-                            int *data_size,
                             int *width,
                             int *height,
                             double pixel_data[] )
 {
-	size_t mat_num= exporter->skpdata_.materials_.size();
-	if(material_id>=mat_num) return false;
-	
-	XmlMaterialInfo current_mat=exporter->skpdata_.materials_[material_id];
+	XmlMaterialInfo current_mat=exporter->skpdata_.materials_.at(material_id);
 	
 	*has_color=current_mat.has_color_;
 	if(*has_color){
@@ -352,7 +371,6 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 		*tex_sscale=current_mat.texture_sscale_;
 		*tex_tscale=current_mat.texture_tscale_;
 		*bits_per_pixel=current_mat.bits_per_pixel_;
-		*data_size=current_mat.data_size_;
 		*width=current_mat.width_;
 		*height=current_mat.height_;
 
@@ -374,7 +392,7 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 	if (*has_texture)
 	{
 		cout<<"\twidth : "<<*width<<",  height : "<<*height<<endl;
-		cout<<"\tdata size : "<<*data_size<<", bits_per_pixel : "<<*bits_per_pixel <<endl;
+		cout<<"\tdata size : "<<current_mat.data_size_<<", bits_per_pixel : "<<*bits_per_pixel <<endl;
 		for (size_t i = 0; i < 10; i++)
 		{
 			cout << *(*pixel_data + i) << " ";
@@ -390,45 +408,34 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 
 EXPORT bool GetMaterialIDPerFace(CXmlExporter *exporter,
 	int group_id,
-	int **front_material_id_per_face,
-	int **back_material_id_per_face,
-	int *face_num,
-	VectorHandle *front_mat_handle,
-	VectorHandle *back_mat_handle)
+	int front_material_id_per_face[],
+	int back_material_id_per_face[])
 {
-	auto front_mat_id=new std::vector<int>;
-	auto back_mat_id=new std::vector<int>;
-
 	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
 	if (current_entities==NULL)
 		return false;
 
-	GetFaceMaterialData(exporter,front_mat_id,back_mat_id,current_entities);
+	GetFaceMaterialData(exporter,
+						front_material_id_per_face,
+						back_material_id_per_face,
+						current_entities);
 
-	*face_num=front_mat_id->size();
-	*front_material_id_per_face=front_mat_id->data();
-	*back_material_id_per_face=back_mat_id->data();
+// #ifdef PRINT_SKP_DATA
+// 	cout << endl << "Face material print starts--------------" << endl;
 
-	*front_mat_handle = reinterpret_cast<VectorHandle>(front_mat_id);
-	*back_mat_handle = reinterpret_cast<VectorHandle>(back_mat_id);
+// 	cout << "Front mat id per face :" << endl;
+// 	for (int i = 0; i < *face_num; ++i)
+// 	{
+// 		cout << *(*front_material_id_per_face + i) << " ";
+// 	}
 
-#ifdef PRINT_SKP_DATA
-	cout << endl << "Face material print starts--------------" << endl;
-
-	cout << "Face num is : " << *face_num << endl;
-	cout << "Front mat id per face :" << endl;
-	for (int i = 0; i < *face_num; ++i)
-	{
-		cout << *(*front_material_id_per_face + i) << " ";
-	}
-
-	cout << endl << "Back mat id per face :" << endl;
-	for (int i = 0; i < *face_num; ++i)
-	{
-		cout << *(*back_material_id_per_face + i) << " ";
-	}
-	cout << endl << "Face material print ends--------------" << endl;
-#endif
+// 	cout << endl << "Back mat id per face :" << endl;
+// 	for (int i = 0; i < *face_num; ++i)
+// 	{
+// 		cout << *(*back_material_id_per_face + i) << " ";
+// 	}
+// 	cout << endl << "Face material print ends--------------" << endl;
+// #endif
 
 	return true;
 }

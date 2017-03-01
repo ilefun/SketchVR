@@ -2,25 +2,20 @@
 #include <ctime>
 
 void face_data(CXmlExporter *exporter, int group_id) {
-	double *vertices;
-	int vertex_num;
-	int *vertex_num_per_face;
-	int face_num;
-	double *face_normal;
-	VectorHandle vertices_handle;
-	VectorHandle vertices_face_handle;
-	VectorHandle face_normal_handle;
+    int vertex_num;
+    int face_num;
 
-	GetFace(exporter,
+    GetFaceDSize(exporter,group_id,&vertex_num,&face_num);
+    
+    double *vertices=new double[vertex_num*3];
+    int *vertex_num_per_face=new int[face_num];
+    double *face_normal=new double[face_num*3];
+
+    GetFace(exporter,
 		group_id,
-		&vertices,
-		&vertex_num,
-		&vertex_num_per_face,
-		&face_num,
-		&face_normal,
-		&vertices_handle,
-		&vertices_face_handle,
-		&face_normal_handle);
+		vertices,
+		vertex_num_per_face,
+		face_normal);
 
 }
 
