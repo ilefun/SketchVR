@@ -15,13 +15,13 @@ using namespace std;
 XmlEntitiesInfo* GetEntitiesInfo(CXmlExporter *exporter, int group_id);
 
 void GetFaceData(int v_per_face_list[],
-                    double vertices_list[],
-                    double normal_list[],
+                    float vertices_list[],
+                    float normal_list[],
                     const XmlEntitiesInfo *entities);
 
 void GetUVData(bool front_or_back,
-                double u_list[],
-                double v_list[],
+                float u_list[],
+                float v_list[],
                 const XmlEntitiesInfo *entities);
 
 void GetFaceMaterialData(CXmlExporter *exporter,
@@ -34,7 +34,7 @@ EXPORT  int GetGroupNum(CXmlExporter *exporter);
   
 EXPORT  void GetGroupTransformById(CXmlExporter *exporter,
                                     int group_id,
-                                    double transform[16]);
+                                    float transform[16]);
 
 
 
@@ -72,9 +72,9 @@ EXPORT void GetFaceDSize(CXmlExporter *exporter,
 //get geometry face data from exporter
 EXPORT bool GetFace(CXmlExporter *exporter,
                         int group_id,
-                        double vertices[],   //vertex position list
+                        float vertices[],   //vertex position list
                         int vertex_num_per_face[],   //vertex num of each face
-                        double face_normal[]);
+                        float face_normal[]);
 
 
 
@@ -90,10 +90,10 @@ EXPORT int GetFaceUVDSize(CXmlExporter *exporter,
 
 //get front uv or back uv data for each face
 EXPORT bool GetFaceUV(CXmlExporter *exporter,
-                        int group_id,
-                        bool front_or_back,   //front uv or back uv
-                        double u[],   //u list
-                        double v[])   //v list
+	int group_id,
+	bool front_or_back,   //front uv or back uv
+	float u[],   //u list
+	float v[]);   //v list
 
 EXPORT int GetMaterialNum(CXmlExporter *exporter);
 
@@ -111,16 +111,16 @@ EXPORT int GetTexPixelDSize(CXmlExporter *exporter,
 EXPORT bool GetMaterialData(CXmlExporter *exporter, 
                             int material_id,
                             bool *has_color,
-							double color[3],
+							float color[3],
                             bool *has_alpha,
-                            double *alpha,
+                            float *alpha,
                             bool *has_texture,
-                            double *tex_sscale,
-                            double *tex_tscale,
+                            float *tex_sscale,
+                            float *tex_tscale,
                             int *bits_per_pixel,
                             int *width,
                             int *height,
-                            double pixel_data[]);
+                            float pixel_data[]);
 
 
 

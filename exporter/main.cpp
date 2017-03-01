@@ -2,14 +2,14 @@
 #include <ctime>
 
 void face_data(CXmlExporter *exporter, int group_id) {
-    int vertex_num;
-    int face_num;
+    int vertex_num=0;
+    int face_num=0;
 
     GetFaceDSize(exporter,group_id,&vertex_num,&face_num);
     
-    double *vertices=new double[vertex_num*3];
+    float *vertices=new float[vertex_num*3];
     int *vertex_num_per_face=new int[face_num];
-    double *face_normal=new double[face_num*3];
+    float *face_normal=new float[face_num*3];
 
     GetFace(exporter,
 		group_id,
@@ -17,25 +17,62 @@ void face_data(CXmlExporter *exporter, int group_id) {
 		vertex_num_per_face,
 		face_normal);
 
+    #ifdef PRINT_SKP_DATA
+	cout << endl<<"Debug face data print------------------" << endl;
+	cout << "Group id is : " << group_id << endl;
+	cout << "Face num is : " << face_num<< endl;
+	if (face_num > 0) {
+		cout << "Vertex num is : " << vertex_num << endl;
+		for (int i = 0; i < vertex_num * 3; i += 3)
+			cout << vertices[i] << " " << vertices[i + 1] << " " << vertices[i + 2] << endl;
+
+		cout << "Vertex num per face : " << endl;
+		for (int i = 0; i < face_num; i++)
+			cout << vertex_num_per_face [i] << " ";
+
+		cout << endl << "Face normal : " << endl;
+		for (int i = 0; i < face_num * 3; i += 3)
+			cout << face_normal[i] << " " << face_normal[i + 1] << " " << face_normal[i + 2] << endl;
+	}
+	cout <<endl<< "Debug data print ends------------------" << endl;
+
+#endif // PRINT_SKP_DATA
+	delete vertices;
+	delete vertex_num_per_face;
+	delete face_normal;
+
 }
 
 void face_uv(CXmlExporter *exporter, bool front_or_back, int group_id) {
-	double *u;
-	double *v;
-	int uv_num;
+	int uv_num=GetFaceUVDSize(exporter,group_id,front_or_back);
 
-	VectorHandle u_handle;
-	VectorHandle v_handle;
-
+	float *u=new float[uv_num];
+	float *v=new float[uv_num];
 	GetFaceUV(exporter,
 		group_id,
 		front_or_back,
-		&u,
-		&v,
-		&uv_num,
-		&u_handle, &v_handle);
+		u,
+		v);
+
+	#ifdef PRINT_SKP_DATA
+	cout << endl << "Debug face uv data print------------------" << endl;
+	if (front_or_back)
+		cout << "[Front UV]" << endl;
+	else
+		cout << "[Back UV]" << endl;
+		cout << "UV num is : " << uv_num << endl;
+	for (int j = 0; j < uv_num; j++)
+		cout << u[j] << " " << v[j] << endl;
+
+	cout << endl << "Debug face uv data print ends------------------" << endl;
+
+	#endif // PRINT_SKP_DATA
+
+	delete u;
+	delete v;
 
 }
+
 
 void material(CXmlExporter *exporter) {
 
@@ -47,21 +84,21 @@ void material(CXmlExporter *exporter) {
 		char mat_name[100];
 		GetMaterialNameByID(exporter, i, mat_name);
 		cout << endl << "Material id&name : " << i << " " << mat_name << endl;
+		
+		int data_size = GetTexPixelDSize(exporter,i);
 
 		bool has_color = false;
-		double color[3];
+		float color[3];
 		bool has_alpha = false;
-		double alpha = 1;
+		float alpha = 1;
 		bool has_texture = false;
-		double tex_sscale = 1.0;
-		double tex_tscale = 1.0;
+		float tex_sscale = 1.0;
+		float tex_tscale = 1.0;
 
-		int data_size_per_pixel = 0;
-		int data_size = 0;
+		int bits_per_pixel = 0;
 		int width = 0;
 		int height = 0;
-		double *pixel_data = NULL;
-		VectorHandle pixel_data_handle;
+		float *pixel_data = new float[data_size];
 
 		GetMaterialData(exporter,
 			i,
@@ -72,35 +109,74 @@ void material(CXmlExporter *exporter) {
 			&has_texture,
 			&tex_sscale,
 			&tex_tscale,
-			&data_size_per_pixel,
-			&data_size,
+			&bits_per_pixel,
 			&width,
 			&height,
-			&pixel_data,
-			&pixel_data_handle);
+			pixel_data);
+		#ifdef PRINT_SKP_DATA
+		cout << endl << "Material " << i << " Data print starts" << endl;
+		cout << "\tHas color " << has_color << endl;
+		if (has_color)
+		cout << "\tColor " << color[0] << " " << color[1] << " " << color[2] << endl;
 
+		cout << "\tHas alpha " << has_alpha << endl;
+		if (has_alpha)
+		cout << "\tAlpha " << alpha << endl;
+
+		cout << "\tHas texture " << has_texture << endl;
+		if (has_texture)
+		{
+			cout << "\twidth : " << width << ",  height : " << height << endl;
+			cout << "\tdata size : " << data_size << ", bits_per_pixel : " << bits_per_pixel << endl;
+			for (size_t i = 0; i < 10; i++)
+			{
+				cout << pixel_data[i] << " ";
+			}
+			cout << endl;
+		}
+		// cout << "\tTexture  " << texture_path << " " << *tex_sscale << " " << *tex_tscale << endl;
+		cout << endl << "Material " << i << " Data print ends" << endl;
+		#endif
+		delete pixel_data;
 	}
 }
 
-void face_material(CXmlExporter *exporter, int group_id) {
+ void face_material(CXmlExporter *exporter, int group_id) {
 
-	int *front_material_id_per_face;
-	int *back_material_id_per_face;
-	VectorHandle front_mat_handle;
-	VectorHandle back_mat_handle;
-	int face_num;
+    int vertex_num=0;
+    int face_num=0;
 
-	GetMaterialIDPerFace(exporter, group_id,
-		&front_material_id_per_face,
-		&back_material_id_per_face,
-		&face_num,
-		&front_mat_handle,
-		&back_mat_handle);
+    GetFaceDSize(exporter,group_id,&vertex_num,&face_num);
 
-}
+ 	int *front_material_id_per_face=new int[face_num];
+ 	int *back_material_id_per_face=new int[face_num];
+
+ 	GetMaterialIDPerFace(exporter, group_id,
+ 		front_material_id_per_face,
+ 		back_material_id_per_face);
+
+ 	#ifdef PRINT_SKP_DATA
+	cout << endl << "Face material print starts--------------" << endl;
+
+	cout << "Front mat id per face :" << endl;
+	for (int i = 0; i < face_num; ++i)
+	{
+		cout << front_material_id_per_face[i] << " ";
+	}
+
+	cout << endl << "Back mat id per face :" << endl;
+	for (int i = 0; i < face_num; ++i)
+	{
+		cout << back_material_id_per_face[i] << " ";
+	}
+	cout << endl << "Face material print ends--------------" << endl;
+#endif
+	delete front_material_id_per_face;
+	delete back_material_id_per_face;
+ }
 
 void group_id_data(CXmlExporter *exporter, int group_id) {
-	double xform[16];
+	float xform[16];
 	GetGroupTransformById(exporter, group_id, xform);
 
 	cout << "Group xform is : ";
@@ -118,7 +194,7 @@ void group_id_data(CXmlExporter *exporter, int group_id) {
 	face_data(exporter, group_id);
   #ifdef TIME_LOGGER
     end = clock();
-    cout<<"Time Logger : Get Face data in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Get Face data in "<<(float((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   #endif
 
 
@@ -129,12 +205,12 @@ void group_id_data(CXmlExporter *exporter, int group_id) {
   #endif
 
 	face_uv(exporter,true, group_id);
+	face_uv(exporter,false,group_id);
   #ifdef TIME_LOGGER
     end = clock();
-    cout<<"Time Logger : Get face front uv in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Get face front uv in "<<(float((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   #endif
 
-	face_uv(exporter,false,group_id);
 
   #ifdef TIME_LOGGER
     start = clock();
@@ -143,21 +219,26 @@ void group_id_data(CXmlExporter *exporter, int group_id) {
 	face_material(exporter,group_id);
   #ifdef TIME_LOGGER
     end = clock();
-    cout<<"Time Logger : Get face material in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Get face material in "<<(float((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   #endif
 
-	int* children_id_list;
-	int children_num;
-	VectorHandle children_id_handle;;
-
-	GetGroupChildrenById(exporter, group_id, &children_id_list, &children_num, &children_id_handle);
+	int children_num=GetGroupChildrenNum(exporter,group_id);
 	cout << "Children num is : " << children_num << endl;
+
 	if (children_num > 0) {
+		int *children_id_list=new int[children_num];
+
+		GetGroupChildrenById(exporter,
+							 group_id,
+							 children_id_list);
+
 		for (size_t k = 0; k < children_num; k++)
 		{
 			cout <<"Group id:" <<*(children_id_list + k) << " Parent id: "<<group_id<<"-------------------------" << endl;
 			group_id_data(exporter, *(children_id_list + k));
 		}
+
+		delete children_id_list;
 	}
 	cout << endl << endl;
 }
@@ -190,6 +271,6 @@ int main(int argc,char *argv[])
 	  ReleaseExporter(exporter);
   }
   end = clock();
-  cout<<"Time Logger : Finshed in : "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s";
+  cout<<"Time Logger : Finshed in : "<<(float((end - start)) / CLOCKS_PER_SEC)<<"s";
   //system("pause");
 }
