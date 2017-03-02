@@ -235,8 +235,8 @@ EXPORT void GetFaceDSize(CXmlExporter *exporter,
 			v_num+= current_entities->faces_[i].vertices_.size();
 		}
 		else{
-			f_num+= current_entities->faces_[i].vertices_.size() / 3;
-			v_num+= current_entities->faces_[i].vertices_.size();
+			f_num+= current_entities->faces_[i].face_num_;
+			v_num+= current_entities->faces_[i].face_num_*3;
 		}
 	}
 	*vertex_num = v_num;

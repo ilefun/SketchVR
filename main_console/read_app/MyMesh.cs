@@ -74,32 +74,35 @@ public class MyMesh : MonoBehaviour
 
                     //get group xform. 
                     //----------------------------------------------------------
-                    double[] xform = new double[16];
+                    float[] xform = new float[16];
                     SkpInterface.SkpDLL.GetGroupTransformById(_skp_exporter, -1, xform);
                     Debug.Log("root xform : \n" + xform[0] + " " + xform[1] + " " + xform[2] + " " + xform[3] +
                                             "\n" + xform[4] + " " + xform[5] + " " + xform[6] + " " + xform[7] +
                                             "\n" + xform[8] + " " + xform[9] + " " + xform[10] + " " + xform[11] +
                                             "\n" + xform[12] + " " + xform[13] + " " + xform[14] + " " + xform[15]);
 
-
-
+                    //free memory
+                    GCHandle h = GCHandle.Alloc(xform, GCHandleType.Pinned);
+                    h.Free();
 
 
                     //get group children of the specified id group.
                     //-----------------------------------------------------
-                    int* _children_id;//the id list of the children
                     int _children_num=0;//the num of the children
+                    children_num=SkpInterface.SkpDLL.GetGroupChildrenNum(_skp_exporter,-1);
+                    Debug.Log("children num of root : " + _children_num);
+
+                    int[] _children_id=new int[children_num];//the id list of the children
                     SkpInterface.SkpDLL.GetSkpGroupChildrenById(_skp_exporter,
                                                                 -1,
-                                                                out _children_id,
-                                                                out _children_num);
-                    Debug.Log("children num of root : " + _children_num);
+                                                                _children_id);
+                    
                     //test children xform of group -1
                     int grp_id = 0;
                     while (grp_id < _children_num)
                     {
                         Debug.Log("root children id xform : " + grp_id + "----------------");
-                        SkpInterface.SkpDLL.GetGroupTransformById(_skp_exporter, *(_children_id + grp_id), xform);
+                        SkpInterface.SkpDLL.GetGroupTransformById(_skp_exporter, _children_id[grp_id], xform);
                         Debug.Log(" xform : \n" + xform[0] + " " + xform[1] + " " + xform[2] + " " + xform[3] +
                                                     "\n" + xform[4] + " " + xform[5] + " " + xform[6] + " " + xform[7] +
                                                     "\n" + xform[8] + " " + xform[9] + " " + xform[10] + " " + xform[11] +
@@ -113,20 +116,23 @@ public class MyMesh : MonoBehaviour
 
 
                     //get face data---------------------------------------------------
-                    double* _vertices;
-                    int _vertex_num;
-                    int* _vertex_num_per_face;
-                    int _face_num;
-                    double* _face_normal;
-
-                    SkpInterface.SkpDLL.GetSkpFace(_skp_exporter, -1,
-                                out _vertices,
-                                out _vertex_num,
-                                out _vertex_num_per_face,
-                                out _face_num,
-                                out _face_normal);
+                    int _vertex_num=0;
+                    int _face_num=0;
+                    SkpInterface.SkpDLL.GetFaceDSize(_skp_exporter,
+                                                        -1,
+                                                        out _vertex_num,
+                                                        out _face_num);
                     Debug.Log("vertex num : " + _vertex_num);
                     Debug.Log("face num : " + _face_num);
+
+                    float[] _vertices=new float[_vertex_num*3];
+                    int[] _vertex_num_per_face=new int[_face_num];
+                    float[] _face_normal=new float[_face_num*3];
+
+                    SkpInterface.SkpDLL.GetSkpFace(_skp_exporter, -1,
+                                                    _vertices,
+                                                    _vertex_num_per_face,
+                                                    _face_normal);
 
 
 
@@ -135,15 +141,17 @@ public class MyMesh : MonoBehaviour
 
 
                     //uv test-----------------------------------------------------
-                    double* u;//u value list
-                    double* v;//v value list
                     int uv_num = 0;//u v list length
+                    uv_num=SkpInterface.SkpDLL.GetFaceUVDSize(_skp_exporter, -1,true)
+                    Debug.Log("uv_num ： " + uv_num);
+
+                    
+                    float[] u=new float[uv_num];//u value list
+                    float[] v=new float[uv_num];//v value list
                     SkpInterface.SkpDLL.GetSkpFaceUV(_skp_exporter, -1,
                                                     true,//true for front uv,false for back uv
-                                                    out u,
-                                                    out v,
-                                                    out uv_num);
-                    Debug.Log("uv_num ： " + uv_num);
+                                                    u,
+                                                    v);
 
 
 
@@ -163,16 +171,18 @@ public class MyMesh : MonoBehaviour
 
                         SkpInterface.SkpDLL.GetMaterialNameByID(_skp_exporter, mat_index, mat_name); //get the material name by id
                         Debug.Log("material name "+mat_index+" : "+ mat_name.ToString());
+                        
+                        int data_size=0;
+                        data_size=SkpInterface.SkpDLL.GetTexPixelDSize(_skp_exporter, mat_index);//get the texture pixel size
+                        float[] pixel_data=new float[data_size];
 
                         bool has_color = false;
-                        double[] color = new double[3];
+                        float[] color = new float[3];
                         bool has_alpha = false;
-                        double alpha = 1;
+                        float alpha = 1;
                         bool has_texture = false;
                         int bits_per_pixel=0;
-                        int data_size=0;
                         int width=0, height=0;
-                        double* pixel_data;
                         SkpInterface.SkpDLL.GetSkpMaterialData(_skp_exporter,-1,
                                                                 mat_index,
                                                                 out has_color,
@@ -181,10 +191,9 @@ public class MyMesh : MonoBehaviour
                                                                 out alpha,
                                                                 out has_texture,
                                                                 out bits_per_pixel,
-                                                                out data_size,
                                                                 out width,
                                                                 out height,
-                                                                out pixel_data);
+                                                                pixel_data);
 
                         Debug.Log("Material id -------" + mat_index);
 
@@ -220,18 +229,16 @@ public class MyMesh : MonoBehaviour
 
 
                     //----------------------------------------------------------------------
-                    int* front_mat_id;//front material
-                    int* back_mat_id;//
-                    int id_num = 0;//equal to the face num
+                    int[] front_mat_id=new int[_face_num];//front material
+                    int[] back_mat_id=new int[_face_num];//
                     SkpInterface.SkpDLL.GetSkpMaterialIDPerFace(_skp_exporter, -1,
-                                                                out front_mat_id,
-                                                                out back_mat_id,
-                                                                out id_num);
+                                                                front_mat_id,
+                                                                back_mat_id);
 
 
-                    Debug.Log("mat id num: " + id_num);
+                    Debug.Log("mat id num: " + _face_num);
                     int face_id = 0;
-                    while (face_id < id_num)
+                    while (face_id < _face_num)
                     {
                         Debug.Log("Material for face id: "+ face_id+" Front mat id: "+front_mat_id[face_id]+" Back mat id: "+back_mat_id[face_id]);
                         face_id++;
