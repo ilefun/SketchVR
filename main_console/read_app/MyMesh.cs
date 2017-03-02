@@ -44,8 +44,7 @@ public class MyMesh : MonoBehaviour
         // tSingleMeshInfo.meshData.FilePath = Application.dataPath + "/Resources/uv_test1cube";
 
         //测试颜色模型
-        tSingleMeshInfo.meshData.PathName = "D:/sketchup/cube_group.skp";
-        tSingleMeshInfo.meshData.FilePath = "D:/sketchup/reader_data";
+        tSingleMeshInfo.meshData.PathName = "D:/sketchup/test_skp_file/test01.skp";
         //liuliang测试直接运行场景测试
         if (tSingleMeshInfo.getmeshData().FileType == "DEF")
         {
@@ -82,21 +81,23 @@ public class MyMesh : MonoBehaviour
                                             "\n" + xform[12] + " " + xform[13] + " " + xform[14] + " " + xform[15]);
 
                     //free memory
-                    GCHandle h = GCHandle.Alloc(xform, GCHandleType.Pinned);
-                    h.Free();
+                    GCHandle gc_h = GCHandle.Alloc(xform, GCHandleType.Pinned);
+                    gc_h.Free();
+
+
 
 
                     //get group children of the specified id group.
                     //-----------------------------------------------------
-                    int _children_num=0;//the num of the children
-                    children_num=SkpInterface.SkpDLL.GetGroupChildrenNum(_skp_exporter,-1);
+                    int _children_num = 0;//the num of the children
+                    _children_num = SkpInterface.SkpDLL.GetGroupChildrenNum(_skp_exporter, -1);
                     Debug.Log("children num of root : " + _children_num);
 
-                    int[] _children_id=new int[children_num];//the id list of the children
-                    SkpInterface.SkpDLL.GetSkpGroupChildrenById(_skp_exporter,
+                    int[] _children_id = new int[_children_num];//the id list of the children
+                    SkpInterface.SkpDLL.GetGroupChildrenById(_skp_exporter,
                                                                 -1,
                                                                 _children_id);
-                    
+
                     //test children xform of group -1
                     int grp_id = 0;
                     while (grp_id < _children_num)
@@ -109,15 +110,16 @@ public class MyMesh : MonoBehaviour
                                                     "\n" + xform[12] + " " + xform[13] + " " + xform[14] + " " + xform[15]);
                         grp_id++;
                     }
-
+                    gc_h = GCHandle.Alloc(_children_id, GCHandleType.Pinned);
+                    gc_h.Free();
 
 
 
 
 
                     //get face data---------------------------------------------------
-                    int _vertex_num=0;
-                    int _face_num=0;
+                    int _vertex_num = 0;
+                    int _face_num = 0;
                     SkpInterface.SkpDLL.GetFaceDSize(_skp_exporter,
                                                         -1,
                                                         out _vertex_num,
@@ -125,35 +127,47 @@ public class MyMesh : MonoBehaviour
                     Debug.Log("vertex num : " + _vertex_num);
                     Debug.Log("face num : " + _face_num);
 
-                    float[] _vertices=new float[_vertex_num*3];
-                    int[] _vertex_num_per_face=new int[_face_num];
-                    float[] _face_normal=new float[_face_num*3];
+                    float[] _vertices = new float[_vertex_num * 3];
+                    int[] _vertex_num_per_face = new int[_face_num];
+                    float[] _face_normal = new float[_face_num * 3];
 
-                    SkpInterface.SkpDLL.GetSkpFace(_skp_exporter, -1,
+                    SkpInterface.SkpDLL.GetFace(_skp_exporter, -1,
                                                     _vertices,
                                                     _vertex_num_per_face,
                                                     _face_normal);
+                    gc_h = GCHandle.Alloc(_vertices, GCHandleType.Pinned);
+                    gc_h.Free();
 
+                    gc_h = GCHandle.Alloc(_vertex_num_per_face, GCHandleType.Pinned);
+                    gc_h.Free();
 
-
-
-
+                    gc_h = GCHandle.Alloc(_face_normal, GCHandleType.Pinned);
+                    gc_h.Free();
 
 
                     //uv test-----------------------------------------------------
                     int uv_num = 0;//u v list length
-                    uv_num=SkpInterface.SkpDLL.GetFaceUVDSize(_skp_exporter, -1,true)
+                    uv_num = SkpInterface.SkpDLL.GetFaceUVDSize(_skp_exporter, -1, true);
                     Debug.Log("uv_num ： " + uv_num);
 
-                    
-                    float[] u=new float[uv_num];//u value list
-                    float[] v=new float[uv_num];//v value list
-                    SkpInterface.SkpDLL.GetSkpFaceUV(_skp_exporter, -1,
+
+                    float[] u = new float[uv_num];//u value list
+                    float[] v = new float[uv_num];//v value list
+                    SkpInterface.SkpDLL.GetFaceUV(_skp_exporter, -1,
                                                     true,//true for front uv,false for back uv
                                                     u,
                                                     v);
+                    int uv_index = 0;
+                    while (uv_index < uv_num)
+                    {
+                        Debug.Log("u v: " + u[uv_index]+" "+v[uv_index]);
+                        uv_index++;
+                    }
 
-
+                    gc_h = GCHandle.Alloc(u, GCHandleType.Pinned);
+                    gc_h.Free();
+                    gc_h = GCHandle.Alloc(v, GCHandleType.Pinned);
+                    gc_h.Free();
 
 
 
@@ -170,26 +184,29 @@ public class MyMesh : MonoBehaviour
                         StringBuilder mat_name = new StringBuilder(100);
 
                         SkpInterface.SkpDLL.GetMaterialNameByID(_skp_exporter, mat_index, mat_name); //get the material name by id
-                        Debug.Log("material name "+mat_index+" : "+ mat_name.ToString());
-                        
-                        int data_size=0;
-                        data_size=SkpInterface.SkpDLL.GetTexPixelDSize(_skp_exporter, mat_index);//get the texture pixel size
-                        float[] pixel_data=new float[data_size];
+                        Debug.Log("material name " + mat_index + " : " + mat_name.ToString());
+
+                        int data_size = 0;
+                        data_size = SkpInterface.SkpDLL.GetTexPixelDSize(_skp_exporter, mat_index);//get the texture pixel size
+                        float[] pixel_data = new float[data_size];
 
                         bool has_color = false;
                         float[] color = new float[3];
                         bool has_alpha = false;
                         float alpha = 1;
                         bool has_texture = false;
-                        int bits_per_pixel=0;
-                        int width=0, height=0;
-                        SkpInterface.SkpDLL.GetSkpMaterialData(_skp_exporter,-1,
+                        int bits_per_pixel = 0;
+                        int width = 0, height = 0;
+                        float t_scale=0, s_scale=0;
+                        SkpInterface.SkpDLL.GetMaterialData(_skp_exporter,
                                                                 mat_index,
                                                                 out has_color,
                                                                 color,
                                                                 out has_alpha,
                                                                 out alpha,
                                                                 out has_texture,
+                                                                out s_scale,
+                                                                out t_scale,
                                                                 out bits_per_pixel,
                                                                 out width,
                                                                 out height,
@@ -208,14 +225,15 @@ public class MyMesh : MonoBehaviour
                         if (has_texture)
                         {
                             //如果纹理存在，应该打印出纹理路径
-                            Debug.Log("Texture: " + mat_index + " width:" +width+" height: "+height+" data size: "+data_size+" bits per pixel: "+bits_per_pixel);
+                            Debug.Log("Texture: " + mat_index + " width:" + width + " height: " + height + " data size: " + data_size + " bits per pixel: " + bits_per_pixel);
                             if (bits_per_pixel / 8 == 3)
                                 Debug.Log("RGB");
                             else
                                 Debug.Log("RGBA");
                             Debug.Log("Texture color first 4: " + pixel_data[0] + " " + pixel_data[1] + " " + pixel_data[2] + " " + pixel_data[3]);
-                            Debug.Log("Texture color last 4: " + pixel_data[data_size - 3] + " " + pixel_data[data_size - 2] + " " + pixel_data[data_size - 1] + " " + pixel_data[data_size-1]);
-
+                            Debug.Log("Texture color last 4: " + pixel_data[data_size - 3] + " " + pixel_data[data_size - 2] + " " + pixel_data[data_size - 1] + " " + pixel_data[data_size - 1]);
+                            gc_h = GCHandle.Alloc(pixel_data, GCHandleType.Pinned);
+                            gc_h.Free();
                         }
                         mat_index++;
 
@@ -229,9 +247,9 @@ public class MyMesh : MonoBehaviour
 
 
                     //----------------------------------------------------------------------
-                    int[] front_mat_id=new int[_face_num];//front material
-                    int[] back_mat_id=new int[_face_num];//
-                    SkpInterface.SkpDLL.GetSkpMaterialIDPerFace(_skp_exporter, -1,
+                    int[] front_mat_id = new int[_face_num];//front material
+                    int[] back_mat_id = new int[_face_num];//
+                    SkpInterface.SkpDLL.GetMaterialIDPerFace(_skp_exporter, -1,
                                                                 front_mat_id,
                                                                 back_mat_id);
 
@@ -240,14 +258,17 @@ public class MyMesh : MonoBehaviour
                     int face_id = 0;
                     while (face_id < _face_num)
                     {
-                        Debug.Log("Material for face id: "+ face_id+" Front mat id: "+front_mat_id[face_id]+" Back mat id: "+back_mat_id[face_id]);
+                        Debug.Log("Material for face id: " + face_id + " Front mat id: " + front_mat_id[face_id] + " Back mat id: " + back_mat_id[face_id]);
                         face_id++;
                     }
                     Debug.Log("mesh.triangles:" + mesh.triangles.Length);
 
                     //mesh.
                     Debug.Log("Sketchup model load ends.");
-
+                    gc_h = GCHandle.Alloc(front_mat_id, GCHandleType.Pinned);
+                    gc_h.Free();
+                    gc_h = GCHandle.Alloc(back_mat_id, GCHandleType.Pinned);
+                    gc_h.Free();
                 }
 
                 //print something...

@@ -91,9 +91,7 @@ namespace SkpInterface
                                                 out int bits_per_pixel,
                                                 out int width,
                                                 out int height,
-                                                float[] pixel_data,
-                                                );
-
+                                                float[] pixel_data );
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern bool GetMaterialIDPerFace(IntPtr exporter,

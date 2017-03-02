@@ -169,9 +169,9 @@ bool CXmlExporter::Convert(const std::string& from_file,
     SketchUpPluginProgressCallback* progress_callback) {
   bool exported = false;
   skp_file_ = from_file;
-  clock_t start, end;
 
   try {
+
     // Initialize the SDK
     SUInitialize();
 
@@ -180,6 +180,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
 
   	// Create the model from the src_file
   #ifdef TIME_LOGGER
+	clock_t start, end;
     start = clock();
   #endif
 
