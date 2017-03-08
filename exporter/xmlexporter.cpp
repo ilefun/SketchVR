@@ -221,9 +221,17 @@ bool CXmlExporter::Convert(const std::string& from_file,
     cout<<"Time Logger : Export materials in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   #endif
 
-    // // Component definitions
-    //std::cout<<"Exporting component data..."<<std::endl;
-    //WriteComponentDefinitions();
+
+  #ifdef TIME_LOGGER
+    start = clock();
+  #endif
+    // Component definitions
+    std::cout<<"Exporting component data..."<<std::endl;
+    WriteComponentDefinitions();
+  #ifdef TIME_LOGGER
+    end = clock();
+    cout<<"Time Logger : Export component in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+  #endif
 
     // Geometry
   #ifdef TIME_LOGGER
@@ -459,18 +467,19 @@ void CXmlExporter::WriteComponentDefinitions() {
 }
 
 void CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
-  XmlComponentDefinitionInfo xml_comp_info;
-  xml_comp_info.name_ = GetComponentDefinitionName(comp_def);
+  //XmlComponentDefinitionInfo xml_comp_info;
+  auto def_name = GetComponentDefinitionName(comp_def);
 #ifdef PRINT_SKP_DATA
-  std::cout << "Component Name : " << xml_comp_info.name_ << std::endl;
+  std::cout << "Component Name : " << def_name << std::endl;
 
 #endif // PRINT_SKP_DATA
 
   SUEntitiesRef entities = SU_INVALID;
   SUComponentDefinitionGetEntities(comp_def, &entities);
-  WriteEntities(entities,&xml_comp_info.entities_);
+  XmlEntitiesInfo entity_info;
+  WriteEntities(entities,&entity_info);
 
-  skpdata_.definitions_.push_back(xml_comp_info);
+  skpdata_.definitions_[def_name]= entity_info;
 
 }
 
@@ -479,12 +488,10 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
   size_t num_instances = 0;
   SU_CALL(SUEntitiesGetNumInstances(entities, &num_instances));
   if (num_instances > 0) {
-
 #ifdef PRINT_SKP_DATA
 	  std::cout << "Instance Num : " << num_instances << std::endl;
 
 #endif // PRINT_SKP_DATA
-
     std::vector<SUComponentInstanceRef> instances(num_instances);
     SU_CALL(SUEntitiesGetInstances(entities, num_instances,
                                    &instances[0], &num_instances));
@@ -492,23 +499,43 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       SUComponentInstanceRef instance = instances[c];
       SUComponentDefinitionRef definition = SU_INVALID;
       SU_CALL(SUComponentInstanceGetDefinition(instance, &definition));
-#ifdef PRINT_SKP_DATA
-      
-      std::cout<<"Component name : "<< GetComponentDefinitionName(definition)<<std::endl;
-#endif // PRINT_SKP_DATA
-
 
 
       // convert component to entities---------------
-      XmlGroupInfo info;
-      SU_CALL(SUComponentInstanceGetTransform(instance, &info.transform_));
+      // XmlGroupInfo info;
+      // SU_CALL(SUComponentInstanceGetTransform(instance, &info.transform_));
 
-      // Write entities
-      SUEntitiesRef  comp_entity_ref = SU_INVALID;
-      SU_CALL(SUComponentDefinitionGetEntities(definition,&comp_entity_ref));
-      WriteEntities(comp_entity_ref,info.entities_);
+      // // Write entities
+      // SUEntitiesRef  comp_entity_ref = SU_INVALID;
+      // SU_CALL(SUComponentDefinitionGetEntities(definition,&comp_entity_ref));
+      // WriteEntities(comp_entity_ref,info.entities_);
 
-      entity_info->groups_.push_back(info);
+      // entity_info->groups_.push_back(info);
+
+      XmlComponentInstanceInfo instance_info;
+      
+      // Layer
+      SULayerRef layer = SU_INVALID;
+      SUDrawingElementGetLayer(SUComponentInstanceToDrawingElement(instance),
+                               &layer);
+      if (!SUIsInvalid(layer))
+        instance_info.layer_name_ = GetLayerName(layer);
+
+      // Material
+      SUMaterialRef material = SU_INVALID;
+      SUDrawingElementGetMaterial(SUComponentInstanceToDrawingElement(instance),
+                                  &material);
+      if (!SUIsInvalid(material))
+        instance_info.material_name_ = GetMaterialName(material);
+
+      instance_info.definition_name_ = GetComponentDefinitionName(definition);
+#ifdef PRINT_SKP_DATA
+	  std::cout << "Instance Index : " <<c<<" Name : "<< instance_info.definition_name_ << std::endl;
+
+#endif // PRINT_SKP_DATA
+      SU_CALL(SUComponentInstanceGetTransform(instance,
+                                              &instance_info.transform_));
+      entity_info->component_instances_.push_back(instance_info);
     }
   }
 

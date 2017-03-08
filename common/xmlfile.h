@@ -5,7 +5,8 @@
 
 #include <string>
 #include <vector>
-#include <map>
+//#include <map>
+#include <unordered_map>
 
 #include <SketchUpAPI/color.h>
 #include <SketchUpAPI/transformation.h>
@@ -108,7 +109,7 @@ struct XmlGroupInfo {
 };
 
 struct XmlComponentInstanceInfo {
-  std::string definition_guid_;
+  std::string definition_name_;
   std::string layer_name_;
   std::string material_name_;
   SUTransformation transform_;
@@ -130,7 +131,9 @@ struct XmlComponentDefinitionInfo {
 struct XmlModelInfo {
   std::vector<XmlLayerInfo> layers_;
   std::vector<XmlMaterialInfo> materials_;
-  std::vector<XmlComponentDefinitionInfo> definitions_;
+  //std::vector<XmlComponentDefinitionInfo> definitions_;
+  std::unordered_map<std::string, XmlEntitiesInfo> definitions_;
+
   XmlEntitiesInfo entities_;
   
   void debug_print();

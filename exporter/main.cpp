@@ -252,6 +252,10 @@ int group_data(CXmlExporter *exporter )
 	return grp_num;
 }
 
+void component_data(CXmlExporter *exporter) {
+	cout <<"Component num is :"<< exporter->skpdata_.definitions_.size() << endl;
+
+}
 int main(int argc,char *argv[])
 {
   cout<<argv[1]<<endl;
@@ -265,8 +269,9 @@ int main(int argc,char *argv[])
   exporter=GetExporter(argv[1]);
   if (exporter){
 	  //exporter->skpdata_.debug_print();
-	  material(exporter);
-	  int grp_num=group_data(exporter);
+	  component_data(exporter);
+	  // material(exporter);
+	  // int grp_num=group_data(exporter);
 	  
 	  ReleaseExporter(exporter);
   }
