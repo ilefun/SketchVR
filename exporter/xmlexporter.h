@@ -77,7 +77,7 @@ private:
   XmlEdgeInfo GetEdgeInfo(SUEdgeRef edge) const;
 
   void CombineEntities(XmlEntitiesInfo *entities,
-                       std::vector<faces> &faces,
+                       std::vector<faces> &faces_group,
                        std::vector<SUTransformation> &transform);
                     
 

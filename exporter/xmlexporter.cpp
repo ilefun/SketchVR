@@ -269,10 +269,29 @@ bool CXmlExporter::Convert(const std::string& from_file,
 }
 
 void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
-                    std::vector<faces> &faces;
+                    std::vector<faces> &faces_group,
                      std::vector<SUTransformation> &transform)
 {
+  if(faces_group.empty()){
+    faces new_face_group;
+    faces_group.push_back(new_face_group);
+  }
 
+  if((faces_group.back().size()+entities->faces_.size()) > max_face_num_pergroup_)
+  {
+    faces new_face_group;
+    faces_group.push_back(new_face_group);
+  }    
+
+  for (int i = 0; i < entities->faces_.size(); ++i)
+  {
+    faces_group.back().push_back(entities->faces_[i]);
+    
+    for(auto it=transform.end();it!=transform.begin();--it){
+      entities->faces_[i].face_normal_.transform(*it.values);
+    }
+
+  }
 }
 
 void CXmlExporter::WriteLayers() {

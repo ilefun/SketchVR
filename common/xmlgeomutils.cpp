@@ -23,7 +23,7 @@ CPoint3d CPoint3d::transform(double matrix[16])
     c = x_ * matrix[2] + y_ * matrix[6] + z_ * matrix[10] + matrix[14];
     w = x_ * matrix[3] + y_ * matrix[7] + z_ * matrix[11] + matrix[15];
 
-    return CPoint3d(a/w,b/w,c/w);
+    SetLocation(a/w,b/w,c/w);
 }
 
 // Point Class----------------------------------------
@@ -86,7 +86,7 @@ CVector3d CVector3d::transform(double matrix[16])
     b = x_ * matrix[1] + y_ * matrix[5] + z_ * matrix[9];
     c = x_ * matrix[2] + y_ * matrix[6] + z_ * matrix[10];
 
-    return CVector3d(a,b,c);
+    SetDirection(a,b,c);
 }
 
 CVector3d CVector3d::operator+(const CVector3d& vec) const {

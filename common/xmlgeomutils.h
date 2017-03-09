@@ -22,7 +22,7 @@ class CVector3d {
   ~CVector3d() {}
 
   void SetDirection(double x, double y, double z){x_=x; y_=y; z_=z;}
-  CVector3d Transform(double matrix[16]);
+  void Transform(double matrix[16]);
 
   double x() const {return x_;}
   double y() const {return y_;}
@@ -66,7 +66,7 @@ class CPoint3d {
     z_=z;
   }
 
-  CPoint3d Transform(double matrix[16]);
+  void Transform(double matrix[16]);
 
   double x() const { return x_; }
   double y() const { return y_; }
