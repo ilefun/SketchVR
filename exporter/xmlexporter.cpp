@@ -95,6 +95,7 @@ CXmlExporter::CXmlExporter() {
   SUSetInvalid(model_);
   SUSetInvalid(texture_writer_);
   SUSetInvalid(image_rep_);
+  max_face_num_pergroup_=20000;
 }
 
 CXmlExporter::~CXmlExporter() {
@@ -252,6 +253,9 @@ bool CXmlExporter::Convert(const std::string& from_file,
   	std::cout << "Get Group Children..." << std::endl;
     GetGroupChildren();
 
+    // std::vector<SUTransformation> transform;
+    // CombineEntities(skpdata_.entities_,final_face_,transform);
+
   	std::cout << "Export complete." << std::endl;
     exported = true;
 
@@ -262,6 +266,13 @@ bool CXmlExporter::Convert(const std::string& from_file,
   ReleaseModelObjects();
 
   return exported;
+}
+
+void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
+                    std::vector<faces> &faces;
+                     std::vector<SUTransformation> &transform)
+{
+
 }
 
 void CXmlExporter::WriteLayers() {
@@ -462,7 +473,6 @@ void CXmlExporter::WriteComponentDefinitions() {
       WriteComponentDefinition(comp_def);
     }
 
-
   }
 }
 
@@ -481,6 +491,10 @@ void CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
 
   skpdata_.definitions_[def_name]= entity_info;
 
+  std::vector<SUTransformation> transform;
+  std::vector<faces> faces_data;
+  CombineEntities(skpdata_.entities_,faces_data,transform);
+  definition_faces_[def_name]=faces_data;
 }
 
 void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_info) {

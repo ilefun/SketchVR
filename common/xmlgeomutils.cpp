@@ -14,6 +14,18 @@ inline bool AreEqual(double val1, double val2, double tol = EqualTol) {
   return diff <= tol && diff >= -tol;
 }
 
+CPoint3d CPoint3d::transform(double matrix[16])
+{
+    double a, b, c, w;
+
+    a = x_ * matrix[0] + y_ * matrix[4] + z_ * matrix[8] + matrix[12];
+    b = x_ * matrix[1] + y_ * matrix[5] + z_ * matrix[9] + matrix[13];
+    c = x_ * matrix[2] + y_ * matrix[6] + z_ * matrix[10] + matrix[14];
+    w = x_ * matrix[3] + y_ * matrix[7] + z_ * matrix[11] + matrix[15];
+
+    return CPoint3d(a/w,b/w,c/w);
+}
+
 // Point Class----------------------------------------
 void CPoint3d::operator+=(const CVector3d& vec) {
   x_ += vec.x();
@@ -55,7 +67,28 @@ CVector3d CPoint3d::operator-(const CPoint3d& pt) const {
   return CVector3d(dx, dy, dz);
 }
 
+bool CPoint3d::operator==(const CPoint3d& v) const {
+  return AreEqual(x_, v.x_, EqualTol) && 
+         AreEqual(y_, v.y_, EqualTol) &&
+         AreEqual(z_, v.z_, EqualTol);
+}
+
+bool CPoint3d::operator!=(const CPoint3d& v) const {
+  return !operator==(v);
+}
+
 // Vector Class----------------------------------------
+CVector3d CVector3d::transform(double matrix[16])
+{
+    double a, b, c;
+
+    a = x_ * matrix[0] + y_ * matrix[4] + z_ * matrix[8];
+    b = x_ * matrix[1] + y_ * matrix[5] + z_ * matrix[9];
+    c = x_ * matrix[2] + y_ * matrix[6] + z_ * matrix[10];
+
+    return CVector3d(a,b,c);
+}
+
 CVector3d CVector3d::operator+(const CVector3d& vec) const {
   return CVector3d(x_ + vec.x_, y_ + vec.y_, z_ + vec.z_);
 }

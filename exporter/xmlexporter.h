@@ -13,6 +13,7 @@
 
 #include <unordered_map>
 #include <vector>
+typedef std::vector<XmlFaceInfo> faces;
 
 // su coordinate system is right-z-up,use matrix 
 // 1 0 0 0
@@ -75,6 +76,11 @@ private:
 
   XmlEdgeInfo GetEdgeInfo(SUEdgeRef edge) const;
 
+  void CombineEntities(XmlEntitiesInfo *entities,
+                       std::vector<faces> &faces,
+                       std::vector<SUTransformation> &transform);
+                    
+
 private:
   CXmlOptions options_;
 
@@ -95,6 +101,10 @@ private:
   //
   std::vector<const XmlGroupInfo*> group_list_;
   std::vector<std::vector<int>> group_children_;
+
+  std::vector<faces> final_faces_;
+  std::unordered_map<std::string, std::vector<faces>> definition_faces_;
+  const int max_face_num_pergroup_;
 
 public:
 	XmlModelInfo skpdata_;

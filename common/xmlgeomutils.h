@@ -4,6 +4,8 @@
 #define SKPTOXML_COMMON_XMLGEOMUTILS_H
 
 #include <SketchUpAPI/geometry.h>
+#include <SketchUpAPI/transformation.h>
+
 #include <math.h>
 //#include <iostream>
 // This module defines geometric classes that are useful in processing
@@ -20,6 +22,7 @@ class CVector3d {
   ~CVector3d() {}
 
   void SetDirection(double x, double y, double z){x_=x; y_=y; z_=z;}
+  CVector3d Transform(double matrix[16]);
 
   double x() const {return x_;}
   double y() const {return y_;}
@@ -63,6 +66,8 @@ class CPoint3d {
     z_=z;
   }
 
+  CPoint3d Transform(double matrix[16]);
+
   double x() const { return x_; }
   double y() const { return y_; }
   double z() const { return z_; }
@@ -93,6 +98,8 @@ class CPoint3d {
     return *this * (1.0 / invScale);
   }
   void operator/= (double invScale) {*this = *this / invScale;}
+  bool operator==(const CPoint3d& vec) const;
+  bool operator!=(const CPoint3d& vec) const;
 
  protected:
   double x_;
