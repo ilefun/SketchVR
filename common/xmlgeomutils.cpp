@@ -14,7 +14,7 @@ inline bool AreEqual(double val1, double val2, double tol = EqualTol) {
   return diff <= tol && diff >= -tol;
 }
 
-CPoint3d CPoint3d::transform(double matrix[16])
+void CPoint3d::Transform(double matrix[16])
 {
     double a, b, c, w;
 
@@ -78,7 +78,7 @@ bool CPoint3d::operator!=(const CPoint3d& v) const {
 }
 
 // Vector Class----------------------------------------
-CVector3d CVector3d::transform(double matrix[16])
+void CVector3d::Transform(double matrix[16])
 {
     double a, b, c;
 

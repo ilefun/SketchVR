@@ -132,7 +132,6 @@ struct XmlModelInfo {
   std::vector<XmlLayerInfo> layers_;
   std::vector<XmlMaterialInfo> materials_;
   std::unordered_map<std::string, XmlEntitiesInfo> definitions_;
-
   XmlEntitiesInfo entities_;
   
   void debug_print();

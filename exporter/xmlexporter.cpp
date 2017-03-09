@@ -270,27 +270,57 @@ bool CXmlExporter::Convert(const std::string& from_file,
 
 void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
                     std::vector<faces> &faces_group,
-                     std::vector<SUTransformation> &transform)
+                     std::vector<SUTransformation> &transforms)
 {
   if(faces_group.empty()){
     faces new_face_group;
     faces_group.push_back(new_face_group);
   }
 
+#ifdef PRINT_SKP_DATA
+  std::cout << "Instance size : " << entities->component_instances_.size()<<
+			  " Group size : "<< entities->groups_.size() <<
+			  " Face size : "<< entities->faces_.size()<< std::endl;
+
+#endif // PRINT_SKP_DATA
+
+  //get instance
+  for (int i = 0; i < entities->component_instances_.size(); ++i)
+  {
+    transforms.push_back(entities->component_instances_[i].transform_);
+    CombineEntities(&skpdata_.definitions_[entities->component_instances_[i].definition_name_],faces_group,transforms);
+    transforms.pop_back();
+  }
+
+  // get group
+  for (int i = 0; i < entities->groups_.size(); ++i)
+  {
+    transforms.push_back(entities->groups_[i].transform_);
+    CombineEntities(entities->groups_[i].entities_,faces_group,transforms);
+    transforms.pop_back();
+  }
+
+  
+  // get face
   if((faces_group.back().size()+entities->faces_.size()) > max_face_num_pergroup_)
   {
+#ifdef PRINT_SKP_DATA
+	  std::cout << "Generate new face group , old face group size : " << faces_group.back().size() << std::endl;
+
+#endif // PRINT_SKP_DATA
     faces new_face_group;
     faces_group.push_back(new_face_group);
-  }    
+  }
 
   for (int i = 0; i < entities->faces_.size(); ++i)
   {
-    faces_group.back().push_back(entities->faces_[i]);
-    
-    for(auto it=transform.end();it!=transform.begin();--it){
-      entities->faces_[i].face_normal_.transform(*it.values);
+    auto single_face=entities->faces_[i];
+    for(int j=transforms.size()-1;j>=0;j--){
+      single_face.face_normal_.Transform(transforms[j].values);
+      for(int k=0;k<single_face.vertices_.size();k++)
+        single_face.vertices_[k].vertex_.Transform(transforms[j].values);
     }
-
+    faces_group.back().push_back(single_face);
   }
 }
 
@@ -512,7 +542,7 @@ void CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
 
   std::vector<SUTransformation> transform;
   std::vector<faces> faces_data;
-  CombineEntities(skpdata_.entities_,faces_data,transform);
+  CombineEntities(&entity_info,faces_data,transform);
   definition_faces_[def_name]=faces_data;
 }
 

@@ -104,7 +104,7 @@ private:
 
   std::vector<faces> final_faces_;
   std::unordered_map<std::string, std::vector<faces>> definition_faces_;
-  const int max_face_num_pergroup_;
+  int max_face_num_pergroup_;
 
 public:
 	XmlModelInfo skpdata_;
