@@ -144,6 +144,7 @@ EXPORT CXmlExporter* GetExporter(const char *from_file)
 		options.set_export_options(m_bExportOptions);
 		options.set_triangle(m_bTriangleFace);
 		exporter->SetOptions(options);
+		exporter->SetMaxFaceNumPerGroup(30);
 
 		// Convert
 		converted = exporter->Convert(from_file, NULL);

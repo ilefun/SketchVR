@@ -190,7 +190,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
   
   #ifdef TIME_LOGGER
     end = clock();
-    cout<<"Time Logger : Open file in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Open file in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl<<endl;
   #endif
   
     std::cout << "Initialize skp file " << skp_file_ << std::endl;
@@ -211,6 +211,8 @@ bool CXmlExporter::Convert(const std::string& from_file,
   	std::cout << "Exporting layers..." << std::endl;
     WriteLayers();
 
+
+
     // // Materials
   #ifdef TIME_LOGGER
     start = clock();
@@ -219,8 +221,11 @@ bool CXmlExporter::Convert(const std::string& from_file,
     WriteMaterials();
   #ifdef TIME_LOGGER
     end = clock();
-    cout<<"Time Logger : Export materials in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Export materials in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl<<endl;
   #endif
+
+
+
 
 
   #ifdef TIME_LOGGER
@@ -231,8 +236,11 @@ bool CXmlExporter::Convert(const std::string& from_file,
     WriteComponentDefinitions();
   #ifdef TIME_LOGGER
     end = clock();
-    cout<<"Time Logger : Export component in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Export component in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl<<endl;
   #endif
+
+
+
 
     // Geometry
   #ifdef TIME_LOGGER
@@ -244,7 +252,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
   #ifdef TIME_LOGGER
     
     end = clock();
-    cout<<"Time Logger : Export geometry in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+    cout<<"Time Logger : Export geometry in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl<<endl;
   #endif
 
   	std::cout << "Get Group List..." << std::endl;
@@ -253,8 +261,29 @@ bool CXmlExporter::Convert(const std::string& from_file,
   	std::cout << "Get Group Children..." << std::endl;
     GetGroupChildren();
 
-    // std::vector<SUTransformation> transform;
-    // CombineEntities(skpdata_.entities_,final_face_,transform);
+
+
+
+#ifdef TIME_LOGGER
+	start = clock();
+#endif
+	std::cout << "Combine final faces..." << std::endl;
+     std::vector<SUTransformation> transform;
+     CombineEntities(&skpdata_.entities_, final_faces_,transform);
+#ifdef TIME_LOGGER
+
+	 end = clock();
+	 cout << "Time Logger : Combine final faces in " << (double((end - start)) / CLOCKS_PER_SEC) << "s" << endl << endl;
+#endif
+
+	 #ifdef PRINT_SKP_DATA
+	 std::cout << "Final face group size : " << final_faces_.size() << std::endl;
+	 for (size_t i = 0; i < final_faces_.size(); i++)
+	 {
+		 std::cout << "\tGroup index "<<i<<" Face num is : "<<final_faces_[i].size() << std::endl;
+	 }
+
+	  #endif // PRINT_SKP_DATA
 
   	std::cout << "Export complete." << std::endl;
     exported = true;
@@ -269,20 +298,20 @@ bool CXmlExporter::Convert(const std::string& from_file,
 }
 
 void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
-                    std::vector<faces> &faces_group,
-                     std::vector<SUTransformation> &transforms)
+									std::vector<faces> &faces_group,
+									 std::vector<SUTransformation> &transforms)
 {
   if(faces_group.empty()){
     faces new_face_group;
     faces_group.push_back(new_face_group);
   }
 
-#ifdef PRINT_SKP_DATA
-  std::cout << "Instance size : " << entities->component_instances_.size()<<
-			  " Group size : "<< entities->groups_.size() <<
-			  " Face size : "<< entities->faces_.size()<< std::endl;
+// #ifdef PRINT_SKP_DATA
+//   std::cout << "Instance size : " << entities->component_instances_.size()<<
+// 			  " Group size : "<< entities->groups_.size() <<
+// 			  " Face size : "<< entities->faces_.size()<< std::endl;
 
-#endif // PRINT_SKP_DATA
+// #endif // PRINT_SKP_DATA
 
   //get instance
   for (int i = 0; i < entities->component_instances_.size(); ++i)
@@ -299,18 +328,8 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
     CombineEntities(entities->groups_[i].entities_,faces_group,transforms);
     transforms.pop_back();
   }
-
   
   // get face
-  if((faces_group.back().size()+entities->faces_.size()) > max_face_num_pergroup_)
-  {
-#ifdef PRINT_SKP_DATA
-	  std::cout << "Generate new face group , old face group size : " << faces_group.back().size() << std::endl;
-
-#endif // PRINT_SKP_DATA
-    faces new_face_group;
-    faces_group.push_back(new_face_group);
-  }
 
   for (int i = 0; i < entities->faces_.size(); ++i)
   {
@@ -320,6 +339,17 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
       for(int k=0;k<single_face.vertices_.size();k++)
         single_face.vertices_[k].vertex_.Transform(transforms[j].values);
     }
+
+	if ((faces_group.back().size() + entities->faces_[i].face_num_) > max_face_num_pergroup_)
+	{
+	#ifdef PRINT_SKP_DATA
+			std::cout << "Generate new face group : " << faces_group.back().size() << " + " << entities->faces_[i].face_num_ << " > " << max_face_num_pergroup_ << std::endl;
+
+	#endif // PRINT_SKP_DATA
+		faces new_face_group;
+		faces_group.push_back(new_face_group);
+	}
+
     faces_group.back().push_back(single_face);
   }
 }
@@ -522,14 +552,25 @@ void CXmlExporter::WriteComponentDefinitions() {
       WriteComponentDefinition(comp_def);
     }
 
+	CombineComponentDefinitions();
   }
+}
+
+void CXmlExporter::CombineComponentDefinitions() {
+	for (auto it = skpdata_.definitions_.begin(); it != skpdata_.definitions_.end(); ++it) {
+		std::vector<SUTransformation> transform;
+		std::vector<faces> faces_data;
+		CombineEntities(&it->second, faces_data, transform);
+		definition_faces_[it->first] = faces_data;
+	}
+
 }
 
 void CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
   //XmlComponentDefinitionInfo xml_comp_info;
   auto def_name = GetComponentDefinitionName(comp_def);
 #ifdef PRINT_SKP_DATA
-  std::cout << "Component Name : " << def_name << std::endl;
+  std::cout << endl<<"Component Name : " << def_name << std::endl;
 
 #endif // PRINT_SKP_DATA
 
@@ -537,13 +578,7 @@ void CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
   SUComponentDefinitionGetEntities(comp_def, &entities);
   XmlEntitiesInfo entity_info;
   WriteEntities(entities,&entity_info);
-
   skpdata_.definitions_[def_name]= entity_info;
-
-  std::vector<SUTransformation> transform;
-  std::vector<faces> faces_data;
-  CombineEntities(&entity_info,faces_data,transform);
-  definition_faces_[def_name]=faces_data;
 }
 
 void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_info) {
@@ -579,6 +614,8 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       
       // Layer
       SULayerRef layer = SU_INVALID;
+      
+      
       SUDrawingElementGetLayer(SUComponentInstanceToDrawingElement(instance),
                                &layer);
       if (!SUIsInvalid(layer))
@@ -592,12 +629,20 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
         instance_info.material_name_ = GetMaterialName(material);
 
       instance_info.definition_name_ = GetComponentDefinitionName(definition);
-#ifdef PRINT_SKP_DATA
-	  std::cout << "Instance Index : " <<c<<" Name : "<< instance_info.definition_name_ << std::endl;
 
-#endif // PRINT_SKP_DATA
       SU_CALL(SUComponentInstanceGetTransform(instance,
                                               &instance_info.transform_));
+
+#ifdef PRINT_SKP_DATA
+	  std::cout << "\tInstance Index : " << c << " Name : " << instance_info.definition_name_ << std::endl;
+	  std::cout << "\tXform : ";
+	  for (size_t i = 0; i < 16; i++)
+	  {
+		  std::cout << instance_info.transform_.values[i] << " ";
+	  }
+	  std::cout << endl<<endl;
+#endif // PRINT_SKP_DATA
+
       entity_info->component_instances_.push_back(instance_info);
     }
   }

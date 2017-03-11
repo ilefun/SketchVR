@@ -48,6 +48,8 @@ class CXmlExporter {
 
   std::vector<int> RootGroupChildren();
 
+  void SetMaxFaceNumPerGroup(int num) { max_face_num_pergroup_ = num; };
+
   //store group data
   void GetGroupList(const XmlEntitiesInfo *entities);
   
@@ -65,6 +67,7 @@ private:
   void WriteMaterials();
   void WriteMaterial(SUMaterialRef material);
 
+  void CombineComponentDefinitions();
   void WriteComponentDefinitions();
   void WriteComponentDefinition(SUComponentDefinitionRef comp_def);
 
@@ -101,10 +104,10 @@ private:
   //
   std::vector<const XmlGroupInfo*> group_list_;
   std::vector<std::vector<int>> group_children_;
+  int max_face_num_pergroup_;
 
   std::vector<faces> final_faces_;
   std::unordered_map<std::string, std::vector<faces>> definition_faces_;
-  int max_face_num_pergroup_;
 
 public:
 	XmlModelInfo skpdata_;

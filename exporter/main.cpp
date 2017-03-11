@@ -253,8 +253,16 @@ int group_data(CXmlExporter *exporter )
 }
 
 void component_data(CXmlExporter *exporter) {
-	cout <<"Component num is :"<< exporter->skpdata_.definitions_.size() << endl;
-
+	//cout <<"\nComponent num is :"<< exporter->definition_faces_.size() << endl;
+	//for (auto it=exporter->definition_faces_.begin();
+	//	it!=exporter->definition_faces_.end(); ++it)
+	//{
+	//	cout<<"Component name : "<<it->first<< endl;
+	//	for (int i = 0; i < it->second.size(); ++i)
+	//	{
+	//		cout<<"\tFace size of index "<<i<<" is "<<it->second[i].size()<<endl;
+	//	}
+	//}
 }
 int main(int argc,char *argv[])
 {
@@ -269,7 +277,7 @@ int main(int argc,char *argv[])
   exporter=GetExporter(argv[1]);
   if (exporter){
 	  //exporter->skpdata_.debug_print();
-	  component_data(exporter);
+	  //component_data(exporter);
 	  // material(exporter);
 	  // int grp_num=group_data(exporter);
 	  
@@ -277,5 +285,5 @@ int main(int argc,char *argv[])
   }
   end = clock();
   cout<<"Time Logger : Finshed in : "<<(float((end - start)) / CLOCKS_PER_SEC)<<"s";
-  //system("pause");
+  system("pause");
 }
