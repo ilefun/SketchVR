@@ -247,8 +247,7 @@ int group_data(CXmlExporter *exporter )
 {
 	int grp_num = GetGroupNum(exporter);
 	cout << "Group num is : "<< grp_num<< endl<<endl;
-	cout << endl << "Root group id : " << -1 << endl;
-	group_id_data(exporter, -1);
+	group_id_data(exporter, 0);
 	return grp_num;
 }
 

@@ -13,7 +13,8 @@
 
 #include <unordered_map>
 #include <vector>
-typedef std::vector<XmlFaceInfo> faces;
+
+std::vector<XmlEntitiesInfo> EntitiyList;
 
 // su coordinate system is right-z-up,use matrix 
 // 1 0 0 0
@@ -40,20 +41,11 @@ class CXmlExporter {
   const CXmlExportStats& stats() const { return stats_; }
 
   //Get group info
-  int GroupNum(){return int(group_list_.size());}
+  int GroupNum(){return int(final_faces_.size());}
   
-  const XmlGroupInfo* GroupById(int index){return group_list_[index];}
+  const XmlEntitiesInfo* GroupById(int index){return &final_faces_.at(index);}
 
-  std::vector<int> GroupChildrenById(int index){return group_children_[index];}
-
-  std::vector<int> RootGroupChildren();
-
-  void SetMaxFaceNumPerGroup(int num) { max_face_num_pergroup_ = num; };
-
-  //store group data
-  void GetGroupList(const XmlEntitiesInfo *entities);
-  
-  void GetGroupChildren();
+  void SetMaxVertexNumPerGroup(int num) { max_vertex_num_pergroup_ = num; };
 
   XmlMaterialInfo GetMaterialInfo(SUMaterialRef material);
 
@@ -80,7 +72,7 @@ private:
   XmlEdgeInfo GetEdgeInfo(SUEdgeRef edge) const;
 
   void CombineEntities(XmlEntitiesInfo *entities,
-                       std::vector<faces> &faces_group,
+                       std::vector<XmlEntitiesInfo> &faces_group,
                        std::vector<SUTransformation> &transform);
                     
 
@@ -101,13 +93,9 @@ private:
   // Stack
   CInheritanceManager inheritance_manager_;
 
-  //
-  std::vector<const XmlGroupInfo*> group_list_;
-  std::vector<std::vector<int>> group_children_;
-  int max_face_num_pergroup_;
-
-  std::vector<faces> final_faces_;
-  std::unordered_map<std::string, std::vector<faces>> definition_faces_;
+  int max_vertex_num_pergroup_;
+  EntitiyList final_faces_;
+  std::unordered_map<std::string, EntitiyList> definition_faces_;
 
 public:
 	XmlModelInfo skpdata_;

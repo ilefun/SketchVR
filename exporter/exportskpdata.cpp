@@ -37,19 +37,9 @@ void GetFaceData(int v_per_face_list[],
 	}
 }
 
-XmlEntitiesInfo* GetEntitiesInfo(CXmlExporter *exporter, int group_id)
+const XmlEntitiesInfo* GetEntitiesInfo(CXmlExporter *exporter, int group_id)
 {
-	XmlEntitiesInfo *current_entities;
-	if (group_id >= -1 && group_id<exporter->GroupNum())
-
-		if (group_id==-1)
-			return &exporter->skpdata_.entities_;
-		else
-			return exporter->GroupById(group_id)->entities_;
-	else
-	{
-		return NULL;
-	}
+	return exporter->GroupById(group_id);
 }
 
 void GetUVData(bool front_or_back,
@@ -144,7 +134,7 @@ EXPORT CXmlExporter* GetExporter(const char *from_file)
 		options.set_export_options(m_bExportOptions);
 		options.set_triangle(m_bTriangleFace);
 		exporter->SetOptions(options);
-		exporter->SetMaxFaceNumPerGroup(30);
+		exporter->SetMaxFaceNumPerGroup(50000);
 
 		// Convert
 		converted = exporter->Convert(from_file, NULL);
@@ -180,68 +170,17 @@ EXPORT  int GetGroupNum(CXmlExporter *exporter)
 	return exporter->GroupNum();
 }
 
-EXPORT  int GetGroupChildrenNum(CXmlExporter *exporter, int group_id )
-{
-	if (group_id >= -1 && group_id<exporter->GroupNum())
-		if (group_id == -1)
-			return exporter->RootGroupChildren().size();
-		else
-			return exporter->GroupChildrenById(group_id).size();
-	return 0;
-}
-
-EXPORT  void GetGroupChildrenById(CXmlExporter *exporter,int group_id,int children_id[])
-{
-	std::vector<int> children_id_list;
-	if (group_id >= -1 && group_id<exporter->GroupNum())
-		if (group_id == -1)
-			children_id_list = exporter->RootGroupChildren();
-		else
-			children_id_list = exporter->GroupChildrenById(group_id);
-
-		for (size_t i = 0; i < children_id_list.size(); ++i)
-			children_id[i]=children_id_list[i];
-}
-
-EXPORT  void GetGroupTransformById(CXmlExporter *exporter,int group_id,float transform[16])
-{
-	if (group_id >= -1 && group_id<exporter->GroupNum())
-		if (group_id ==-1) {
-			float default_xform[16] = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
-			for (size_t i = 0; i < 16; i++)
-				transform[i] = default_xform[i];
-		}
-		else {
-			SUTransformation current_xform = exporter->GroupById(group_id)->transform_;
-			for (int i = 0; i < 16; ++i)
-				transform[i] = current_xform.values[i];
-		}
-}
-
 EXPORT void GetFaceDSize(CXmlExporter *exporter,
                         int group_id,
                         int *vertex_num,
                         int *face_num )
 {
-	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	const XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
 	if (current_entities==NULL)
 		return ;
 
-	int v_num=0,f_num=0;
-	for (size_t i = 0; i<current_entities->faces_.size(); i++)
-	{
-		if (current_entities->faces_[i].has_single_loop_)
-		{
-			f_num++;
-			v_num+= current_entities->faces_[i].vertices_.size();
-		}
-		else{
-			f_num+= current_entities->faces_[i].face_num_;
-			v_num+= current_entities->faces_[i].face_num_*3;
-		}
-	}
-	*vertex_num = v_num;
-	*face_num = f_num;
+	*vertex_num = current_entities->vertex_num_;
+	*face_num = current_entities->face_num_;
 }
 
 EXPORT bool GetFace(CXmlExporter *exporter,
@@ -250,7 +189,7 @@ EXPORT bool GetFace(CXmlExporter *exporter,
 						int vertex_num_per_face[],
 						float face_normal[])
 {
-	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	const XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
 	if (current_entities==NULL)
 		return false;
 	GetFaceData(vertex_num_per_face,
@@ -265,7 +204,7 @@ EXPORT int GetFaceUVDSize(CXmlExporter *exporter,
                         int group_id,
                         bool front_or_back )
 {
-	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	const XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
 	if (current_entities==NULL)
 		return 0;
 	int uv_size=0;
@@ -280,7 +219,7 @@ EXPORT bool GetFaceUV(CXmlExporter *exporter,
 						float u[],
 						float v[])
 {
-	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	const XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
 	if (current_entities==NULL)
 		return false;
 	GetUVData(front_or_back,u,v,current_entities);
@@ -357,7 +296,7 @@ EXPORT bool GetMaterialIDPerFace(CXmlExporter *exporter,
 	int front_material_id_per_face[],
 	int back_material_id_per_face[])
 {
-	XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
+	const XmlEntitiesInfo *current_entities=GetEntitiesInfo(exporter,group_id);
 	if (current_entities==NULL)
 		return false;
 

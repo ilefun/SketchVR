@@ -116,9 +116,15 @@ struct XmlComponentInstanceInfo {
 };
 
 struct XmlEntitiesInfo {
+  XmlEntitiesInfo(){vertex_num_=0;face_num_=0;}
+  ~XmlEntitiesInfo(){};
+
   std::vector<XmlComponentInstanceInfo> component_instances_;
   std::vector<XmlGroupInfo> groups_;
   std::vector<XmlFaceInfo>  faces_;
+  int vertex_num_;
+  int face_num_;
+
   std::vector<XmlEdgeInfo>  edges_;
   std::vector<XmlCurveInfo> curves_;
 };
