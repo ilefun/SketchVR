@@ -254,7 +254,10 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
   for (int i = 0; i < entities->component_instances_.size(); ++i)
   {
     transforms.push_back(entities->component_instances_[i].transform_);
-    CombineEntities(&skpdata_.definitions_[entities->component_instances_[i].definition_name_],faces_group,transforms);
+	auto entities_list=definition_faces_[entities->component_instances_[i].definition_name_];
+
+	for(int j=0;j<entities_list.size();++j)
+		CombineEntities(&entities_list[j],faces_group,transforms);
     transforms.pop_back();
   }
 
@@ -505,6 +508,11 @@ void CXmlExporter::CombineComponentDefinitions() {
 		EntitiyList faces_data(1);
 		CombineEntities(&it->second, faces_data, transform);
 		definition_faces_[it->first] = faces_data;
+#ifdef PRINT_SKP_DATA
+
+		cout << "Combined component "<<it->first<<" group size " << faces_data.size()<<endl;
+#endif // PRINT_SKP_DATA
+
 	}
 
 }

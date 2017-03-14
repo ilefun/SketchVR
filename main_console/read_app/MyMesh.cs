@@ -44,7 +44,7 @@ public class MyMesh : MonoBehaviour
         // tSingleMeshInfo.meshData.FilePath = Application.dataPath + "/Resources/uv_test1cube";
 
         //测试颜色模型
-        tSingleMeshInfo.meshData.PathName = "D:/sketchup/test_skp_file/test01.skp";
+        tSingleMeshInfo.meshData.PathName = "D:/sketchup/test_skp_file/empty.skp";
         //liuliang测试直接运行场景测试
         if (tSingleMeshInfo.getmeshData().FileType == "DEF")
         {
@@ -89,15 +89,6 @@ public class MyMesh : MonoBehaviour
                                                     _vertices,
                                                     _vertex_num_per_face,
                                                     _face_normal);
-                    gc_h = GCHandle.Alloc(_vertices, GCHandleType.Pinned);
-                    gc_h.Free();
-
-                    gc_h = GCHandle.Alloc(_vertex_num_per_face, GCHandleType.Pinned);
-                    gc_h.Free();
-
-                    gc_h = GCHandle.Alloc(_face_normal, GCHandleType.Pinned);
-                    gc_h.Free();
-
 
                     //uv test-----------------------------------------------------
                     int uv_num = 0;//u v list length
@@ -117,11 +108,6 @@ public class MyMesh : MonoBehaviour
                         Debug.Log("u v: " + u[uv_index]+" "+v[uv_index]);
                         uv_index++;
                     }
-
-                    gc_h = GCHandle.Alloc(u, GCHandleType.Pinned);
-                    gc_h.Free();
-                    gc_h = GCHandle.Alloc(v, GCHandleType.Pinned);
-                    gc_h.Free();
 
 
 
@@ -186,8 +172,7 @@ public class MyMesh : MonoBehaviour
                                 Debug.Log("RGBA");
                             Debug.Log("Texture color first 4: " + pixel_data[0] + " " + pixel_data[1] + " " + pixel_data[2] + " " + pixel_data[3]);
                             Debug.Log("Texture color last 4: " + pixel_data[data_size - 3] + " " + pixel_data[data_size - 2] + " " + pixel_data[data_size - 1] + " " + pixel_data[data_size - 1]);
-                            gc_h = GCHandle.Alloc(pixel_data, GCHandleType.Pinned);
-                            gc_h.Free();
+
                         }
                         mat_index++;
 
@@ -219,10 +204,7 @@ public class MyMesh : MonoBehaviour
 
                     //mesh.
                     Debug.Log("Sketchup model load ends.");
-                    gc_h = GCHandle.Alloc(front_mat_id, GCHandleType.Pinned);
-                    gc_h.Free();
-                    gc_h = GCHandle.Alloc(back_mat_id, GCHandleType.Pinned);
-                    gc_h.Free();
+
                 }
 
                 //print something...
