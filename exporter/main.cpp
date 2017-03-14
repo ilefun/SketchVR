@@ -176,15 +176,7 @@ void material(CXmlExporter *exporter) {
  }
 
 void group_id_data(CXmlExporter *exporter, int group_id) {
-	float xform[16];
-	GetGroupTransformById(exporter, group_id, xform);
 
-	cout << "Group xform is : ";
-	for (size_t j = 0; j < 16; j++)
-	{
-		cout << xform[j] << " ";
-	}
-	cout << endl;
 	clock_t start, end;
 
   #ifdef TIME_LOGGER
@@ -222,24 +214,6 @@ void group_id_data(CXmlExporter *exporter, int group_id) {
     cout<<"Time Logger : Get face material in "<<(float((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   #endif
 
-	int children_num=GetGroupChildrenNum(exporter,group_id);
-	cout << "Children num is : " << children_num << endl;
-
-	if (children_num > 0) {
-		int *children_id_list=new int[children_num];
-
-		GetGroupChildrenById(exporter,
-							 group_id,
-							 children_id_list);
-
-		for (size_t k = 0; k < children_num; k++)
-		{
-			cout <<"Group id:" <<*(children_id_list + k) << " Parent id: "<<group_id<<"-------------------------" << endl;
-			group_id_data(exporter, *(children_id_list + k));
-		}
-
-		delete children_id_list;
-	}
 	cout << endl << endl;
 }
 
@@ -251,18 +225,6 @@ int group_data(CXmlExporter *exporter )
 	return grp_num;
 }
 
-void component_data(CXmlExporter *exporter) {
-	//cout <<"\nComponent num is :"<< exporter->definition_faces_.size() << endl;
-	//for (auto it=exporter->definition_faces_.begin();
-	//	it!=exporter->definition_faces_.end(); ++it)
-	//{
-	//	cout<<"Component name : "<<it->first<< endl;
-	//	for (int i = 0; i < it->second.size(); ++i)
-	//	{
-	//		cout<<"\tFace size of index "<<i<<" is "<<it->second[i].size()<<endl;
-	//	}
-	//}
-}
 int main(int argc,char *argv[])
 {
   cout<<argv[1]<<endl;
@@ -276,13 +238,13 @@ int main(int argc,char *argv[])
   exporter=GetExporter(argv[1]);
   if (exporter){
 	  //exporter->skpdata_.debug_print();
-	  //component_data(exporter);
-	  // material(exporter);
-	  // int grp_num=group_data(exporter);
+
+	  material(exporter);
+	  int grp_num=group_data(exporter);
 	  
 	  ReleaseExporter(exporter);
   }
   end = clock();
-  cout<<"Time Logger : Finshed in : "<<(float((end - start)) / CLOCKS_PER_SEC)<<"s";
-  system("pause");
+  cout<<"Time Logger : Finshed in : "<<(float((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+  //system("pause");
 }

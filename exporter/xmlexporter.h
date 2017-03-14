@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <vector>
 
-std::vector<XmlEntitiesInfo> EntitiyList;
+typedef std::vector<XmlEntitiesInfo> EntitiyList;
 
 // su coordinate system is right-z-up,use matrix 
 // 1 0 0 0
@@ -72,7 +72,7 @@ private:
   XmlEdgeInfo GetEdgeInfo(SUEdgeRef edge) const;
 
   void CombineEntities(XmlEntitiesInfo *entities,
-                       std::vector<XmlEntitiesInfo> &faces_group,
+						EntitiyList &faces_group,
                        std::vector<SUTransformation> &transform);
                     
 

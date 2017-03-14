@@ -120,6 +120,7 @@ EXPORT CXmlExporter* GetExporter(const char *from_file)
 	bool m_bExportOptions = true;
 	bool m_bExportSelectionSet = false;
 	bool m_bTriangleFace = true;
+	int m_bExportMaxVertexNumPerGroup = 50000;
 
 	bool converted = false;
 	CXmlExporter* exporter =new CXmlExporter();
@@ -134,7 +135,7 @@ EXPORT CXmlExporter* GetExporter(const char *from_file)
 		options.set_export_options(m_bExportOptions);
 		options.set_triangle(m_bTriangleFace);
 		exporter->SetOptions(options);
-		exporter->SetMaxFaceNumPerGroup(50000);
+		exporter->SetMaxVertexNumPerGroup(m_bExportMaxVertexNumPerGroup);
 
 		// Convert
 		converted = exporter->Convert(from_file, NULL);

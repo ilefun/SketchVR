@@ -65,63 +65,17 @@ public class MyMesh : MonoBehaviour
                 unsafe
                 {
                     //group num test,actually we have (_group_num+1) in the su scene.
-                    //use -1 as the root group id.Other groups are in range (0,_group_num)
+                    //Groups are in range (0,_group_num)
                     //-----------------------------------------------------------
                     int _group_num = SkpInterface.SkpDLL.GetGroupNum(_skp_exporter);
                     Debug.Log("group num =" + _group_num);
-
-
-                    //get group xform. 
-                    //----------------------------------------------------------
-                    float[] xform = new float[16];
-                    SkpInterface.SkpDLL.GetGroupTransformById(_skp_exporter, -1, xform);
-                    Debug.Log("root xform : \n" + xform[0] + " " + xform[1] + " " + xform[2] + " " + xform[3] +
-                                            "\n" + xform[4] + " " + xform[5] + " " + xform[6] + " " + xform[7] +
-                                            "\n" + xform[8] + " " + xform[9] + " " + xform[10] + " " + xform[11] +
-                                            "\n" + xform[12] + " " + xform[13] + " " + xform[14] + " " + xform[15]);
-
-                    //free memory
-                    GCHandle gc_h = GCHandle.Alloc(xform, GCHandleType.Pinned);
-                    gc_h.Free();
-
-
-
-
-                    //get group children of the specified id group.
-                    //-----------------------------------------------------
-                    int _children_num = 0;//the num of the children
-                    _children_num = SkpInterface.SkpDLL.GetGroupChildrenNum(_skp_exporter, -1);
-                    Debug.Log("children num of root : " + _children_num);
-
-                    int[] _children_id = new int[_children_num];//the id list of the children
-                    SkpInterface.SkpDLL.GetGroupChildrenById(_skp_exporter,
-                                                                -1,
-                                                                _children_id);
-
-                    //test children xform of group -1
-                    int grp_id = 0;
-                    while (grp_id < _children_num)
-                    {
-                        Debug.Log("root children id xform : " + grp_id + "----------------");
-                        SkpInterface.SkpDLL.GetGroupTransformById(_skp_exporter, _children_id[grp_id], xform);
-                        Debug.Log(" xform : \n" + xform[0] + " " + xform[1] + " " + xform[2] + " " + xform[3] +
-                                                    "\n" + xform[4] + " " + xform[5] + " " + xform[6] + " " + xform[7] +
-                                                    "\n" + xform[8] + " " + xform[9] + " " + xform[10] + " " + xform[11] +
-                                                    "\n" + xform[12] + " " + xform[13] + " " + xform[14] + " " + xform[15]);
-                        grp_id++;
-                    }
-                    gc_h = GCHandle.Alloc(_children_id, GCHandleType.Pinned);
-                    gc_h.Free();
-
-
-
 
 
                     //get face data---------------------------------------------------
                     int _vertex_num = 0;
                     int _face_num = 0;
                     SkpInterface.SkpDLL.GetFaceDSize(_skp_exporter,
-                                                        -1,
+                                                        0,
                                                         out _vertex_num,
                                                         out _face_num);
                     Debug.Log("vertex num : " + _vertex_num);
@@ -131,7 +85,7 @@ public class MyMesh : MonoBehaviour
                     int[] _vertex_num_per_face = new int[_face_num];
                     float[] _face_normal = new float[_face_num * 3];
 
-                    SkpInterface.SkpDLL.GetFace(_skp_exporter, -1,
+                    SkpInterface.SkpDLL.GetFace(_skp_exporter, 0,
                                                     _vertices,
                                                     _vertex_num_per_face,
                                                     _face_normal);
@@ -147,13 +101,13 @@ public class MyMesh : MonoBehaviour
 
                     //uv test-----------------------------------------------------
                     int uv_num = 0;//u v list length
-                    uv_num = SkpInterface.SkpDLL.GetFaceUVDSize(_skp_exporter, -1, true);
+                    uv_num = SkpInterface.SkpDLL.GetFaceUVDSize(_skp_exporter, 0, true);
                     Debug.Log("uv_num ： " + uv_num);
 
 
                     float[] u = new float[uv_num];//u value list
                     float[] v = new float[uv_num];//v value list
-                    SkpInterface.SkpDLL.GetFaceUV(_skp_exporter, -1,
+                    SkpInterface.SkpDLL.GetFaceUV(_skp_exporter, 0,
                                                     true,//true for front uv,false for back uv
                                                     u,
                                                     v);
@@ -249,7 +203,7 @@ public class MyMesh : MonoBehaviour
                     //----------------------------------------------------------------------
                     int[] front_mat_id = new int[_face_num];//front material
                     int[] back_mat_id = new int[_face_num];//
-                    SkpInterface.SkpDLL.GetMaterialIDPerFace(_skp_exporter, -1,
+                    SkpInterface.SkpDLL.GetMaterialIDPerFace(_skp_exporter, 0,
                                                                 front_mat_id,
                                                                 back_mat_id);
 

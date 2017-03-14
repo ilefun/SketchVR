@@ -95,7 +95,7 @@ CXmlExporter::CXmlExporter() {
   SUSetInvalid(model_);
   SUSetInvalid(texture_writer_);
   SUSetInvalid(image_rep_);
-  max_face_num_pergroup_=20000;
+  max_vertex_num_pergroup_=50000;
 }
 
 CXmlExporter::~CXmlExporter() {
@@ -228,7 +228,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
 	 std::cout << "Final face group size : " << final_faces_.size() << std::endl;
 	 for (size_t i = 0; i < final_faces_.size(); i++)
 	 {
-		 std::cout << "\tGroup index "<<i<<" Face num is : "<<final_faces_[i].size() << std::endl;
+		 std::cout << "\tGroup index "<<i<<" Face num is : "<<final_faces_[i].vertex_num_ << std::endl;
 	 }
 
 	  #endif // PRINT_SKP_DATA

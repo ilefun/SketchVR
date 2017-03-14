@@ -12,7 +12,7 @@ using namespace std;
 #define EXPORT extern "C" __declspec(dllexport)
 
 
-XmlEntitiesInfo* GetEntitiesInfo(CXmlExporter *exporter, int group_id);
+const XmlEntitiesInfo* GetEntitiesInfo(CXmlExporter *exporter, int group_id);
 
 void GetFaceData(int v_per_face_list[],
                     float vertices_list[],

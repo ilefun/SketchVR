@@ -23,21 +23,6 @@ namespace SkpInterface
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int GetGroupNum(IntPtr exporter);
 
-        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern int GetGroupChildrenNum(IntPtr exporter,int group_id);
-
-        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern void GetGroupTransformById(IntPtr exporter,
-                                                            int group_id,
-                                                            float[] transform);
-
-        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern void GetGroupChildrenById(IntPtr exporter,
-                                                            int group_id,
-                                                            int[] children_id);
-
-
-
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern void GetFaceDSize(IntPtr exporter,
