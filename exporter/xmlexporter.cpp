@@ -254,12 +254,14 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
   for (int i = 0; i < entities->component_instances_.size(); ++i)
   {
     transforms.push_back(entities->component_instances_[i].transform_);
-	auto entities_list=definition_faces_[entities->component_instances_[i].definition_name_];
+	  auto entities_list=definition_faces_[entities->component_instances_[i].definition_name_];
 
 	for(int j=0;j<entities_list.size();++j)
 		CombineEntities(&entities_list[j],faces_group,transforms);
     transforms.pop_back();
   }
+  entities->component_instances_.clear();
+  vector <XmlComponentInstanceInfo>().swap(entities->component_instances_);
 
   // get group
   for (int i = 0; i < entities->groups_.size(); ++i)
@@ -268,9 +270,20 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
     CombineEntities(entities->groups_[i].entities_,faces_group,transforms);
     transforms.pop_back();
   }
-  
+  entities->groups_.clear();
+  vector <XmlGroupInfo>().swap(entities->groups_);
   // get face
+    // if ((faces_group.back().vertex_num_ + single_face.vertices_.size()) > max_vertex_num_pergroup_)
+    // {
+    // #ifdef PRINT_SKP_DATA
+    //     std::cout << "Generate new face group : " << 
+    //                 faces_group.back().vertex_num_ << " + " << single_face.vertices_.size() <<
+    //                 " > " << max_vertex_num_pergroup_ << std::endl;
 
+    // #endif // PRINT_SKP_DATA
+    //   XmlEntitiesInfo new_face_group;
+    //   faces_group.push_back(new_face_group);
+    // }
   for (int i = 0; i < entities->faces_.size(); ++i)
   {
     auto single_face=entities->faces_[i];
@@ -282,22 +295,13 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
         single_face.vertices_[k].vertex_.Transform(transforms[j].values);
     }
 
-  	if ((faces_group.back().vertex_num_ + single_face.vertices_.size()) > max_vertex_num_pergroup_)
-  	{
-  	#ifdef PRINT_SKP_DATA
-  			std::cout << "Generate new face group : " << 
-                    faces_group.back().vertex_num_ << " + " << single_face.vertices_.size() <<
-                    " > " << max_vertex_num_pergroup_ << std::endl;
-
-  	#endif // PRINT_SKP_DATA
-  		XmlEntitiesInfo new_face_group;
-  		faces_group.push_back(new_face_group);
-  	}
-
     faces_group.back().vertex_num_ += single_face.vertices_.size();
     faces_group.back().face_num_ += single_face.face_num_;
     faces_group.back().faces_.push_back(single_face);
   }
+  entities->faces_.clear();
+  vector <XmlFaceInfo>().swap(entities->faces_);
+
 }
 
 void CXmlExporter::WriteLayers() {
