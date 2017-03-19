@@ -10,6 +10,7 @@
 
 #include <SketchUpAPI/color.h>
 #include <SketchUpAPI/transformation.h>
+#include <SketchUpAPI/model/component_definition.h>
 
 #include "./xmlgeomutils.h"
 
@@ -112,6 +113,7 @@ struct XmlComponentInstanceInfo {
   std::string definition_name_;
   std::string layer_name_;
   std::string material_name_;
+  SUComponentBehavior behavior_;
   SUTransformation transform_;
 };
 

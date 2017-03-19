@@ -85,7 +85,8 @@ void material(CXmlExporter *exporter) {
 		GetMaterialNameByID(exporter, i, mat_name);
 		cout << endl << "Material id&name : " << i << " " << mat_name << endl;
 		
-		int data_size = GetTexPixelDSize(exporter,i);
+		int data_size = 0;
+		data_size= GetTexPixelDSize(exporter, i);
 
 		bool has_color = false;
 		float color[3];
@@ -98,7 +99,9 @@ void material(CXmlExporter *exporter) {
 		int bits_per_pixel = 0;
 		int width = 0;
 		int height = 0;
-		float *pixel_data = new float[data_size];
+		float *pixel_data = NULL;
+		if(data_size>0)
+			pixel_data=new float[data_size];
 
 		GetMaterialData(exporter,
 			i,
@@ -113,31 +116,34 @@ void material(CXmlExporter *exporter) {
 			&width,
 			&height,
 			pixel_data);
+
 		#ifdef PRINT_SKP_DATA
-		cout << endl << "Material " << i << " Data print starts" << endl;
-		cout << "\tHas color " << has_color << endl;
-		if (has_color)
-		cout << "\tColor " << color[0] << " " << color[1] << " " << color[2] << endl;
+			cout << endl << "Material " << i << " Data print starts" << endl;
+			cout << "\tHas color " << has_color << endl;
+			if (has_color)
+			cout << "\tColor " << color[0] << " " << color[1] << " " << color[2] << endl;
 
-		cout << "\tHas alpha " << has_alpha << endl;
-		if (has_alpha)
-		cout << "\tAlpha " << alpha << endl;
+			cout << "\tHas alpha " << has_alpha << endl;
+			if (has_alpha)
+			cout << "\tAlpha " << alpha << endl;
 
-		cout << "\tHas texture " << has_texture << endl;
-		if (has_texture)
-		{
-			cout << "\twidth : " << width << ",  height : " << height << endl;
-			cout << "\tdata size : " << data_size << ", bits_per_pixel : " << bits_per_pixel << endl;
-			for (size_t i = 0; i < 10; i++)
+			cout << "\tHas texture " << has_texture << endl;
+			if (has_texture)
 			{
-				cout << pixel_data[i] << " ";
+				cout << "\twidth : " << width << ",  height : " << height << endl;
+				cout << "\tdata size : " << data_size << ", bits_per_pixel : " << bits_per_pixel << endl;
+				for (size_t j = 0; j < 10; j++)
+				{
+					cout << pixel_data[j] << " ";
+				}
+				cout << endl;
 			}
-			cout << endl;
-		}
-		// cout << "\tTexture  " << texture_path << " " << *tex_sscale << " " << *tex_tscale << endl;
-		cout << endl << "Material " << i << " Data print ends" << endl;
+			// cout << "\tTexture  " << texture_path << " " << *tex_sscale << " " << *tex_tscale << endl;
+			cout << endl << "Material " << i << " Data print ends" << endl;
 		#endif
-		delete pixel_data;
+		_ASSERTE(_CrtCheckMemory());
+		if(data_size && pixel_data)
+			delete pixel_data;
 	}
 }
 
@@ -221,7 +227,10 @@ int group_data(CXmlExporter *exporter )
 {
 	int grp_num = GetGroupNum(exporter);
 	cout << "Group num is : "<< grp_num<< endl<<endl;
-	group_id_data(exporter, 0);
+	for (size_t i = 0; i < grp_num; i++)
+	{
+		group_id_data(exporter, int(i));
+	}
 	return grp_num;
 }
 

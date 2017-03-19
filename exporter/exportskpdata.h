@@ -29,6 +29,7 @@ void GetFaceMaterialData(CXmlExporter *exporter,
                          int back_id[],
                          const XmlEntitiesInfo *entities);
 
+void GetTexturePixel(const XmlMaterialInfo &current_mat, float pixel_data[]);
 
 EXPORT  int GetGroupNum(CXmlExporter *exporter);
 

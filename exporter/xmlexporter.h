@@ -73,7 +73,8 @@ private:
 
   void CombineEntities(XmlEntitiesInfo *entities,
 						EntitiyList &faces_group,
-                       std::vector<SUTransformation> &transform);
+                        std::vector<SUTransformation> &transform,
+						size_t index=0);
                     
 
 private:

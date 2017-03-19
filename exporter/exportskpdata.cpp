@@ -1,8 +1,12 @@
 #include "./exportskpdata.h"
 #include <assert.h>
 #include <SketchUpAPI/transformation.h>
-
+#include <algorithm> 
 using namespace std;
+
+inline float clamp(float n, float lower, float upper) {
+	return max(lower, min(n, upper));
+}
 
 void GetFaceData(int v_per_face_list[],
 					float vertices_list[],
@@ -107,6 +111,44 @@ void GetFaceMaterialData(CXmlExporter *exporter,
 			for(int j=0;j<current_face_num;j++)
 				back_id[back_index++]=-1;
 
+	}
+}
+
+void GetTexturePixel(const XmlMaterialInfo &current_mat, float pixel_data[])
+{
+	if (current_mat.has_color_) {
+		float avg_color[3] = { 0,0,0 };
+		int size_per_pixel = 3;
+		if (current_mat.bits_per_pixel_ == 32)
+			size_per_pixel = 4;
+
+		int pixel_num = current_mat.data_size_ / size_per_pixel;
+		for (int j = 0; j < pixel_num; j++)
+		{
+			avg_color[0] += current_mat.pixel_data_[j * size_per_pixel + 2];
+			avg_color[1] += current_mat.pixel_data_[j * size_per_pixel + 1];
+			avg_color[2] += current_mat.pixel_data_[j * size_per_pixel];
+		}
+		avg_color[0] /= float(pixel_num);
+		avg_color[1] /= float(pixel_num);
+		avg_color[2] /= float(pixel_num);
+
+		for (size_t i = 0; i < pixel_num; ++i) {
+			pixel_data[i * size_per_pixel + 2] = clamp((current_mat.pixel_data_[i * size_per_pixel + 2] + current_mat.color_.red - avg_color[0]) / 255.0f, 0, 1);
+			pixel_data[i * size_per_pixel + 1] = clamp((current_mat.pixel_data_[i * size_per_pixel + 1] + current_mat.color_.green - avg_color[1]) / 255.0f, 0, 1);
+			pixel_data[i * size_per_pixel] = clamp((current_mat.pixel_data_[i * size_per_pixel] + current_mat.color_.blue - avg_color[2]) / 255.0f, 0, 1);
+		}
+
+		if(size_per_pixel==4)
+			for (size_t i = 0; i < pixel_num; ++i) {
+				pixel_data[i * size_per_pixel + 3] = float(current_mat.pixel_data_[i * size_per_pixel + 3]) / 255.f;
+			}
+
+	}
+	else {
+		for (size_t i = 0; i < current_mat.data_size_; ++i) {
+			pixel_data[i] = float(current_mat.pixel_data_[i]) / 255.0f;
+		}
 	}
 }
 
@@ -282,10 +324,7 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 		*bits_per_pixel=current_mat.bits_per_pixel_;
 		*width=current_mat.width_;
 		*height=current_mat.height_;
-
-		for (size_t i = 0; i < current_mat.data_size_; ++i) {
-			pixel_data[i] = float(current_mat.pixel_data_[i]) / 255.0f;
-		}
+		GetTexturePixel(current_mat, pixel_data);
 	}
 
 	return true;
