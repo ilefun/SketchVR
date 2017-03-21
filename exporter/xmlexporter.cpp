@@ -257,13 +257,10 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
     for (int i = 0; i < entities->component_instances_.size(); ++i)
     {
       auto entities_list=definition_faces_[entities->component_instances_[i].definition_name_];
-      int current_index=0;
-      if (skpdata_.behavior_[entities->component_instances_[i].definition_name_].component_always_face_camera)
-        current_index = 1;
       
       transforms.push_back(entities->component_instances_[i].transform_);
-    	for(int j=0;j<entities_list.size();++j)
-    		CombineEntities(&entities_list[j],faces_group,transforms,current_index,combine_component);
+      CombineEntities(&entities_list[0],faces_group,transforms,0,combine_component);
+	  CombineEntities(&entities_list[1], faces_group, transforms, 1, combine_component);
       transforms.pop_back();
     }
   }
