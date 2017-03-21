@@ -249,7 +249,7 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 									EntitiyList &faces_group,
 									std::vector<SUTransformation> &transforms,
 									size_t index,
-                  bool combine_component)
+									bool combine_component)
 {
   if(combine_component)
   {
@@ -273,8 +273,8 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
       auto entities_list=definition_faces_[entities->component_instances_[i].definition_name_];
 
       transforms.push_back(entities->component_instances_[i].transform_);
-      GetTransformedFace(faces_group[0],entities_list[0],transforms);
-      GetTransformedFace(faces_group[1],entities_list[1],transforms);
+      GetTransformedFace(&faces_group[0],&entities_list[0],transforms);
+      GetTransformedFace(&faces_group[1],&entities_list[1],transforms);
       transforms.pop_back();
     }    
   }
@@ -297,14 +297,14 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 
 
   //get face
-  GetTransformedFace(faces_group[index],entities,transforms);
+  GetTransformedFace(&faces_group[index],entities,transforms);
   entities->faces_.clear();
   vector <XmlFaceInfo>().swap(entities->faces_);
 
 }
 
-void CXmlExporter::GetTransformedFace(XmlEntitiesInfo &to_entities,
-                                      XmlEntitiesInfo &from_entities,
+void CXmlExporter::GetTransformedFace(XmlEntitiesInfo *to_entities,
+                                      XmlEntitiesInfo *from_entities,
                                       std::vector<SUTransformation> &transforms)
 {
   for (int i = 0; i < from_entities->faces_.size(); ++i)
@@ -318,9 +318,9 @@ void CXmlExporter::GetTransformedFace(XmlEntitiesInfo &to_entities,
         single_face.vertices_[k].vertex_.Transform(transforms[j].values);
     }
 
-    to_entities.vertex_num_ += single_face.vertices_.size();
-    to_entities.face_num_ += single_face.face_num_;
-    to_entities.faces_.push_back(single_face);
+    to_entities->vertex_num_ += single_face.vertices_.size();
+    to_entities->face_num_ += single_face.face_num_;
+    to_entities->faces_.push_back(single_face);
   }
 }
 
@@ -521,38 +521,45 @@ void CXmlExporter::WriteComponentDefinitions() {
 	std::cout << endl << "Component Num : " << num_comp_defs << std::endl;
 
 #endif // PRINT_SKP_DATA
+
+	std::vector<string> definition_name;
     for (size_t def = 0; def < num_comp_defs; ++def) {
       SUComponentDefinitionRef comp_def = comp_defs[def];
-      WriteComponentDefinition(comp_def);
+      definition_name.push_back(WriteComponentDefinition(comp_def));
     }
 
-	CombineComponentDefinitions();
+	CombineComponentDefinitions(definition_name);
   }
 }
 
-void CXmlExporter::CombineComponentDefinitions() {
-	for (auto it = skpdata_.definitions_.begin(); it != skpdata_.definitions_.end(); ++it) {
+void CXmlExporter::CombineComponentDefinitions(std::vector<std::string> definition_name_list) {
+	//we need the right order of the component name list to get the face data
+	for (size_t i = 0; i < definition_name_list.size(); i++)
+	{
 		std::vector<SUTransformation> transform;
 		EntitiyList faces_data(2);
 
-    int index=0;
-    if(skpdata_.behavior_[it->first].component_always_face_camera)
-      index=1;
+		int index = 0;
+		if (skpdata_.behavior_[definition_name_list[i]].component_always_face_camera)
+			index = 1;
 
-		CombineEntities(&it->second, faces_data, transform,index,true);
+		CombineEntities(&skpdata_.definitions_[definition_name_list[i]], faces_data, transform, index, true);
 
-		definition_faces_[it->first] = faces_data;
+		definition_faces_[definition_name_list[i]] = faces_data;
 
 #ifdef PRINT_SKP_DATA
 
-		cout << "Combined component "<<it->first<<" group size " << faces_data.size()<<endl;
+		cout << "Combined component " << definition_name_list[i] << " Face size " << faces_data[0].face_num_ << " , " << faces_data[1].face_num_ << endl;
 #endif // PRINT_SKP_DATA
+	}
+	for (auto it = skpdata_.definitions_.begin(); it != skpdata_.definitions_.end(); ++it) {
+
 
 	}
 
 }
 
-void CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
+std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
   auto def_name = GetComponentDefinitionName(comp_def);
 
 #ifdef PRINT_SKP_DATA
@@ -567,8 +574,10 @@ void CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
   skpdata_.definitions_[def_name]= entity_info;
 
   SUComponentBehavior behavior;
-  SUComponentDefinitionGetBehavior(definition, &behavior);
+  SUComponentDefinitionGetBehavior(comp_def, &behavior);
   skpdata_.behavior_[def_name]=behavior;
+
+  return def_name;
 }
 
 void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_info) {

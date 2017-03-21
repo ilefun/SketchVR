@@ -59,9 +59,9 @@ private:
   void WriteMaterials();
   void WriteMaterial(SUMaterialRef material);
 
-  void CombineComponentDefinitions();
+  void CombineComponentDefinitions(std::vector<std::string> definition_name_list);
   void WriteComponentDefinitions();
-  void WriteComponentDefinition(SUComponentDefinitionRef comp_def);
+  std::string WriteComponentDefinition(SUComponentDefinitionRef comp_def);
 
   void WriteGeometry();
   void WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_info);
@@ -72,13 +72,14 @@ private:
   XmlEdgeInfo GetEdgeInfo(SUEdgeRef edge) const;
 
   void CombineEntities(XmlEntitiesInfo *entities,
-          						  EntitiyList &faces_group,
+          				EntitiyList &faces_group,
                         std::vector<SUTransformation> &transform,
-					             	size_t index=0,
+					    size_t index=0,
                         bool combine_component=false);
-  void GetTransformedFace(XmlEntitiesInfo &to_entities,
-                          XmlEntitiesInfo &from_entities,
-                          std::vector<SUTransformation> &transforms)
+
+  void GetTransformedFace(XmlEntitiesInfo *to_entities,
+	  XmlEntitiesInfo *from_entities,
+	  std::vector<SUTransformation> &transforms);
 
 
 private:
