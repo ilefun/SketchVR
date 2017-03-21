@@ -248,40 +248,68 @@ bool CXmlExporter::Convert(const std::string& from_file,
 void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 									EntitiyList &faces_group,
 									std::vector<SUTransformation> &transforms,
-									size_t index)
+									size_t index,
+                  bool combine_component)
 {
-
-  //get instance
-  for (int i = 0; i < entities->component_instances_.size(); ++i)
+  if(combine_component)
   {
-    transforms.push_back(entities->component_instances_[i].transform_);
-	auto entities_list=definition_faces_[entities->component_instances_[i].definition_name_];
-	
-	if (entities->component_instances_[i].behavior_.component_always_face_camera)
-		index = 1;
-	else
-		index = 0;
-
-	for(int j=0;j<entities_list.size();++j)
-		CombineEntities(&entities_list[j],faces_group,transforms,index);
-    transforms.pop_back();
+    //get instance
+    for (int i = 0; i < entities->component_instances_.size(); ++i)
+    {
+      auto entities_list=definition_faces_[entities->component_instances_[i].definition_name_];
+      int current_index=0;
+      if (skpdata_.behavior_[entities->component_instances_[i].definition_name_].component_always_face_camera)
+        current_index = 1;
+      
+      transforms.push_back(entities->component_instances_[i].transform_);
+    	for(int j=0;j<entities_list.size();++j)
+    		CombineEntities(&entities_list[j],faces_group,transforms,current_index,combine_component);
+      transforms.pop_back();
+    }
   }
+  else{
+    for (int i = 0; i < entities->component_instances_.size(); ++i)
+    {
+      auto entities_list=definition_faces_[entities->component_instances_[i].definition_name_];
+
+      transforms.push_back(entities->component_instances_[i].transform_);
+      GetTransformedFace(faces_group[0],entities_list[0],transforms);
+      GetTransformedFace(faces_group[1],entities_list[1],transforms);
+      transforms.pop_back();
+    }    
+  }
+
   entities->component_instances_.clear();
   vector <XmlComponentInstanceInfo>().swap(entities->component_instances_);
+
+
 
   // get group
   for (int i = 0; i < entities->groups_.size(); ++i)
   {
     transforms.push_back(entities->groups_[i].transform_);
-    CombineEntities(entities->groups_[i].entities_,faces_group,transforms,index);
+    CombineEntities(entities->groups_[i].entities_,faces_group,transforms,index,combine_component);
     transforms.pop_back();
   }
   entities->groups_.clear();
   vector <XmlGroupInfo>().swap(entities->groups_);
 
-  for (int i = 0; i < entities->faces_.size(); ++i)
+
+
+  //get face
+  GetTransformedFace(faces_group[index],entities,transforms);
+  entities->faces_.clear();
+  vector <XmlFaceInfo>().swap(entities->faces_);
+
+}
+
+void CXmlExporter::GetTransformedFace(XmlEntitiesInfo &to_entities,
+                                      XmlEntitiesInfo &from_entities,
+                                      std::vector<SUTransformation> &transforms)
+{
+  for (int i = 0; i < from_entities->faces_.size(); ++i)
   {
-    auto single_face=entities->faces_[i];
+    auto single_face=from_entities->faces_[i];
 
     for(int j=transforms.size()-1; j>=0; j--){
       single_face.face_normal_.Transform(transforms[j].values);
@@ -290,13 +318,10 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
         single_face.vertices_[k].vertex_.Transform(transforms[j].values);
     }
 
-    faces_group[index].vertex_num_ += single_face.vertices_.size();
-    faces_group[index].face_num_ += single_face.face_num_;
-    faces_group[index].faces_.push_back(single_face);
+    to_entities.vertex_num_ += single_face.vertices_.size();
+    to_entities.face_num_ += single_face.face_num_;
+    to_entities.faces_.push_back(single_face);
   }
-  entities->faces_.clear();
-  vector <XmlFaceInfo>().swap(entities->faces_);
-
 }
 
 void CXmlExporter::WriteLayers() {
@@ -509,8 +534,15 @@ void CXmlExporter::CombineComponentDefinitions() {
 	for (auto it = skpdata_.definitions_.begin(); it != skpdata_.definitions_.end(); ++it) {
 		std::vector<SUTransformation> transform;
 		EntitiyList faces_data(2);
-		CombineEntities(&it->second, faces_data, transform);
+
+    int index=0;
+    if(skpdata_.behavior_[it->first].component_always_face_camera)
+      index=1;
+
+		CombineEntities(&it->second, faces_data, transform,index,true);
+
 		definition_faces_[it->first] = faces_data;
+
 #ifdef PRINT_SKP_DATA
 
 		cout << "Combined component "<<it->first<<" group size " << faces_data.size()<<endl;
@@ -521,7 +553,6 @@ void CXmlExporter::CombineComponentDefinitions() {
 }
 
 void CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
-  //XmlComponentDefinitionInfo xml_comp_info;
   auto def_name = GetComponentDefinitionName(comp_def);
 
 #ifdef PRINT_SKP_DATA
@@ -534,6 +565,10 @@ void CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
   XmlEntitiesInfo entity_info;
   WriteEntities(entities,&entity_info);
   skpdata_.definitions_[def_name]= entity_info;
+
+  SUComponentBehavior behavior;
+  SUComponentDefinitionGetBehavior(definition, &behavior);
+  skpdata_.behavior_[def_name]=behavior;
 }
 
 void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_info) {
@@ -584,8 +619,6 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
         instance_info.material_name_ = GetMaterialName(material);
 
       instance_info.definition_name_ = GetComponentDefinitionName(definition);
-
-	  SUComponentDefinitionGetBehavior(definition, &instance_info.behavior_);
 
       SU_CALL(SUComponentInstanceGetTransform(instance,
                                               &instance_info.transform_));

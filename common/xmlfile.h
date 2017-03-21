@@ -113,7 +113,6 @@ struct XmlComponentInstanceInfo {
   std::string definition_name_;
   std::string layer_name_;
   std::string material_name_;
-  SUComponentBehavior behavior_;
   SUTransformation transform_;
 };
 
@@ -140,6 +139,7 @@ struct XmlModelInfo {
   std::vector<XmlLayerInfo> layers_;
   std::vector<XmlMaterialInfo> materials_;
   std::unordered_map<std::string, XmlEntitiesInfo> definitions_;
+  std::unordered_map<std::string, SUComponentBehavior> behavior_;
   XmlEntitiesInfo entities_;
   
   void debug_print();
