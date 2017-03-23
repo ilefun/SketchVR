@@ -245,14 +245,16 @@ int main(int argc,char *argv[])
 
   CXmlExporter *exporter=NULL;
   exporter=GetExporter(argv[1]);
-  if (exporter){
+  if (exporter) {
 	  //exporter->skpdata_.debug_print();
 
 	  material(exporter);
-	  int grp_num=group_data(exporter);
-	  
+	  int grp_num = group_data(exporter);
+
 	  ReleaseExporter(exporter);
   }
+  else
+	  cout << "Failed to open file "<<argv[1] << endl;
   end = clock();
   cout<<"Time Logger : Finshed in : "<<(float((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   //system("pause");

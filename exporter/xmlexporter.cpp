@@ -631,10 +631,14 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 
 #ifdef PRINT_SKP_DATA
 	  std::cout << "\tInstance Index : " << c << " Name : " << instance_info.definition_name_ << std::endl;
-	  std::cout << "\tXform : ";
-	  for (size_t i = 0; i < 16; i++)
-	  {
-		  std::cout << instance_info.transform_.values[i] << " ";
+	  std::cout << "\tXform : "<<endl;
+	  for (size_t i = 0; i < 4; i++) {
+		  cout << "\t\t";
+		  for (size_t j = 0; j < 4; j++)
+		  {
+			  std::cout << instance_info.transform_.values[i*4+j] << " ";
+		  }
+		  cout << endl;
 	  }
 	  std::cout << endl<<endl;
 #endif // PRINT_SKP_DATA
