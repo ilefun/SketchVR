@@ -9,6 +9,13 @@ namespace XmlGeomUtils {
 const double EqualTol = 1.0e-3;
 const double EqualTolSq = EqualTol * EqualTol;
 
+bool NormalEqual(const CPoint3d &a, const CPoint3d &b, const CPoint3d &c, const CVector3d &normal) {
+	CVector3d a_b = CVector3d(b.x() - a.x(), b.y() - a.y(), b.z() - a.z());
+	CVector3d a_c = CVector3d(c.x() - a.x(), c.y() - a.y(), c.z() - a.z());
+	CVector3d my_normal = a_b % a_c;
+	return my_normal.DirectionEqual(normal);
+}
+
 inline bool AreEqual(double val1, double val2, double tol = EqualTol) {
   double diff = val1 - val2;
   return diff <= tol && diff >= -tol;
@@ -89,12 +96,27 @@ void CVector3d::Transform(double matrix[16])
     SetDirection(a,b,c);
 }
 
+bool CVector3d::DirectionEqual(const CVector3d& vec)
+{
+  return (*this^vec)>0.999f ? true :false;
+}
+
 CVector3d CVector3d::operator+(const CVector3d& vec) const {
   return CVector3d(x_ + vec.x_, y_ + vec.y_, z_ + vec.z_);
 }
 
 CVector3d CVector3d::operator-(const CVector3d& vec) const {
   return CVector3d(x_ - vec.x_, y_ - vec.y_, z_ - vec.z_);
+}
+
+CVector3d CVector3d::operator%(const CVector3d& vec) const{
+  return CVector3d (y_ * vec.z_ - z_ * vec.y_,
+                    z_ * vec.x_ - x_ * vec.z_,
+                    x_ * vec.y_ - y_ * vec.x_);
+}
+
+float CVector3d::operator^(const CVector3d& vec) const{
+  return (x_ * vec.x_ + y_ * vec.y_ + z_ * vec.z_);
 }
 
 void CVector3d::operator+=(const CVector3d& vec) {

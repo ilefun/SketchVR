@@ -49,6 +49,8 @@ class CXmlExporter {
 
   XmlMaterialInfo GetMaterialInfo(SUMaterialRef material);
 
+  void FixNormal();
+
 private:
   // Clean up slapi objects
   void ReleaseModelObjects();

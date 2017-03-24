@@ -23,6 +23,7 @@ class CVector3d {
 
   void SetDirection(double x, double y, double z){x_=x; y_=y; z_=z;}
   void Transform(double matrix[16]);
+  bool DirectionEqual(const CVector3d& vec);
 
   double x() const {return x_;}
   double y() const {return y_;}
@@ -34,6 +35,10 @@ class CVector3d {
 
   CVector3d operator+(const CVector3d& vec) const;
   CVector3d operator-(const CVector3d& vec) const;
+
+  CVector3d operator%(const CVector3d& vec) const;//cross product
+  float operator^(const CVector3d& vec) const;//dot product
+
   void operator+=(const CVector3d& vec);
   void operator-=(const CVector3d& vec);
 
@@ -106,6 +111,8 @@ class CPoint3d {
   double y_;
   double z_;
 };
+
+bool NormalEqual(const CPoint3d &a, const CPoint3d &b, const CPoint3d &c, const CVector3d &normal);
 
 } // end namespace XmlGeomUtils
 

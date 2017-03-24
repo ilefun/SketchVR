@@ -224,6 +224,16 @@ bool CXmlExporter::Convert(const std::string& from_file,
 	 cout << "Time Logger : Combine final faces in " << (double((end - start)) / CLOCKS_PER_SEC) << "s" << endl << endl;
 #endif
 
+#ifdef TIME_LOGGER
+  start = clock();
+#endif
+     FixNormal();
+#ifdef TIME_LOGGER
+
+   end = clock();
+   cout << "Time Logger : Fix normal in " << (double((end - start)) / CLOCKS_PER_SEC) << "s" << endl << endl;
+#endif
+
 	 #ifdef PRINT_SKP_DATA
 	 std::cout << "Final face group size : " << final_faces_.size() << std::endl;
 	 for (size_t i = 0; i < final_faces_.size(); i++)
@@ -318,6 +328,23 @@ void CXmlExporter::GetTransformedFace(XmlEntitiesInfo *to_entities,
     to_entities->vertex_num_ += single_face.vertices_.size();
     to_entities->face_num_ += single_face.face_num_;
     to_entities->faces_.push_back(single_face);
+  }
+}
+
+void CXmlExporter::FixNormal(){
+  for (int i = 0; i < 2; ++i)
+  {
+    for (int j = 0; j < final_faces_[i].faces_.size(); ++j)
+    {
+      for (int k = 0; k < final_faces_[i].faces_[j].face_num_; ++k)
+      {
+		  if (!XmlGeomUtils::NormalEqual(final_faces_[i].faces_[j].vertices_[k * 3].vertex_,
+			  final_faces_[i].faces_[j].vertices_[k * 3 + 1].vertex_,
+			  final_faces_[i].faces_[j].vertices_[k * 3 + 2].vertex_,
+			  final_faces_[i].faces_[j].face_normal_))
+			  swap(final_faces_[i].faces_[j].vertices_[k * 3], final_faces_[i].faces_[j].vertices_[k * 3 + 2]);
+      }
+    }
   }
 }
 
