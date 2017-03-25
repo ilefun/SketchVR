@@ -332,20 +332,18 @@ void CXmlExporter::GetTransformedFace(XmlEntitiesInfo *to_entities,
 }
 
 void CXmlExporter::FixNormal(){
-  for (int i = 0; i < 2; ++i)
-  {
-    for (int j = 0; j < final_faces_[i].faces_.size(); ++j)
+    //we only check and fix the normal of first group,faces in second group are always facing camera
+    for (int j = 0; j < final_faces_[0].faces_.size(); ++j)
     {
-      for (int k = 0; k < final_faces_[i].faces_[j].face_num_; ++k)
+      for (int k = 0; k < final_faces_[0].faces_[j].face_num_; ++k)
       {
-		  if (!XmlGeomUtils::NormalEqual(final_faces_[i].faces_[j].vertices_[k * 3].vertex_,
-			  final_faces_[i].faces_[j].vertices_[k * 3 + 1].vertex_,
-			  final_faces_[i].faces_[j].vertices_[k * 3 + 2].vertex_,
-			  final_faces_[i].faces_[j].face_normal_))
-			  swap(final_faces_[i].faces_[j].vertices_[k * 3], final_faces_[i].faces_[j].vertices_[k * 3 + 2]);
+		  if (!XmlGeomUtils::NormalEqual(final_faces_[0].faces_[j].vertices_[k * 3].vertex_,
+			  final_faces_[0].faces_[j].vertices_[k * 3 + 1].vertex_,
+			  final_faces_[0].faces_[j].vertices_[k * 3 + 2].vertex_,
+			  final_faces_[0].faces_[j].face_normal_))
+			  swap(final_faces_[0].faces_[j].vertices_[k * 3], final_faces_[0].faces_[j].vertices_[k * 3 + 2]);
       }
     }
-  }
 }
 
 void CXmlExporter::WriteLayers() {
@@ -426,16 +424,22 @@ XmlMaterialInfo CXmlExporter::GetMaterialInfo(SUMaterialRef material) {
     
       //Texture data
       SU_CALL(SUTextureGetImageRep(texture,&image_rep_));
+	  //to fix jpg bug,we convert all images to 32 bit
+	  SUImageRepConvertTo32BitsPerPixel(image_rep_);
+
       size_t data_size=0,bits_per_pixel=0;
       SU_CALL(SUImageRepGetDataSize(image_rep_,&data_size,&bits_per_pixel));
 
       info.data_size_=data_size;
       info.bits_per_pixel_=bits_per_pixel;
-
+	  int image_size = width*height*bits_per_pixel / 8;
+	  //if (image_size != data_size)
+		 // cout << "Error : image size is not equal to the size from su." << endl;
       info.pixel_data_=new SUByte[data_size];
 	    //std::cout << width << " " << height << " " << data_size << " " << bits_per_pixel << std::endl;
 	    // std::cout <<std::endl<<"===" <<SUImageRepGetData(image_rep_, info.data_size_, info.pixel_data_);
       SU_CALL(SUImageRepGetData(image_rep_, data_size,info.pixel_data_));
+	  //SUImageRepSaveToFile(image_rep_,"D:\\sketchup\\test_skp_file\\a.jpg");
 	  //for (size_t i = 0; i < 10; i++)
 	  //{
 		 // std::cout << int(info.pixel_data_[i]) << " ";
