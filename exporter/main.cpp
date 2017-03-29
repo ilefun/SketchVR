@@ -246,11 +246,13 @@ int main(int argc,char *argv[])
   CXmlExporter *exporter=NULL;
   exporter=GetExporter(argv[1]);
   if (exporter) {
-	  //exporter->skpdata_.debug_print();
-
+  	  //traverse material
 	  material(exporter);
-	  int grp_num = group_data(exporter);
 
+	  //traverse group
+	  int grp_num = group_data(exporter);
+	  
+	  //release memory in the end
 	  ReleaseExporter(exporter);
   }
   else

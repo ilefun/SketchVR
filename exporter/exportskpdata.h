@@ -31,6 +31,8 @@ void GetFaceMaterialData(CXmlExporter *exporter,
 
 void GetTexturePixel(const XmlMaterialInfo &current_mat, float pixel_data[]);
 
+//get the group num in su scene.
+//currently we have 2 groups by default,id 0 for normal face,1 for facing camera face
 EXPORT  int GetGroupNum(CXmlExporter *exporter);
 
 
@@ -38,9 +40,10 @@ EXPORT  int GetGroupNum(CXmlExporter *exporter);
 
 
 
-//get exporter instance for specified skp file
+//get exporter instance for specified skp file,start with it
 EXPORT CXmlExporter* GetExporter(const char *from_file);
 
+//release memory,end with it
 EXPORT void ReleaseExporter(CXmlExporter *exporter);
 
 
@@ -52,13 +55,13 @@ EXPORT void ReleaseExporter(CXmlExporter *exporter);
 
 
 
-//Face data-------------------------------------------
+//get face and vertex num for specified group id
 EXPORT void GetFaceDSize(CXmlExporter *exporter,
                         int group_id,
                         int *vertex_num, 
                         int *face_num );
 
-//get geometry face data from exporter
+//get geometry face data from exporter,you should malloc memory with the result of GetFaceDSize
 EXPORT bool GetFace(CXmlExporter *exporter,
                         int group_id,
                         float vertices[],   //vertex position list
@@ -72,20 +75,23 @@ EXPORT bool GetFace(CXmlExporter *exporter,
 
 
 
-//Face uv data-------------------------------------------
+//get uv size for the specified group id
 EXPORT int GetFaceUVDSize(CXmlExporter *exporter,
                         int group_id,
-                        bool front_or_back );
+                        bool front_or_back );//true for front,false for back
 
-//get front uv or back uv data for each face
+//get front uv or back uv data for each face,you should malloc uv size memory with the result of GetFaceUVDSize
 EXPORT bool GetFaceUV(CXmlExporter *exporter,
-	int group_id,
-	bool front_or_back,   //front uv or back uv
-	float u[],   //u list
-	float v[]);   //v list
+                    	int group_id,
+                    	bool front_or_back,   //true for front,false for back
+                    	float u[],   //u list,-100 means no u
+                    	float v[]);   //v list,-100 means no v
 
+//get material num in su scene,traverse all materials in this range
 EXPORT int GetMaterialNum(CXmlExporter *exporter);
 
+//get the material name for specified material id.
+//you can put it in a for loop get all the material data with length of GetMaterialNum
 EXPORT const bool GetMaterialNameByID(CXmlExporter *exporter,int id, char *mat_name);
 
 
@@ -93,10 +99,11 @@ EXPORT const bool GetMaterialNameByID(CXmlExporter *exporter,int id, char *mat_n
 
 
 
-//Get material----------------------------
+//get texture pixel size for specified material id if the material has texture,otherwise return 0
 EXPORT int GetTexPixelDSize(CXmlExporter *exporter, 
                             int material_id );
 
+//get material data for specified material id
 EXPORT bool GetMaterialData(CXmlExporter *exporter, 
                             int material_id,
                             bool *has_color,
@@ -114,7 +121,7 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 
 
 
-//Material per face--------------
+//get material id for each face in specified group id
 EXPORT bool GetMaterialIDPerFace(CXmlExporter *exporter,
                                 int group_id,
 								int front_material_id_per_face[],//-1 means the face has no material
