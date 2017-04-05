@@ -178,7 +178,7 @@ EXPORT CXmlExporter* GetExporter(const char *from_file)
 		options.set_triangle(m_bTriangleFace);
 		exporter->SetOptions(options);
 		// exporter->SetMaxVertexNumPerGroup(m_bExportMaxVertexNumPerGroup);
-
+		
 		// Convert
 		converted = exporter->Convert(from_file, NULL);
 	}

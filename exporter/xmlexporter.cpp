@@ -35,6 +35,60 @@
 using namespace XmlGeomUtils;
 using namespace std;
 
+std::string UTF8_To_string(const std::string & str)
+{
+	int nwLen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+
+	wchar_t * pwBuf = new wchar_t[nwLen + 1];//一定要加1，不然会出现尾巴 
+	memset(pwBuf, 0, nwLen * 2 + 2);
+
+	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), pwBuf, nwLen);
+
+	int nLen = WideCharToMultiByte(CP_ACP, 0, pwBuf, -1, NULL, NULL, NULL, NULL);
+
+	char * pBuf = new char[nLen + 1];
+	memset(pBuf, 0, nLen + 1);
+
+	WideCharToMultiByte(CP_ACP, 0, pwBuf, nwLen, pBuf, nLen, NULL, NULL);
+
+	std::string retStr = pBuf;
+
+	delete[]pBuf;
+	delete[]pwBuf;
+
+	pBuf = NULL;
+	pwBuf = NULL;
+
+	return retStr;
+}
+
+std::string string_To_UTF8(const std::string & str)
+{
+	int nwLen = ::MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
+
+	wchar_t * pwBuf = new wchar_t[nwLen + 1];//一定要加1，不然会出现尾巴 
+	ZeroMemory(pwBuf, nwLen * 2 + 2);
+
+	::MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.length(), pwBuf, nwLen);
+
+	int nLen = ::WideCharToMultiByte(CP_UTF8, 0, pwBuf, -1, NULL, NULL, NULL, NULL);
+
+	char * pBuf = new char[nLen + 1];
+	ZeroMemory(pBuf, nLen + 1);
+
+	::WideCharToMultiByte(CP_UTF8, 0, pwBuf, nwLen, pBuf, nLen, NULL, NULL);
+
+	std::string retStr(pBuf);
+
+	delete[]pwBuf;
+	delete[]pBuf;
+
+	pwBuf = NULL;
+	pBuf = NULL;
+
+	return retStr;
+}
+
 // A simple SUStringRef wrapper class which makes usage simpler from C++.
 class CSUString {
  public:
@@ -124,7 +178,7 @@ void CXmlExporter::ReleaseModelObjects() {
 bool CXmlExporter::Convert(const std::string& from_file,
     SketchUpPluginProgressCallback* progress_callback) {
   bool exported = false;
-  skp_file_ = from_file;
+  skp_file_ = string_To_UTF8(from_file);
 
   try {
 
@@ -140,15 +194,19 @@ bool CXmlExporter::Convert(const std::string& from_file,
     start = clock();
   #endif
 
-  	SUSetInvalid(model_);
-  	SU_CALL(SUModelCreateFromFile(&model_, skp_file_.c_str()));
-  
+	SUResult res=SUModelCreateFromFile(&model_, skp_file_.c_str());
+
+	if (res != SU_ERROR_NONE) {
+		std::cout << "Got error when open skp file "<< from_file <<std::endl<<"Error type is : "<<res<< std::endl;
+		return false;
+	}
+
   #ifdef TIME_LOGGER
     end = clock();
     cout<<"Time Logger : Open file in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl<<endl;
   #endif
   
-    std::cout << "Initialize skp file " << skp_file_ << std::endl;
+    std::cout << "Initialize skp file " << from_file << std::endl;
 
     // Create a texture writer
     SUSetInvalid(texture_writer_);
