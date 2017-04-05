@@ -194,12 +194,12 @@ bool CXmlExporter::Convert(const std::string& from_file,
     start = clock();
   #endif
 
-	SUResult res=SUModelCreateFromFile(&model_, skp_file_.c_str());
+	SU_CALL(SUModelCreateFromFile(&model_, skp_file_.c_str()));
 
-	if (res != SU_ERROR_NONE) {
-		std::cout << "Got error when open skp file "<< from_file <<std::endl<<"Error type is : "<<res<< std::endl;
-		return false;
-	}
+	//if (res != SU_ERROR_NONE) {
+	//	std::cout << "Got error when open skp file "<< from_file <<std::endl<<"Error type is : "<<res<< std::endl;
+	//	return false;
+	//}
 
   #ifdef TIME_LOGGER
     end = clock();
