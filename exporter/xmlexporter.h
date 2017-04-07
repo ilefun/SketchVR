@@ -23,6 +23,9 @@ typedef std::vector<XmlEntitiesInfo> EntitiyList;
 // 0 0 0 1
 // to convert it to left-y-up hand.Transform the point with it.
 
+std::string UTF8_To_string(const std::string & str);
+std::string string_To_UTF8(const std::string & str);
+
 class CXmlExporter {
  public:
   CXmlExporter();

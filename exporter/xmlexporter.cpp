@@ -178,7 +178,7 @@ void CXmlExporter::ReleaseModelObjects() {
 bool CXmlExporter::Convert(const std::string& from_file,
     SketchUpPluginProgressCallback* progress_callback) {
   bool exported = false;
-  skp_file_ = string_To_UTF8(from_file);
+  skp_file_ = from_file;
 
   try {
 
@@ -206,7 +206,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
     cout<<"Time Logger : Open file in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl<<endl;
   #endif
   
-    std::cout << "Initialize skp file " << from_file << std::endl;
+    std::cout << "Initialize skp file " << UTF8_To_string(from_file) << std::endl;
 
     // Create a texture writer
     SUSetInvalid(texture_writer_);
@@ -648,7 +648,7 @@ void CXmlExporter::CombineComponentDefinitions(std::vector<std::string> definiti
 
 #ifdef PRINT_SKP_DATA
 
-		cout << "Combined component index " << i<<", Name "<< string_To_UTF8(definition_name_list[i]) << ", Face size " << faces_data[0].face_num_ << " , " << faces_data[1].face_num_ << endl;
+		cout << "Combined component index " << i<<", Name "<< UTF8_To_string(definition_name_list[i]) << ", Face size " << faces_data[0].face_num_ << " , " << faces_data[1].face_num_ << endl;
 #endif // PRINT_SKP_DATA
 	}
 
@@ -658,7 +658,7 @@ std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp
   auto def_name = GetComponentDefinitionName(comp_def);
 
 #ifdef PRINT_SKP_DATA
-  std::cout << endl<<"Component Name : " << def_name << std::endl;
+  std::cout << endl<<"Component Name : " << UTF8_To_string(def_name) << std::endl;
 
 #endif // PRINT_SKP_DATA
 
@@ -728,7 +728,7 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
                                               &instance_info.transform_));
 
 #ifdef PRINT_SKP_DATA
-	  std::cout << "\tInstance Index : " << c << " Name : " << instance_info.definition_name_ << std::endl;
+	  std::cout << "\tInstance Index : " << c << " Name : " << UTF8_To_string(instance_info.definition_name_) << std::endl;
 	  std::cout << "\tXform : "<<endl;
 	  for (size_t i = 0; i < 4; i++) {
 		  cout << "\t\t";

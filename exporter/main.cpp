@@ -1,6 +1,8 @@
 #include "./exportskpdata.h"
 #include <ctime>
 
+
+
 void face_data(CXmlExporter *exporter, int group_id) {
     int vertex_num=0;
     int face_num=0;
@@ -83,7 +85,7 @@ void material(CXmlExporter *exporter) {
 	{
 		char mat_name[100];
 		GetMaterialNameByID(exporter, i, mat_name);
-		cout << endl << "Material id&name : " << i << " " << mat_name << endl;
+		cout << endl << "Material id&name : " << i << " " << UTF8_To_string(mat_name) << endl;
 		
 		int data_size = 0;
 		data_size= GetTexPixelDSize(exporter, i);
@@ -244,7 +246,7 @@ int main(int argc,char *argv[])
   start = clock();
 
   CXmlExporter *exporter=NULL;
-  exporter=GetExporter(argv[1]);
+  exporter=GetExporter(string_To_UTF8(argv[1]).c_str());
   if (exporter) {
   	  //traverse material
 	  material(exporter);

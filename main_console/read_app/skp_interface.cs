@@ -12,8 +12,8 @@ namespace SkpInterface
     public partial class SkpDLL
     {
         //get exporter
-        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern IntPtr GetExporter(string from_file);
+        [DllImport("SkpReader", ExactSpelling = true,CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern IntPtr GetExporter(IntPtr from_file);
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern void ReleaseExporter(IntPtr exporter);

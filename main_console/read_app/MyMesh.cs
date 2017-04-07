@@ -58,9 +58,15 @@ public class MyMesh : MonoBehaviour
         {
             Debug.Log("Start loading " + tSingleMeshInfo.meshData.PathName);
             IntPtr _skp_exporter = IntPtr.Zero;
-            _skp_exporter = SkpInterface.SkpDLL.GetExporter(tSingleMeshInfo.meshData.PathName);
+
+            var ptr = Marshal.StringToHGlobalAnsi(tSingleMeshInfo.meshData.PathName);
+            _skp_exporter = SkpInterface.SkpDLL.GetExporter(ptr);
+            Marshal.FreeHGlobal(ptr);
+
+            Debug.Log("加载SKP模型 :" + tSingleMeshInfo.meshData.PathName);
             
-            if (_skp_exporter.ToInt32() > 0)
+
+            if (_skp_exporter != IntPtr.Zero)
             {
                 unsafe
                 {
