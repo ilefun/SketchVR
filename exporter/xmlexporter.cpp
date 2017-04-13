@@ -62,7 +62,7 @@ std::string StringConvertUtils::UTF8_To_string(const std::string & str)
   return retStr;
 }
 
-static std::string StringConvertUtils::string_To_UTF8(const std::string & str)
+std::string StringConvertUtils::string_To_UTF8(const std::string & str)
 {
   int nwLen = ::MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
 

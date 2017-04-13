@@ -85,7 +85,7 @@ void material(CXmlExporter *exporter) {
 	{
 		char mat_name[100];
 		GetMaterialNameByID(exporter, i, mat_name);
-		cout << endl << "Material id&name : " << i << " " << UTF8_To_string(mat_name) << endl;
+		cout << endl << "Material id&name : " << i << " " << StringConvertUtils::UTF8_To_string(mat_name) << endl;
 		
 		int data_size = 0;
 		data_size= GetTexPixelDSize(exporter, i);
