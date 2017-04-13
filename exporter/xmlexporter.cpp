@@ -35,58 +35,58 @@
 using namespace XmlGeomUtils;
 using namespace std;
 
-std::string UTF8_To_string(const std::string & str)
+std::string StringConvertUtils::UTF8_To_string(const std::string & str)
 {
-	int nwLen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+  int nwLen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
 
-	wchar_t * pwBuf = new wchar_t[nwLen + 1];//一定要加1，不然会出现尾巴 
-	memset(pwBuf, 0, nwLen * 2 + 2);
+  wchar_t * pwBuf = new wchar_t[nwLen + 1];//一定要加1，不然会出现尾巴 
+  memset(pwBuf, 0, nwLen * 2 + 2);
 
-	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), pwBuf, nwLen);
+  MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), pwBuf, nwLen);
 
-	int nLen = WideCharToMultiByte(CP_ACP, 0, pwBuf, -1, NULL, NULL, NULL, NULL);
+  int nLen = WideCharToMultiByte(CP_ACP, 0, pwBuf, -1, NULL, NULL, NULL, NULL);
 
-	char * pBuf = new char[nLen + 1];
-	memset(pBuf, 0, nLen + 1);
+  char * pBuf = new char[nLen + 1];
+  memset(pBuf, 0, nLen + 1);
 
-	WideCharToMultiByte(CP_ACP, 0, pwBuf, nwLen, pBuf, nLen, NULL, NULL);
+  WideCharToMultiByte(CP_ACP, 0, pwBuf, nwLen, pBuf, nLen, NULL, NULL);
 
-	std::string retStr = pBuf;
+  std::string retStr = pBuf;
 
-	delete[]pBuf;
-	delete[]pwBuf;
+  delete[]pBuf;
+  delete[]pwBuf;
 
-	pBuf = NULL;
-	pwBuf = NULL;
+  pBuf = NULL;
+  pwBuf = NULL;
 
-	return retStr;
+  return retStr;
 }
 
-std::string string_To_UTF8(const std::string & str)
+static std::string StringConvertUtils::string_To_UTF8(const std::string & str)
 {
-	int nwLen = ::MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
+  int nwLen = ::MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
 
-	wchar_t * pwBuf = new wchar_t[nwLen + 1];//一定要加1，不然会出现尾巴 
-	ZeroMemory(pwBuf, nwLen * 2 + 2);
+  wchar_t * pwBuf = new wchar_t[nwLen + 1];//一定要加1，不然会出现尾巴 
+  ZeroMemory(pwBuf, nwLen * 2 + 2);
 
-	::MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.length(), pwBuf, nwLen);
+  ::MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.length(), pwBuf, nwLen);
 
-	int nLen = ::WideCharToMultiByte(CP_UTF8, 0, pwBuf, -1, NULL, NULL, NULL, NULL);
+  int nLen = ::WideCharToMultiByte(CP_UTF8, 0, pwBuf, -1, NULL, NULL, NULL, NULL);
 
-	char * pBuf = new char[nLen + 1];
-	ZeroMemory(pBuf, nLen + 1);
+  char * pBuf = new char[nLen + 1];
+  ZeroMemory(pBuf, nLen + 1);
 
-	::WideCharToMultiByte(CP_UTF8, 0, pwBuf, nwLen, pBuf, nLen, NULL, NULL);
+  ::WideCharToMultiByte(CP_UTF8, 0, pwBuf, nwLen, pBuf, nLen, NULL, NULL);
 
-	std::string retStr(pBuf);
+  std::string retStr(pBuf);
 
-	delete[]pwBuf;
-	delete[]pBuf;
+  delete[]pwBuf;
+  delete[]pBuf;
 
-	pwBuf = NULL;
-	pBuf = NULL;
+  pwBuf = NULL;
+  pBuf = NULL;
 
-	return retStr;
+  return retStr;
 }
 
 // A simple SUStringRef wrapper class which makes usage simpler from C++.
@@ -206,7 +206,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
     cout<<"Time Logger : Open file in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl<<endl;
   #endif
   
-    std::cout << "Initialize skp file " << UTF8_To_string(from_file) << std::endl;
+    std::cout << "Initialize skp file " << StringConvertUtils::UTF8_To_string(from_file) << std::endl;
 
     // Create a texture writer
     SUSetInvalid(texture_writer_);
@@ -314,7 +314,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
 }
 
 void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
-									EntitiyList &faces_group,
+									CXmlExporter::EntityList &faces_group,
 									std::vector<SUTransformation> &transforms,
 									size_t index,
 									bool combine_component)
@@ -636,7 +636,7 @@ void CXmlExporter::CombineComponentDefinitions(std::vector<std::string> definiti
 	for (size_t i = 0; i < definition_name_list.size(); i++)
 	{
 		std::vector<SUTransformation> transform;
-		EntitiyList faces_data(2);
+		CXmlExporter::EntityList faces_data(2);
 
 		int index = 0;
 		if (skpdata_.behavior_[definition_name_list[i]].component_always_face_camera)
@@ -648,7 +648,7 @@ void CXmlExporter::CombineComponentDefinitions(std::vector<std::string> definiti
 
 #ifdef PRINT_SKP_DATA
 
-		cout << "Combined component index " << i<<", Name "<< UTF8_To_string(definition_name_list[i]) << ", Face size " << faces_data[0].face_num_ << " , " << faces_data[1].face_num_ << endl;
+		cout << "Combined component index " << i<<", Name "<< StringConvertUtils::UTF8_To_string(definition_name_list[i]) << ", Face size " << faces_data[0].face_num_ << " , " << faces_data[1].face_num_ << endl;
 #endif // PRINT_SKP_DATA
 	}
 
@@ -658,7 +658,7 @@ std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp
   auto def_name = GetComponentDefinitionName(comp_def);
 
 #ifdef PRINT_SKP_DATA
-  std::cout << endl<<"Component Name : " << UTF8_To_string(def_name) << std::endl;
+  std::cout << endl<<"Component Name : " << StringConvertUtils::UTF8_To_string(def_name) << std::endl;
 
 #endif // PRINT_SKP_DATA
 
@@ -728,7 +728,7 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
                                               &instance_info.transform_));
 
 #ifdef PRINT_SKP_DATA
-	  std::cout << "\tInstance Index : " << c << " Name : " << UTF8_To_string(instance_info.definition_name_) << std::endl;
+	  std::cout << "\tInstance Index : " << c << " Name : " << StringConvertUtils::UTF8_To_string(instance_info.definition_name_) << std::endl;
 	  std::cout << "\tXform : "<<endl;
 	  for (size_t i = 0; i < 4; i++) {
 		  cout << "\t\t";

@@ -246,7 +246,7 @@ int main(int argc,char *argv[])
   start = clock();
 
   CXmlExporter *exporter=NULL;
-  exporter=GetExporter(string_To_UTF8(argv[1]).c_str());
+  exporter=GetExporter(StringConvertUtils::string_To_UTF8(argv[1]).c_str());
   if (exporter) {
   	  //traverse material
 	  material(exporter);

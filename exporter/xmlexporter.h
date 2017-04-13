@@ -14,8 +14,6 @@
 #include <unordered_map>
 #include <vector>
 
-typedef std::vector<XmlEntitiesInfo> EntitiyList;
-
 // su coordinate system is right-z-up,use matrix 
 // 1 0 0 0
 // 0 0 1 0
@@ -23,10 +21,16 @@ typedef std::vector<XmlEntitiesInfo> EntitiyList;
 // 0 0 0 1
 // to convert it to left-y-up hand.Transform the point with it.
 
-std::string UTF8_To_string(const std::string & str);
-std::string string_To_UTF8(const std::string & str);
+struct StringConvertUtils
+{
+  static std::string UTF8_To_string(const std::string & str);
+  static std::string string_To_UTF8(const std::string & str);
+}
 
 class CXmlExporter {
+  public:
+    typedef std::vector<XmlEntitiesInfo> EntityList;
+
  public:
   CXmlExporter();
   virtual ~CXmlExporter();
@@ -77,7 +81,7 @@ private:
   XmlEdgeInfo GetEdgeInfo(SUEdgeRef edge) const;
 
   void CombineEntities(XmlEntitiesInfo *entities,
-          				EntitiyList &faces_group,
+          				EntityList &faces_group,
                         std::vector<SUTransformation> &transform,
 					    size_t index=0,
                         bool combine_component=false);
@@ -105,8 +109,8 @@ private:
   CInheritanceManager inheritance_manager_;
 
   int max_vertex_num_pergroup_;
-  EntitiyList final_faces_;
-  std::unordered_map<std::string, EntitiyList> definition_faces_;
+  EntityList final_faces_;
+  std::unordered_map<std::string, EntityList> definition_faces_;
 
 public:
 	XmlModelInfo skpdata_;
