@@ -317,7 +317,8 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 									CXmlExporter::EntityList &faces_group,
 									std::vector<SUTransformation> &transforms,
 									size_t index,
-									bool combine_component)
+									bool combine_component,
+                  std::string *override_mat_name)
 {
   if(combine_component)
   {
@@ -334,7 +335,12 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 //#endif
 	  //default 2
 	  for (size_t j = 0; j < entities_list.size(); j++)
-		  CombineEntities(&entities_list[j], faces_group, transforms, j, combine_component);
+		  CombineEntities(&entities_list[j],
+                       faces_group,
+                       transforms,
+                       j,
+                       combine_component,
+                       &entities->component_instances_[i].material_name_);
       
 	  transforms.pop_back();
     }
@@ -352,7 +358,10 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 
 	  //default 2
 	  for (size_t j = 0; j < entities_list.size(); j++)
-		  GetTransformedFace(&faces_group[j], &entities_list[j], transforms);
+		  GetTransformedFace(&faces_group[j],
+                         &entities_list[j],
+                         transforms,
+                         &entities->component_instances_[i].material_name_);
 
       transforms.pop_back();
     }    
@@ -365,14 +374,21 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
   for (int i = 0; i < entities->groups_.size(); ++i)
   {
     transforms.push_back(entities->groups_[i].transform_);
-    CombineEntities(entities->groups_[i].entities_,faces_group,transforms,index,combine_component);
+    CombineEntities(entities->groups_[i].entities_,
+                    faces_group,
+                    transforms,
+                    index,
+                    combine_component);
     transforms.pop_back();
   }
   entities->groups_.clear();
   vector <XmlGroupInfo>().swap(entities->groups_);
 
   //get face
-  GetTransformedFace(&faces_group[index],entities,transforms);
+  GetTransformedFace(&faces_group[index],
+                      entities,
+                      transforms,
+                      override_mat_name);
   entities->faces_.clear();
   vector <XmlFaceInfo>().swap(entities->faces_);
 
@@ -380,7 +396,8 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 
 void CXmlExporter::GetTransformedFace(XmlEntitiesInfo *to_entities,
                                       XmlEntitiesInfo *from_entities,
-                                      std::vector<SUTransformation> &transforms)
+                                      std::vector<SUTransformation> &transforms,
+                                      std::string *override_mat_name)
 {
   for (int i = 0; i < from_entities->faces_.size(); ++i)
   {
@@ -395,6 +412,15 @@ void CXmlExporter::GetTransformedFace(XmlEntitiesInfo *to_entities,
 
     to_entities->vertex_num_ += single_face.vertices_.size();
     to_entities->face_num_ += single_face.face_num_;
+
+    if(override_mat_name && !override_mat_name->empty())
+    {
+      if(single_face.front_mat_name_.empty())
+        single_face.front_mat_name_=*override_mat_name
+      if(single_face.back_mat_name_.empty())
+        single_face.back_mat_name_=*override_mat_name
+    }
+
     to_entities->faces_.push_back(single_face);
   }
 }
@@ -642,13 +668,19 @@ void CXmlExporter::CombineComponentDefinitions(std::vector<std::string> definiti
 		if (skpdata_.behavior_[definition_name_list[i]].component_always_face_camera)
 			index = 1;
 
-		CombineEntities(&skpdata_.definitions_[definition_name_list[i]], faces_data, transform, index, true);
+		CombineEntities(&skpdata_.definitions_[definition_name_list[i]],
+                     faces_data,
+                     transform,
+                     index,
+                     true);
 
 		definition_faces_[definition_name_list[i]] = faces_data;
 
 #ifdef PRINT_SKP_DATA
 
-		cout << "Combined component index " << i<<", Name "<< StringConvertUtils::UTF8_To_string(definition_name_list[i]) << ", Face size " << faces_data[0].face_num_ << " , " << faces_data[1].face_num_ << endl;
+		cout << "Combined component index " << i
+        <<", Name "<< StringConvertUtils::UTF8_To_string(definition_name_list[i]) 
+        << ", Face size " << faces_data[0].face_num_ << " , " << faces_data[1].face_num_ << endl;
 #endif // PRINT_SKP_DATA
 	}
 
