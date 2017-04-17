@@ -28,7 +28,7 @@ struct XmlMaterialInfo {
     // pixel_data_=NULL;
     //}
   }
-
+  SUMaterialRef origin_ref_;
   std::string name_;
   bool has_color_;
   SUColor color_;

@@ -56,6 +56,8 @@ class CXmlExporter {
 
   XmlMaterialInfo GetMaterialInfo(SUMaterialRef material);
 
+  SUMaterialRef GetMaterialRefByName(std::string mat_name);
+
   void FixNormal();
 
 private:
@@ -84,13 +86,12 @@ private:
                 				EntityList &faces_group,
                         std::vector<SUTransformation> &transform,
         			   		    size_t index=0,
-                        bool combine_component=false,
-                        std::string *override_mat_name=NULL);
+                        bool combine_component=false);
 
   void GetTransformedFace(XmlEntitiesInfo *to_entities,
 	  XmlEntitiesInfo *from_entities,
-	  std::vector<SUTransformation> &transforms,
-    std::string *override_mat_name=NULL);
+	  std::vector<SUTransformation> &transforms);
+  void CheckComponentFaceMaterial(SUEntitiesRef entities, string mat_name);
 
 
 private:

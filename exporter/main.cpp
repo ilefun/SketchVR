@@ -120,7 +120,7 @@ void material(CXmlExporter *exporter) {
 			pixel_data);
 
 		#ifdef PRINT_SKP_DATA
-			cout << endl << "Material " << i << " Data print starts" << endl;
+			cout << endl << "Material " << i  << endl;
 			cout << "\tHas color " << has_color << endl;
 			if (has_color)
 			cout << "\tColor " << color[0] << " " << color[1] << " " << color[2] << endl;
@@ -132,6 +132,7 @@ void material(CXmlExporter *exporter) {
 			cout << "\tHas texture " << has_texture << endl;
 			if (has_texture)
 			{
+				cout << "\tS scale : " << tex_sscale << ", T scale : " << tex_tscale << endl;
 				cout << "\twidth : " << width << ",  height : " << height << endl;
 				cout << "\tdata size : " << data_size << ", bits_per_pixel : " << bits_per_pixel << endl;
 				for (size_t j = 0; j < 10; j++)

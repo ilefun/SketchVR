@@ -317,8 +317,7 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 									CXmlExporter::EntityList &faces_group,
 									std::vector<SUTransformation> &transforms,
 									size_t index,
-									bool combine_component,
-                  std::string *override_mat_name)
+									bool combine_component)
 {
   if(combine_component)
   {
@@ -339,8 +338,7 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
                        faces_group,
                        transforms,
                        j,
-                       combine_component,
-                       &entities->component_instances_[i].material_name_);
+                       combine_component);
       
 	  transforms.pop_back();
     }
@@ -360,8 +358,7 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 	  for (size_t j = 0; j < entities_list.size(); j++)
 		  GetTransformedFace(&faces_group[j],
                          &entities_list[j],
-                         transforms,
-                         &entities->component_instances_[i].material_name_);
+                         transforms);
 
       transforms.pop_back();
     }    
@@ -387,8 +384,7 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
   //get face
   GetTransformedFace(&faces_group[index],
                       entities,
-                      transforms,
-                      override_mat_name);
+                      transforms);
   entities->faces_.clear();
   vector <XmlFaceInfo>().swap(entities->faces_);
 
@@ -396,8 +392,7 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 
 void CXmlExporter::GetTransformedFace(XmlEntitiesInfo *to_entities,
                                       XmlEntitiesInfo *from_entities,
-                                      std::vector<SUTransformation> &transforms,
-                                      std::string *override_mat_name)
+                                      std::vector<SUTransformation> &transforms)
 {
   for (int i = 0; i < from_entities->faces_.size(); ++i)
   {
@@ -412,15 +407,6 @@ void CXmlExporter::GetTransformedFace(XmlEntitiesInfo *to_entities,
 
     to_entities->vertex_num_ += single_face.vertices_.size();
     to_entities->face_num_ += single_face.face_num_;
-
-    if(override_mat_name && !override_mat_name->empty())
-    {
-      if(single_face.front_mat_name_.empty())
-        single_face.front_mat_name_=*override_mat_name
-      if(single_face.back_mat_name_.empty())
-        single_face.back_mat_name_=*override_mat_name
-    }
-
     to_entities->faces_.push_back(single_face);
   }
 }
@@ -464,6 +450,8 @@ XmlMaterialInfo CXmlExporter::GetMaterialInfo(SUMaterialRef material) {
   assert(!SUIsInvalid(material));
 
   XmlMaterialInfo info;
+  info.origin_ref_ = material;
+
   // Name
   info.name_ = GetMaterialName(material);
 
@@ -526,19 +514,9 @@ XmlMaterialInfo CXmlExporter::GetMaterialInfo(SUMaterialRef material) {
 
       info.data_size_=data_size;
       info.bits_per_pixel_=bits_per_pixel;
-	  int image_size = width*height*bits_per_pixel / 8;
-	  //if (image_size != data_size)
-		 // cout << "Error : image size is not equal to the size from su." << endl;
+  	  int image_size = width*height*bits_per_pixel / 8;
       info.pixel_data_=new SUByte[data_size];
-	    //std::cout << width << " " << height << " " << data_size << " " << bits_per_pixel << std::endl;
-	    // std::cout <<std::endl<<"===" <<SUImageRepGetData(image_rep_, info.data_size_, info.pixel_data_);
       SU_CALL(SUImageRepGetData(image_rep_, data_size,info.pixel_data_));
-	  //SUImageRepSaveToFile(image_rep_,"D:\\sketchup\\test_skp_file\\a.jpg");
-	  //for (size_t i = 0; i < 10; i++)
-	  //{
-		 // std::cout << int(info.pixel_data_[i]) << " ";
-	  //}
-	  //std::cout << std::endl;
     }
   }
   return info;
@@ -707,6 +685,35 @@ std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp
   return def_name;
 }
 
+SUMaterialRef CXmlExporter::GetMaterialRefByName(std::string mat_name)
+{
+	int mat_id = matname_id_map_[mat_name];
+	return skpdata_.materials_[mat_id].origin_ref_;
+}
+
+void CXmlExporter::CheckComponentFaceMaterial(SUEntitiesRef entities,string mat_name)
+{
+     
+      size_t num_faces = 0;
+      SU_CALL(SUEntitiesGetNumFaces(entities, &num_faces));
+      if (num_faces > 0) {
+        std::vector<SUFaceRef> faces(num_faces);
+        SU_CALL(SUEntitiesGetFaces(entities, num_faces, &faces[0], &num_faces));
+        for (size_t i = 0; i < num_faces; i++) {
+
+            SUMaterialRef front_material = SU_INVALID;
+            SUFaceGetFrontMaterial(faces[i], &front_material);
+            if(SUIsInvalid(front_material))
+              SUFaceSetFrontMaterial(faces[i],GetMaterialRefByName(mat_name));
+
+            SUMaterialRef back_material = SU_INVALID;
+            SUFaceGetBackMaterial(faces[i], &back_material);
+            if(SUIsInvalid(back_material))
+              SUFaceSetBackMaterial(faces[i],GetMaterialRefByName(mat_name));
+        }
+      }
+}
+
 void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_info) {
   // Component instances
   size_t num_instances = 0;
@@ -725,17 +732,6 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       SU_CALL(SUComponentInstanceGetDefinition(instance, &definition));
 
 
-      // convert component to entities---------------
-      // XmlGroupInfo info;
-      // SU_CALL(SUComponentInstanceGetTransform(instance, &info.transform_));
-
-      // // Write entities
-      // SUEntitiesRef  comp_entity_ref = SU_INVALID;
-      // SU_CALL(SUComponentDefinitionGetEntities(definition,&comp_entity_ref));
-      // WriteEntities(comp_entity_ref,info.entities_);
-
-      // entity_info->groups_.push_back(info);
-
       XmlComponentInstanceInfo instance_info;
       
       // Layer
@@ -751,8 +747,16 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       SUMaterialRef material = SU_INVALID;
       SUDrawingElementGetMaterial(SUComponentInstanceToDrawingElement(instance),
                                   &material);
+
+      //get component override material
       if (!SUIsInvalid(material))
-        instance_info.material_name_ = GetMaterialName(material);
+      {
+			instance_info.material_name_ = GetMaterialName(material);
+
+			//SUEntitiesRef  comp_entity_ref = SU_INVALID;
+			//SU_CALL(SUComponentDefinitionGetEntities(definition, &comp_entity_ref));
+			//CheckComponentFaceMaterial(comp_entity_ref,instance_info.material_name_);
+      }
 
       instance_info.definition_name_ = GetComponentDefinitionName(definition);
 
@@ -772,7 +776,6 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 	  }
 	  std::cout << endl<<endl;
 #endif // PRINT_SKP_DATA
-
       entity_info->component_instances_.push_back(instance_info);
     }
   }
