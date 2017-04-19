@@ -44,8 +44,6 @@ class CXmlExporter {
   
   const XmlEntitiesInfo* GroupById(int index){return &final_faces_.at(index);}
 
-  void SetMaxVertexNumPerGroup(int num) { max_vertex_num_pergroup_ = num; };
-
   XmlMaterialInfo GetMaterialInfo(SUMaterialRef material);
 
   SUMaterialRef GetMaterialRefByName(std::string mat_name);
@@ -79,9 +77,6 @@ private:
                         std::vector<SUTransformation> &transform,
         			   		    size_t index=0,
                         bool combine_component=false);
-
-  void CheckComponentFaceMaterial(SUEntitiesRef entities, string mat_name);
-
 
 private:
   CXmlOptions options_;

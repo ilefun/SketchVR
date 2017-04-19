@@ -1,5 +1,14 @@
 #include "./exportutils.h"
-#include "../common/xmlgeomutils.h"
+#include "../common/utils.h"
+
+#include <SketchUpAPI/model/material.h>
+#include <SketchUpAPI/model/layer.h>
+#include <SketchUpAPI/model/texture.h>
+#include <SketchUpAPI/model/image_rep.h>
+#include <SketchUpAPI/model/face.h>
+
+#include <cassert>
+#include <vector>
 
 
 std::string ExportUtils::GetMaterialName(SUMaterialRef material) {
@@ -131,4 +140,20 @@ void ExportUtils::FixNormal(XmlEntitiesInfo &entity_info){
               swap(entity_info.faces_[j].vertices_[k * 3], entity_info.faces_[j].vertices_[k * 3 + 2]);
       }
     }
+}
+
+void ExportUtils::CheckFaceMaterial(std::vector<SUFaceRef> &faces, SUMaterialRef mat_ref)
+{
+	for (size_t i = 0; i < faces.size(); i++) {
+
+		SUMaterialRef front_material = SU_INVALID;
+		SUFaceGetFrontMaterial(faces[i], &front_material);
+		if (SUIsInvalid(front_material))
+			SUFaceSetFrontMaterial(faces[i], mat_ref);
+
+		SUMaterialRef back_material = SU_INVALID;
+		SUFaceGetBackMaterial(faces[i], &back_material);
+		if (SUIsInvalid(back_material))
+			SUFaceSetBackMaterial(faces[i], mat_ref);
+	}
 }

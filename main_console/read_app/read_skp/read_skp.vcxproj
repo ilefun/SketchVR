@@ -155,10 +155,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\common\stringutils.h" />
     <ClInclude Include="..\..\..\common\utils.h" />
     <ClInclude Include="..\..\..\common\xmlfile.h" />
     <ClInclude Include="..\..\..\common\xmlgeomutils.h" />
     <ClInclude Include="..\..\..\exporter\exportskpdata.h" />
+    <ClInclude Include="..\..\..\exporter\exportutils.h" />
     <ClInclude Include="..\..\..\exporter\xmlexporter.h" />
     <ClInclude Include="..\..\..\exporter\xmlinheritancemanager.h" />
     <ClInclude Include="..\..\..\exporter\xmloptions.h" />
@@ -166,9 +168,11 @@
     <ClInclude Include="..\..\..\exporter\xmltexturehelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\common\stringutils.cpp" />
     <ClCompile Include="..\..\..\common\xmlfile.cpp" />
     <ClCompile Include="..\..\..\common\xmlgeomutils.cpp" />
     <ClCompile Include="..\..\..\exporter\exportskpdata.cpp" />
+    <ClCompile Include="..\..\..\exporter\exportutils.cpp" />
     <ClCompile Include="..\..\..\exporter\main.cpp" />
     <ClCompile Include="..\..\..\exporter\xmlexporter.cpp" />
     <ClCompile Include="..\..\..\exporter\xmlinheritancemanager.cpp" />

@@ -9,8 +9,8 @@
 #include "./xmlexporter.h"
 #include "./xmltexturehelper.h"
 #include "../common/xmlgeomutils.h"
-#include "../common/utils.h"
 #include "./exportutils.h"
+#include "../common/utils.h"
 #include "../common/stringutils.h"
 
 #include <SketchUpAPI/import_export/pluginprogresscallback.h>
@@ -464,34 +464,33 @@ SUMaterialRef CXmlExporter::GetMaterialRefByName(std::string mat_name)
 
 int CXmlExporter::GetMaterialIdByName(std::string mat_name)
 {
-  return exporter->skpdata_.matname_id_map_[mat_name];
+  return skpdata_.matname_id_map_[mat_name];
 }
 
-void CXmlExporter::CheckComponentFaceMaterial(SUEntitiesRef entities,string mat_name)
-{
-     
-      size_t num_faces = 0;
-      SU_CALL(SUEntitiesGetNumFaces(entities, &num_faces));
-
-      if (num_faces > 0) {
-        std::vector<SUFaceRef> faces(num_faces);
-        auto mat_ref=GetMaterialRefByName(mat_name);
-        SU_CALL(SUEntitiesGetFaces(entities, num_faces, &faces[0], &num_faces));
-      
-        for (size_t i = 0; i < num_faces; i++) {
-
-            SUMaterialRef front_material = SU_INVALID;
-            SUFaceGetFrontMaterial(faces[i], &front_material);
-            if(SUIsInvalid(front_material))
-              SUFaceSetFrontMaterial(faces[i],mat_ref);
-
-            SUMaterialRef back_material = SU_INVALID;
-            SUFaceGetBackMaterial(faces[i], &back_material);
-            if(SUIsInvalid(back_material))
-              SUFaceSetBackMaterial(faces[i],mat_ref);
-        }
-      }
-}
+//void CXmlExporter::CheckFaceMaterial(std::vector<SUFaceRef> &faces, SUMaterialRef mat_ref)
+//{
+//      //size_t num_faces = 0;
+//      //SU_CALL(SUEntitiesGetNumFaces(entities, &num_faces));
+//
+//      //if (num_faces > 0) {
+//      //  std::vector<SUFaceRef> faces(num_faces);
+//      //  auto mat_ref=GetMaterialRefByName(mat_name);
+//      //  SU_CALL(SUEntitiesGetFaces(entities, num_faces, &faces[0], &num_faces));
+//      //
+//      //  for (size_t i = 0; i < num_faces; i++) {
+//
+//      //      SUMaterialRef front_material = SU_INVALID;
+//      //      SUFaceGetFrontMaterial(faces[i], &front_material);
+//      //      if(SUIsInvalid(front_material))
+//      //        SUFaceSetFrontMaterial(faces[i],mat_ref);
+//
+//      //      SUMaterialRef back_material = SU_INVALID;
+//      //      SUFaceGetBackMaterial(faces[i], &back_material);
+//      //      if(SUIsInvalid(back_material))
+//      //        SUFaceSetBackMaterial(faces[i],mat_ref);
+//      //  }
+//      //}
+//}
 
 void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_info) {
   // Component instances
@@ -594,6 +593,11 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
     if (num_faces > 0) {
       std::vector<SUFaceRef> faces(num_faces);
       SU_CALL(SUEntitiesGetFaces(entities, num_faces, &faces[0], &num_faces));
+
+	  auto current_mat = inheritance_manager_.GetCurrentFrontMaterial();
+	  if(SUIsValid(current_mat))
+		ExportUtils::CheckFaceMaterial(faces, current_mat);
+
       for (size_t i = 0; i < num_faces; i++) {
         inheritance_manager_.PushElement(faces[i]);
         WriteFace(faces[i],entity_info);

@@ -1,4 +1,6 @@
 #include "./exportskpdata.h"
+#include "../common/stringutils.h"
+
 #include <ctime>
 
 
@@ -85,7 +87,6 @@ void material(CXmlExporter *exporter) {
 	{
 		char mat_name[100];
 		GetMaterialNameByID(exporter, i, mat_name);
-		cout << endl << "Material id&name : " << i << " " << StringConvertUtils::UTF8_To_string(mat_name) << endl;
 		
 		int data_size = 0;
 		data_size= GetTexPixelDSize(exporter, i);
@@ -121,6 +122,7 @@ void material(CXmlExporter *exporter) {
 
 		#ifdef PRINT_SKP_DATA
 			cout << endl << "Material " << i  << endl;
+			cout << "\tName : " << StringConvertUtils::UTF8_To_string(mat_name) << endl;
 			cout << "\tHas color " << has_color << endl;
 			if (has_color)
 			cout << "\tColor " << color[0] << " " << color[1] << " " << color[2] << endl;
@@ -142,7 +144,6 @@ void material(CXmlExporter *exporter) {
 				cout << endl;
 			}
 			// cout << "\tTexture  " << texture_path << " " << *tex_sscale << " " << *tex_tscale << endl;
-			cout << endl << "Material " << i << " Data print ends" << endl;
 		#endif
 		_ASSERTE(_CrtCheckMemory());
 		if(data_size && pixel_data)

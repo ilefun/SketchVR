@@ -2,10 +2,7 @@
 #define SKPTOXML_COMMON_STRINGUTILS_H
 
 #include <string>
-
-#include <SketchUpAPI/model/component_definition.h>
-#include <SketchUpAPI/model/component_instance.h>
-
+#include <SketchUpAPI/unicodestring.h>
 
 struct StringConvertUtils
 {

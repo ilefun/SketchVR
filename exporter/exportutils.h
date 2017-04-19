@@ -3,12 +3,15 @@
 
 #include "../common/stringutils.h"
 #include "../common/xmlfile.h"
+#include "../common/xmlgeomutils.h"
 
 #include <SketchUpAPI/import_export/pluginprogresscallback.h>
 #include <SketchUpAPI/model/defs.h>
 
 #include <unordered_map>
 #include <vector>
+
+using namespace std;
 
 struct ExportUtils
 {
@@ -29,6 +32,8 @@ struct ExportUtils
                           std::vector<SUTransformation> &transforms);
 
     static void FixNormal(XmlEntitiesInfo &entity_info);
+
+	static void CheckFaceMaterial(std::vector<SUFaceRef> &faces, SUMaterialRef mat_ref);
 
 };
 
