@@ -7,6 +7,7 @@
 #include "./xmloptions.h"
 #include "./xmlstats.h"
 #include "../common/xmlfile.h"
+#include "../common/stringutils.h"
 
 #include <SketchUpAPI/import_export/pluginprogresscallback.h>
 #include <SketchUpAPI/model/defs.h>
@@ -21,12 +22,6 @@
 // 0 0 0 1
 // to convert it to left-y-up hand.Transform the point with it.
 
-struct StringConvertUtils
-{
-  static std::string UTF8_To_string(const std::string & str);
-  static std::string string_To_UTF8(const std::string & str);
-};
-
 class CXmlExporter {
   public:
     typedef std::vector<XmlEntitiesInfo> EntityList;
@@ -39,8 +34,6 @@ class CXmlExporter {
   bool Convert(const std::string& from_file,
                SketchUpPluginProgressCallback* callback);
   
-  void debug_print();
-
   // Set user options
   void SetOptions(const CXmlOptions& options) { options_ = options; }
 
