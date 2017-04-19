@@ -329,9 +329,7 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 
       transforms.push_back(entities->component_instances_[i].transform_);
 
-//#ifdef PRINT_SKP_DATA
-//	  cout << "Component entities size : " << entities_list.size() << endl;
-//#endif
+
 	  //default 2
 	  for (size_t j = 0; j < entities_list.size(); j++)
 		  CombineEntities(&entities_list[j],
@@ -350,15 +348,12 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 
       transforms.push_back(entities->component_instances_[i].transform_);
 
-//#ifdef PRINT_SKP_DATA
-//	  cout << "Component entities size : "<<entities_list.size() << endl;
-//#endif
 
-	  //default 2
-	  for (size_t j = 0; j < entities_list.size(); j++)
-		  GetTransformedFace(&faces_group[j],
-                         &entities_list[j],
-                         transforms);
+  	  //default 2
+  	  for (size_t j = 0; j < entities_list.size(); j++)
+  		  GetTransformedFace(&faces_group[j],
+                           &entities_list[j],
+                           transforms);
 
       transforms.pop_back();
     }    
@@ -719,10 +714,12 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
   size_t num_instances = 0;
   SU_CALL(SUEntitiesGetNumInstances(entities, &num_instances));
   if (num_instances > 0) {
+
 #ifdef PRINT_SKP_DATA
 	  std::cout << "Instance Num : " << num_instances << std::endl;
 
 #endif // PRINT_SKP_DATA
+
     std::vector<SUComponentInstanceRef> instances(num_instances);
     SU_CALL(SUEntitiesGetInstances(entities, num_instances,
                                    &instances[0], &num_instances));
@@ -762,21 +759,22 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 
       SU_CALL(SUComponentInstanceGetTransform(instance,
                                               &instance_info.transform_));
+      
+      entity_info->component_instances_.push_back(instance_info);
 
 #ifdef PRINT_SKP_DATA
-	  std::cout << "\tInstance Index : " << c << " Name : " << StringConvertUtils::UTF8_To_string(instance_info.definition_name_) << std::endl;
-	  std::cout << "\tXform : "<<endl;
-	  for (size_t i = 0; i < 4; i++) {
-		  cout << "\t\t";
-		  for (size_t j = 0; j < 4; j++)
-		  {
-			  std::cout << instance_info.transform_.values[i*4+j] << " ";
-		  }
-		  cout << endl;
-	  }
-	  std::cout << endl<<endl;
+    std::cout << "\tInstance Index : " << c << " Name : " << StringConvertUtils::UTF8_To_string(instance_info.definition_name_) << std::endl;
+    std::cout << "\tXform : "<<endl;
+    for (size_t i = 0; i < 4; i++) {
+      cout << "\t\t";
+      for (size_t j = 0; j < 4; j++)
+      {
+        std::cout << instance_info.transform_.values[i*4+j] << " ";
+      }
+      cout << endl;
+    }
+    std::cout << endl<<endl;
 #endif // PRINT_SKP_DATA
-      entity_info->component_instances_.push_back(instance_info);
     }
   }
 
