@@ -137,9 +137,13 @@ struct XmlComponentDefinitionInfo {
 
 struct XmlModelInfo {
   std::vector<XmlLayerInfo> layers_;
+  
   std::vector<XmlMaterialInfo> materials_;
+  std::unordered_map<std::string, int> matname_id_map_;
+
   std::unordered_map<std::string, XmlEntitiesInfo> definitions_;
   std::unordered_map<std::string, SUComponentBehavior> behavior_;
+  
   XmlEntitiesInfo entities_;
   
   void debug_print();

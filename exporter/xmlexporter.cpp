@@ -10,6 +10,8 @@
 #include "./xmltexturehelper.h"
 #include "../common/xmlgeomutils.h"
 #include "../common/utils.h"
+#include "./exportutils.h"
+#include "../common/stringutils.h"
 
 #include <SketchUpAPI/import_export/pluginprogresscallback.h>
 #include <SketchUpAPI/initialize.h>
@@ -35,33 +37,11 @@
 using namespace XmlGeomUtils;
 using namespace std;
 
-// Utility function to get a material's name
-static std::string GetMaterialName(SUMaterialRef material) {
-  CSUString name;
-  SU_CALL(SUMaterialGetNameLegacyBehavior(material, name));
-  return name.utf8();
-}
-
-// Utility function to get a layer's name
-static std::string GetLayerName(SULayerRef layer) {
-  CSUString name;
-  SU_CALL(SULayerGetName(layer, name));
-  return name.utf8();
-}
-
-// Utility function to get a component definition's name
-static std::string GetComponentDefinitionName(
-    SUComponentDefinitionRef comp_def) {
-  CSUString name;
-  SU_CALL(SUComponentDefinitionGetName(comp_def, name));
-  return name.utf8();
-}
 
 CXmlExporter::CXmlExporter() {
   SUSetInvalid(model_);
   SUSetInvalid(texture_writer_);
   SUSetInvalid(image_rep_);
-  max_vertex_num_pergroup_=50000;
 }
 
 CXmlExporter::~CXmlExporter() {
@@ -108,10 +88,6 @@ bool CXmlExporter::Convert(const std::string& from_file,
 
 	SU_CALL(SUModelCreateFromFile(&model_, skp_file_.c_str()));
 
-	//if (res != SU_ERROR_NONE) {
-	//	std::cout << "Got error when open skp file "<< from_file <<std::endl<<"Error type is : "<<res<< std::endl;
-	//	return false;
-	//}
 
   #ifdef TIME_LOGGER
     end = clock();
@@ -197,7 +173,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
 #ifdef TIME_LOGGER
   start = clock();
 #endif
-     FixNormal();
+     ExportUtils::FixNormal(final_faces_[0]);
 #ifdef TIME_LOGGER
 
    end = clock();
@@ -263,7 +239,7 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 
   	  //default 2
   	  for (size_t j = 0; j < entities_list.size(); j++)
-  		  GetTransformedFace(&faces_group[j],
+  		  ExportUtils::GetTransformedFace(&faces_group[j],
                            &entities_list[j],
                            transforms);
 
@@ -289,48 +265,12 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
   vector <XmlGroupInfo>().swap(entities->groups_);
 
   //get face
-  GetTransformedFace(&faces_group[index],
+  ExportUtils::GetTransformedFace(&faces_group[index],
                       entities,
                       transforms);
   entities->faces_.clear();
   vector <XmlFaceInfo>().swap(entities->faces_);
 
-}
-
-void CXmlExporter::GetTransformedFace(XmlEntitiesInfo *to_entities,
-                                      XmlEntitiesInfo *from_entities,
-                                      std::vector<SUTransformation> &transforms)
-{
-  for (int i = 0; i < from_entities->faces_.size(); ++i)
-  {
-    auto single_face=from_entities->faces_[i];
-
-    for(int j=transforms.size()-1; j>=0; j--){
-      single_face.face_normal_.Transform(transforms[j].values);
-    
-      for(int k=0;k<single_face.vertices_.size();k++)
-        single_face.vertices_[k].vertex_.Transform(transforms[j].values);
-    }
-
-    to_entities->vertex_num_ += single_face.vertices_.size();
-    to_entities->face_num_ += single_face.face_num_;
-    to_entities->faces_.push_back(single_face);
-  }
-}
-
-void CXmlExporter::FixNormal(){
-    //we only check and fix the normal of first group,faces in second group are always facing camera
-    for (int j = 0; j < final_faces_[0].faces_.size(); ++j)
-    {
-      for (int k = 0; k < final_faces_[0].faces_[j].face_num_; ++k)
-      {
-		  if (!XmlGeomUtils::NormalEqual(final_faces_[0].faces_[j].vertices_[k * 3].vertex_,
-			  final_faces_[0].faces_[j].vertices_[k * 3 + 1].vertex_,
-			  final_faces_[0].faces_[j].vertices_[k * 3 + 2].vertex_,
-			  final_faces_[0].faces_[j].face_normal_))
-			  swap(final_faces_[0].faces_[j].vertices_[k * 3], final_faces_[0].faces_[j].vertices_[k * 3 + 2]);
-      }
-    }
 }
 
 void CXmlExporter::WriteLayers() {
@@ -353,82 +293,6 @@ void CXmlExporter::WriteLayers() {
   }
 }
 
-XmlMaterialInfo CXmlExporter::GetMaterialInfo(SUMaterialRef material) {
-  assert(!SUIsInvalid(material));
-
-  XmlMaterialInfo info;
-  info.origin_ref_ = material;
-
-  // Name
-  info.name_ = GetMaterialName(material);
-
-  // Color
-  info.has_color_ = false;
-  info.has_alpha_ = false;
-  SUMaterialType type;
-  SU_CALL(SUMaterialGetType(material, &type));
-  // Color
-  if ((type == SUMaterialType_Colored) ||
-      (type == SUMaterialType_ColorizedTexture)) {
-    SUColor color;
-    if (SUMaterialGetColor(material, &color) == SU_ERROR_NONE) {
-      info.has_color_ = true;
-      info.color_ = color;
-    }
-  }
-
-  // Alpha
-  bool has_alpha = false;
-  SU_CALL(SUMaterialGetUseOpacity(material, &has_alpha));
-  if (has_alpha) {
-    double alpha = 0;
-    SU_CALL(SUMaterialGetOpacity(material, &alpha));
-    info.has_alpha_ = true;
-    info.alpha_ = alpha;
-  }
-
-  // Texture
-  info.has_texture_ = false;
-  if ((type == SUMaterialType_Textured) ||
-      (type == SUMaterialType_ColorizedTexture)) {
-    SUTextureRef texture = SU_INVALID;
-    if (SUMaterialGetTexture(material, &texture) == SU_ERROR_NONE) {
-      info.has_texture_ = true;
-      // Texture path
-      // CSUString texture_path;
-      // SU_CALL(SUTextureGetFileName(texture, texture_path));
-      // info.texture_path_ = texture_path.utf8();
-
-      // Texture scale
-      size_t width = 0;
-      size_t height = 0;
-      double s_scale = 0.0;
-      double t_scale = 0.0;
-      SU_CALL(SUTextureGetDimensions(texture, &width, &height,
-                                     &s_scale, &t_scale));
-      info.texture_sscale_ = s_scale;
-      info.texture_tscale_ = t_scale;
-      info.width_ = width;
-      info.height_ = height;
-    
-      //Texture data
-      SU_CALL(SUTextureGetImageRep(texture,&image_rep_));
-	  //to fix jpg bug,we convert all images to 32 bit
-	  SUImageRepConvertTo32BitsPerPixel(image_rep_);
-
-      size_t data_size=0,bits_per_pixel=0;
-      SU_CALL(SUImageRepGetDataSize(image_rep_,&data_size,&bits_per_pixel));
-
-      info.data_size_=data_size;
-      info.bits_per_pixel_=bits_per_pixel;
-  	  int image_size = width*height*bits_per_pixel / 8;
-      info.pixel_data_=new SUByte[data_size];
-      SU_CALL(SUImageRepGetData(image_rep_, data_size,info.pixel_data_));
-    }
-  }
-  return info;
-}
-
 void CXmlExporter::WriteLayer(SULayerRef layer) {
   if (SUIsInvalid(layer))
     return;
@@ -436,14 +300,14 @@ void CXmlExporter::WriteLayer(SULayerRef layer) {
   XmlLayerInfo info;
 
   // Name
-  info.name_ = GetLayerName(layer);
+  info.name_ = ExportUtils::GetLayerName(layer);
 
   // Color
   SUMaterialRef material = SU_INVALID;
   info.has_material_info_ = false;
   if (SULayerGetMaterial(layer, &material) == SU_ERROR_NONE) {
     info.has_material_info_ = true;
-	info.material_info_=GetMaterialInfo(material);
+	info.material_info_=ExportUtils::GetMaterialInfo(material,image_rep_);
   }
 
   // Visibility
@@ -491,7 +355,7 @@ void CXmlExporter::WriteMaterials() {
     
 	for (size_t i = 0; i < skpdata_.materials_.size(); i++)
 	{
-		matname_id_map_[skpdata_.materials_[i].name_] = int(i);
+		skpdata_.matname_id_map_[skpdata_.materials_[i].name_] = int(i);
 		//std::cout << i<<" " << skpdata_.materials_[i].name_ << std::endl;
 	}
   }
@@ -500,7 +364,7 @@ void CXmlExporter::WriteMaterials() {
 void CXmlExporter::WriteMaterial(SUMaterialRef material) {
   if (SUIsInvalid(material))
     return;  
-  skpdata_.materials_.push_back(GetMaterialInfo(material));
+  skpdata_.materials_.push_back(ExportUtils::GetMaterialInfo(material,image_rep_));
 
 }
 
@@ -572,7 +436,7 @@ void CXmlExporter::CombineComponentDefinitions(std::vector<std::string> definiti
 }
 
 std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
-  auto def_name = GetComponentDefinitionName(comp_def);
+  auto def_name = ExportUtils::GetComponentDefinitionName(comp_def);
 
 #ifdef PRINT_SKP_DATA
   std::cout << endl<<"Component Name : " << StringConvertUtils::UTF8_To_string(def_name) << std::endl;
@@ -594,8 +458,13 @@ std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp
 
 SUMaterialRef CXmlExporter::GetMaterialRefByName(std::string mat_name)
 {
-	int mat_id = matname_id_map_[mat_name];
+	int mat_id = skpdata_.matname_id_map_[mat_name];
 	return skpdata_.materials_[mat_id].origin_ref_;
+}
+
+int CXmlExporter::GetMaterialIdByName(std::string mat_name)
+{
+  return exporter->skpdata_.matname_id_map_[mat_name];
 }
 
 void CXmlExporter::CheckComponentFaceMaterial(SUEntitiesRef entities,string mat_name)
@@ -603,20 +472,23 @@ void CXmlExporter::CheckComponentFaceMaterial(SUEntitiesRef entities,string mat_
      
       size_t num_faces = 0;
       SU_CALL(SUEntitiesGetNumFaces(entities, &num_faces));
+
       if (num_faces > 0) {
         std::vector<SUFaceRef> faces(num_faces);
+        auto mat_ref=GetMaterialRefByName(mat_name);
         SU_CALL(SUEntitiesGetFaces(entities, num_faces, &faces[0], &num_faces));
+      
         for (size_t i = 0; i < num_faces; i++) {
 
             SUMaterialRef front_material = SU_INVALID;
             SUFaceGetFrontMaterial(faces[i], &front_material);
             if(SUIsInvalid(front_material))
-              SUFaceSetFrontMaterial(faces[i],GetMaterialRefByName(mat_name));
+              SUFaceSetFrontMaterial(faces[i],mat_ref);
 
             SUMaterialRef back_material = SU_INVALID;
             SUFaceGetBackMaterial(faces[i], &back_material);
             if(SUIsInvalid(back_material))
-              SUFaceSetBackMaterial(faces[i],GetMaterialRefByName(mat_name));
+              SUFaceSetBackMaterial(faces[i],mat_ref);
         }
       }
 }
@@ -650,7 +522,7 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       SUDrawingElementGetLayer(SUComponentInstanceToDrawingElement(instance),
                                &layer);
       if (!SUIsInvalid(layer))
-        instance_info.layer_name_ = GetLayerName(layer);
+        instance_info.layer_name_ = ExportUtils::GetLayerName(layer);
 
       // Material
       SUMaterialRef material = SU_INVALID;
@@ -660,14 +532,14 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       //get component override material
       if (!SUIsInvalid(material))
       {
-			instance_info.material_name_ = GetMaterialName(material);
+			instance_info.material_name_ = ExportUtils::GetMaterialName(material);
 
 			//SUEntitiesRef  comp_entity_ref = SU_INVALID;
 			//SU_CALL(SUComponentDefinitionGetEntities(definition, &comp_entity_ref));
 			//CheckComponentFaceMaterial(comp_entity_ref,instance_info.material_name_);
       }
 
-      instance_info.definition_name_ = GetComponentDefinitionName(definition);
+      instance_info.definition_name_ = ExportUtils::GetComponentDefinitionName(definition);
 
       SU_CALL(SUComponentInstanceGetTransform(instance,
                                               &instance_info.transform_));
@@ -771,7 +643,7 @@ void CXmlExporter::WriteFace(SUFaceRef face,XmlEntitiesInfo *entity_info) {
   // Get Current layer off of our stack and then get the id from it
   SULayerRef layer = inheritance_manager_.GetCurrentLayer();
   if (!SUIsInvalid(layer)) {
-    info.layer_name_ = GetLayerName(layer);
+    info.layer_name_ = ExportUtils::GetLayerName(layer);
   }
 
   // Get the current front and back materials off of our stack
@@ -780,7 +652,7 @@ void CXmlExporter::WriteFace(SUFaceRef face,XmlEntitiesInfo *entity_info) {
         inheritance_manager_.GetCurrentFrontMaterial();
     if (!SUIsInvalid(front_material)) {
       // Material name
-      info.front_mat_name_ = GetMaterialName(front_material);
+      info.front_mat_name_ = ExportUtils::GetMaterialName(front_material);
 
       // Has texture ?
       SUTextureRef texture_ref = SU_INVALID;
@@ -791,7 +663,7 @@ void CXmlExporter::WriteFace(SUFaceRef face,XmlEntitiesInfo *entity_info) {
         inheritance_manager_.GetCurrentBackMaterial();
     if (!SUIsInvalid(back_material)) {
       // Material name
-      info.back_mat_name_ = GetMaterialName(back_material);
+      info.back_mat_name_ = ExportUtils::GetMaterialName(back_material);
 
       // Has texture ?
       SUTextureRef texture_ref = SU_INVALID;
@@ -943,7 +815,7 @@ XmlEdgeInfo CXmlExporter::GetEdgeInfo(SUEdgeRef edge) const {
     SULayerRef layer = inheritance_manager_.GetCurrentLayer();
     if (!SUIsInvalid(layer)) {
       SU_CALL(SUDrawingElementGetLayer(SUEdgeToDrawingElement(edge), &layer));
-      info.layer_name_ = GetLayerName(layer);
+      info.layer_name_ = ExportUtils::GetLayerName(layer);
     }
   }
 

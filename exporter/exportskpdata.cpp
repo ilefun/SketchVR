@@ -97,16 +97,22 @@ void GetFaceMaterialData(CXmlExporter *exporter,
 		if (!entities->faces_[i].has_single_loop_)
 			current_face_num=entities->faces_[i].vertices_.size() / 3;
 
-		if(exporter->matname_id_map_.count(entities->faces_[i].front_mat_name_))
+		if(exporter->skpdata_.matname_id_map_.count(entities->faces_[i].front_mat_name_))
+		{	
+			auto mat_id=exporter->GetMaterialIdByName(entities->faces_[i].front_mat_name_);
 			for(int j=0;j<current_face_num;j++)
-				front_id[front_index++]=exporter->matname_id_map_[entities->faces_[i].front_mat_name_];
+				front_id[front_index++]=mat_id;
+		}
 		else
 			for(int j=0;j<current_face_num;j++)
 				front_id[front_index++]=-1;
 
-		if(exporter->matname_id_map_.count(entities->faces_[i].back_mat_name_))
+		if(exporter->skpdata_.matname_id_map_.count(entities->faces_[i].back_mat_name_))
+		{
+			auto mat_id=exporter->GetMaterialIdByName(entities->faces_[i].back_mat_name_);
 			for(int j=0;j<current_face_num;j++)
-				back_id[back_index++]=exporter->matname_id_map_[entities->faces_[i].back_mat_name_];
+				back_id[back_index++]=mat_id;
+		}
 		else
 			for(int j=0;j<current_face_num;j++)
 				back_id[back_index++]=-1;

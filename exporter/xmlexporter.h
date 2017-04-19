@@ -7,7 +7,6 @@
 #include "./xmloptions.h"
 #include "./xmlstats.h"
 #include "../common/xmlfile.h"
-#include "../common/stringutils.h"
 
 #include <SketchUpAPI/import_export/pluginprogresscallback.h>
 #include <SketchUpAPI/model/defs.h>
@@ -51,7 +50,7 @@ class CXmlExporter {
 
   SUMaterialRef GetMaterialRefByName(std::string mat_name);
 
-  void FixNormal();
+  int GetMaterialIdByName(std::string mat_name);
 
 private:
   // Clean up slapi objects
@@ -81,9 +80,6 @@ private:
         			   		    size_t index=0,
                         bool combine_component=false);
 
-  void GetTransformedFace(XmlEntitiesInfo *to_entities,
-	  XmlEntitiesInfo *from_entities,
-	  std::vector<SUTransformation> &transforms);
   void CheckComponentFaceMaterial(SUEntitiesRef entities, string mat_name);
 
 
@@ -104,13 +100,11 @@ private:
   // Stack
   CInheritanceManager inheritance_manager_;
 
-  int max_vertex_num_pergroup_;
   EntityList final_faces_;
   std::unordered_map<std::string, EntityList> definition_faces_;
 
 public:
 	XmlModelInfo skpdata_;
-	std::unordered_map<std::string, int> matname_id_map_;
 };
 
 #endif // SKPTOXML_COMMON_XMLEXPORTER_H
