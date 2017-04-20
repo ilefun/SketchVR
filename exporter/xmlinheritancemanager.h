@@ -19,7 +19,7 @@ class CInheritanceManager {
   virtual ~CInheritanceManager();
 
   void PushElement(SUGroupRef element);
-  void PushElement(SUImageRef element);
+  void PushElement(SUComponentInstanceRef instance);
   void PushElement(SUFaceRef element);
   void PushElement(SUEdgeRef element);
   void PopElement();

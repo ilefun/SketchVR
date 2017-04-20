@@ -137,6 +137,7 @@ void material(CXmlExporter *exporter) {
 				cout << "\tS scale : " << tex_sscale << ", T scale : " << tex_tscale << endl;
 				cout << "\twidth : " << width << ",  height : " << height << endl;
 				cout << "\tdata size : " << data_size << ", bits_per_pixel : " << bits_per_pixel << endl;
+				cout << "\t";
 				for (size_t j = 0; j < 10; j++)
 				{
 					cout << pixel_data[j] << " ";

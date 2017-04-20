@@ -129,16 +129,16 @@ bool CXmlExporter::Convert(const std::string& from_file,
 
 
 
-  #ifdef TIME_LOGGER
-    start = clock();
-  #endif
-    // Component definitions
-    std::cout<<"Exporting component data..."<<std::endl;
-    WriteComponentDefinitions();
-  #ifdef TIME_LOGGER
-    end = clock();
-    cout<<"Time Logger : Export component in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl<<endl;
-  #endif
+  //#ifdef TIME_LOGGER
+  //  start = clock();
+  //#endif
+  //  // Component definitions
+  //  std::cout<<"Exporting component data..."<<std::endl;
+  //  WriteComponentDefinitions();
+  //#ifdef TIME_LOGGER
+  //  end = clock();
+  //  cout<<"Time Logger : Export component in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl<<endl;
+  //#endif
 
 
 
@@ -504,60 +504,48 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 #endif // PRINT_SKP_DATA
 
     std::vector<SUComponentInstanceRef> instances(num_instances);
-    SU_CALL(SUEntitiesGetInstances(entities, num_instances,
-                                   &instances[0], &num_instances));
+    SU_CALL(SUEntitiesGetInstances(entities, num_instances, &instances[0], &num_instances));
+
     for (size_t c = 0; c < num_instances; c++) {
       SUComponentInstanceRef instance = instances[c];
       SUComponentDefinitionRef definition = SU_INVALID;
       SU_CALL(SUComponentInstanceGetDefinition(instance, &definition));
 
+	  //push element------------------
+	  inheritance_manager_.PushElement(instance);
 
-      XmlComponentInstanceInfo instance_info;
-      
-      // Layer
-      SULayerRef layer = SU_INVALID;
-      
-      
-      SUDrawingElementGetLayer(SUComponentInstanceToDrawingElement(instance),
-                               &layer);
-      if (!SUIsInvalid(layer))
-        instance_info.layer_name_ = ExportUtils::GetLayerName(layer);
+	  // Write transformation
+	  XmlGroupInfo info;
+      SU_CALL(SUComponentInstanceGetTransform(instance,&info.transform_));
 
-      // Material
-      SUMaterialRef material = SU_INVALID;
-      SUDrawingElementGetMaterial(SUComponentInstanceToDrawingElement(instance),
-                                  &material);
+	  SUEntitiesRef  instance_entities = SU_INVALID;
+	  SU_CALL(SUComponentDefinitionGetEntities(definition, &instance_entities));
 
-      //get component override material
-      if (!SUIsInvalid(material))
-      {
-			instance_info.material_name_ = ExportUtils::GetMaterialName(material);
 
-			//SUEntitiesRef  comp_entity_ref = SU_INVALID;
-			//SU_CALL(SUComponentDefinitionGetEntities(definition, &comp_entity_ref));
-			//CheckComponentFaceMaterial(comp_entity_ref,instance_info.material_name_);
-      }
-
-      instance_info.definition_name_ = ExportUtils::GetComponentDefinitionName(definition);
-
-      SU_CALL(SUComponentInstanceGetTransform(instance,
-                                              &instance_info.transform_));
-      
-      entity_info->component_instances_.push_back(instance_info);
 
 #ifdef PRINT_SKP_DATA
-    std::cout << "\tInstance Index : " << c << " Name : " << StringConvertUtils::UTF8_To_string(instance_info.definition_name_) << std::endl;
-    std::cout << "\tXform : "<<endl;
-    for (size_t i = 0; i < 4; i++) {
-      cout << "\t\t";
-      for (size_t j = 0; j < 4; j++)
-      {
-        std::cout << instance_info.transform_.values[i*4+j] << " ";
-      }
-      cout << endl;
-    }
-    std::cout << endl<<endl;
+	  auto definition_name = ExportUtils::GetComponentDefinitionName(definition);
+	  std::cout << "\tInstance Index : " << c << " Name : " << StringConvertUtils::UTF8_To_string(definition_name) << std::endl;
+	  std::cout << "\tXform : " << endl;
+	  for (size_t i = 0; i < 4; i++) {
+		  cout << "\t\t";
+		  for (size_t j = 0; j < 4; j++)
+		  {
+			  std::cout << info.transform_.values[i * 4 + j] << " ";
+		  }
+		  cout << endl;
+	  }
+	  std::cout << endl << endl;
 #endif // PRINT_SKP_DATA
+
+
+	  // Write entities
+	  WriteEntities(instance_entities, info.entities_);
+	  entity_info->groups_.push_back(info);
+
+	  //pop element-----------------------------------
+	  inheritance_manager_.PopElement();
+
     }
   }
 
