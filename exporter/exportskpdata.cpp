@@ -305,6 +305,8 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
                             bool *has_texture,
                             float *tex_sscale,
                             float *tex_tscale,
+							
+							int *origin_bits_per_pixel,
                             int *bits_per_pixel,
                             int *width,
                             int *height,
@@ -328,6 +330,7 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 		*tex_sscale=current_mat.texture_sscale_;
 		*tex_tscale=current_mat.texture_tscale_;
 		*bits_per_pixel=current_mat.bits_per_pixel_;
+		*origin_bits_per_pixel = current_mat.origin_bits_per_pixel_;
 		*width=current_mat.width_;
 		*height=current_mat.height_;
 		GetTexturePixel(current_mat, pixel_data);

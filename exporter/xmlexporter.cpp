@@ -583,14 +583,18 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       SU_CALL(SUEntitiesGetFaces(entities, num_faces, &faces[0], &num_faces));
 
 	  auto current_mat = inheritance_manager_.GetCurrentFrontMaterial();
+	  std::vector<std::pair<size_t, bool>> face_no_material;
 	  if(SUIsValid(current_mat))
-		ExportUtils::CheckFaceMaterial(faces, current_mat);
+		ExportUtils::CheckFaceMaterial(faces, current_mat,face_no_material);
 
       for (size_t i = 0; i < num_faces; i++) {
         inheritance_manager_.PushElement(faces[i]);
         WriteFace(faces[i],entity_info);
         inheritance_manager_.PopElement();
       }
+
+	  if (SUIsValid(current_mat))
+		  ExportUtils::ClearFaceMaterial(faces, face_no_material);
     }
   }
 

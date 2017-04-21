@@ -41,6 +41,7 @@ struct XmlMaterialInfo {
   size_t width_;
   size_t height_;
 
+  size_t origin_bits_per_pixel_;
   size_t bits_per_pixel_;
   size_t data_size_;
   SUByte *pixel_data_;

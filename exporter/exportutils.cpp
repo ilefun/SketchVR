@@ -90,11 +90,17 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRe
     
       //Texture data
       SU_CALL(SUTextureGetImageRep(texture,&image_rep));
-      //to fix jpg bug,we convert all images to 32 bit
-      SUImageRepConvertTo32BitsPerPixel(image_rep);
 
-      size_t data_size=0,bits_per_pixel=0;
+      size_t data_size=0, bits_per_pixel=0;
       SU_CALL(SUImageRepGetDataSize(image_rep,&data_size,&bits_per_pixel));
+	  info.origin_bits_per_pixel_ = bits_per_pixel;
+
+	  if (bits_per_pixel == 24)
+	  {
+		  //to fix jpg bug,we convert all images to 32 bit
+		  SUImageRepConvertTo32BitsPerPixel(image_rep);
+		  SU_CALL(SUImageRepGetDataSize(image_rep, &data_size, &bits_per_pixel));
+	  }
 
       info.data_size_=data_size;
       info.bits_per_pixel_=bits_per_pixel;
@@ -142,18 +148,40 @@ void ExportUtils::FixNormal(XmlEntitiesInfo &entity_info){
     }
 }
 
-void ExportUtils::CheckFaceMaterial(std::vector<SUFaceRef> &faces, SUMaterialRef mat_ref)
+void ExportUtils::CheckFaceMaterial(std::vector<SUFaceRef> &faces, 
+									SUMaterialRef mat_ref,
+									std::vector<std::pair<size_t, bool>> &face_no_material)
 {
 	for (size_t i = 0; i < faces.size(); i++) {
 
 		SUMaterialRef front_material = SU_INVALID;
 		SUFaceGetFrontMaterial(faces[i], &front_material);
 		if (SUIsInvalid(front_material))
+		{
 			SUFaceSetFrontMaterial(faces[i], mat_ref);
+			face_no_material.push_back(std::make_pair(i, true));
+		}
 
 		SUMaterialRef back_material = SU_INVALID;
 		SUFaceGetBackMaterial(faces[i], &back_material);
 		if (SUIsInvalid(back_material))
+		{
 			SUFaceSetBackMaterial(faces[i], mat_ref);
+			face_no_material.push_back(std::make_pair(i, false));
+		}
+	}
+}
+
+void ExportUtils::ClearFaceMaterial(std::vector<SUFaceRef> &faces, const std::vector<std::pair<size_t, bool>> &face_no_material) 
+{
+	SUMaterialRef no_material = SU_INVALID;
+
+	for (size_t i = 0; i < face_no_material.size(); i++) {
+		auto face = faces[face_no_material[i].first];
+		if(face_no_material[i].second)
+			SUFaceSetFrontMaterial(face, no_material);
+		else
+			SUFaceSetBackMaterial(face, no_material);
+
 	}
 }

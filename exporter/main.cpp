@@ -99,6 +99,7 @@ void material(CXmlExporter *exporter) {
 		float tex_sscale = 1.0;
 		float tex_tscale = 1.0;
 
+		int origin_bits_per_pixel = 0;
 		int bits_per_pixel = 0;
 		int width = 0;
 		int height = 0;
@@ -115,6 +116,7 @@ void material(CXmlExporter *exporter) {
 			&has_texture,
 			&tex_sscale,
 			&tex_tscale,
+			&origin_bits_per_pixel,
 			&bits_per_pixel,
 			&width,
 			&height,
@@ -136,7 +138,7 @@ void material(CXmlExporter *exporter) {
 			{
 				cout << "\tS scale : " << tex_sscale << ", T scale : " << tex_tscale << endl;
 				cout << "\twidth : " << width << ",  height : " << height << endl;
-				cout << "\tdata size : " << data_size << ", bits_per_pixel : " << bits_per_pixel << endl;
+				cout << "\tdata size : " << data_size << ", bits_per_pixel : " << bits_per_pixel <<", origin_bits_per_pixel : "<< origin_bits_per_pixel << endl;
 				cout << "\t";
 				for (size_t j = 0; j < 10; j++)
 				{

@@ -33,8 +33,9 @@ struct ExportUtils
 
     static void FixNormal(XmlEntitiesInfo &entity_info);
 
-	static void CheckFaceMaterial(std::vector<SUFaceRef> &faces, SUMaterialRef mat_ref);
+	static void CheckFaceMaterial(std::vector<SUFaceRef> &faces, SUMaterialRef mat_ref, std::vector<std::pair<size_t, bool>> &face_no_material);
 
+	static void ClearFaceMaterial(std::vector<SUFaceRef> &faces, const std::vector<std::pair<size_t, bool>> &face_no_material);
 };
 
 #endif // SKPTOXML_EXPORTER_EXPORTUTILS_H
