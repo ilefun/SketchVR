@@ -45,9 +45,9 @@ void CInheritanceManager::PushLayer(SUDrawingElementRef drawingElementRef) {
   layers_.push_back(layer);
 }
 
-void CInheritanceManager::PushElement(SUComponentInstanceRef instance)
+void CInheritanceManager::PushElement(SUComponentInstanceRef element)
 {
-	SUDrawingElementRef drawing_element =SUComponentInstanceToDrawingElement(instance);
+	SUDrawingElementRef drawing_element =SUComponentInstanceToDrawingElement(element);
 	PushMaterial(drawing_element);
 	PushLayer(drawing_element);
 }

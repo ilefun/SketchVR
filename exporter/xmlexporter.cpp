@@ -42,6 +42,7 @@ CXmlExporter::CXmlExporter() {
   SUSetInvalid(model_);
   SUSetInvalid(texture_writer_);
   SUSetInvalid(image_rep_);
+  facing_camera_=false;
 }
 
 CXmlExporter::~CXmlExporter() {
@@ -129,16 +130,16 @@ bool CXmlExporter::Convert(const std::string& from_file,
 
 
 
-  //#ifdef TIME_LOGGER
-  //  start = clock();
-  //#endif
-  //  // Component definitions
-  //  std::cout<<"Exporting component data..."<<std::endl;
-  //  WriteComponentDefinitions();
-  //#ifdef TIME_LOGGER
-  //  end = clock();
-  //  cout<<"Time Logger : Export component in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl<<endl;
-  //#endif
+  #ifdef TIME_LOGGER
+    start = clock();
+  #endif
+    // Component definitions
+    std::cout<<"Exporting component data..."<<std::endl;
+    WriteComponentDefinitions();
+  #ifdef TIME_LOGGER
+    end = clock();
+    cout<<"Time Logger : Export component in "<<(double((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl<<endl;
+  #endif
 
 
 
@@ -204,52 +205,8 @@ bool CXmlExporter::Convert(const std::string& from_file,
 void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
 									CXmlExporter::EntityList &faces_group,
 									std::vector<SUTransformation> &transforms,
-									size_t index,
-									bool combine_component)
+									size_t index)
 {
-  if(combine_component)
-  {
-
-    //get instance
-    for (int i = 0; i < entities->component_instances_.size(); ++i)
-    {
-      auto entities_list=definition_faces_[entities->component_instances_[i].definition_name_];
-
-      transforms.push_back(entities->component_instances_[i].transform_);
-
-
-	  //default 2
-	  for (size_t j = 0; j < entities_list.size(); j++)
-		  CombineEntities(&entities_list[j],
-                       faces_group,
-                       transforms,
-                       j,
-                       combine_component);
-      
-	  transforms.pop_back();
-    }
-  }
-  else{
-    for (int i = 0; i < entities->component_instances_.size(); ++i)
-    {
-      auto entities_list=definition_faces_[entities->component_instances_[i].definition_name_];
-
-      transforms.push_back(entities->component_instances_[i].transform_);
-
-
-  	  //default 2
-  	  for (size_t j = 0; j < entities_list.size(); j++)
-  		  ExportUtils::GetTransformedFace(&faces_group[j],
-                           &entities_list[j],
-                           transforms);
-
-      transforms.pop_back();
-    }    
-  }
-
-  entities->component_instances_.clear();
-  vector <XmlComponentInstanceInfo>().swap(entities->component_instances_);
-
   // get group
   for (int i = 0; i < entities->groups_.size(); ++i)
   {
@@ -257,8 +214,7 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
     CombineEntities(entities->groups_[i].entities_,
                     faces_group,
                     transforms,
-                    index,
-                    combine_component);
+                    index );
     transforms.pop_back();
   }
   entities->groups_.clear();
@@ -393,46 +349,11 @@ void CXmlExporter::WriteComponentDefinitions() {
 
 #endif // PRINT_SKP_DATA
 
-	std::vector<string> definition_name;
     for (size_t def = 0; def < num_comp_defs; ++def) {
       SUComponentDefinitionRef comp_def = comp_defs[def];
-      definition_name.push_back(WriteComponentDefinition(comp_def));
+      WriteComponentDefinition(comp_def);
     }
-#ifdef PRINT_SKP_DATA
-
-	cout << "Combined component... " << endl;
-#endif // PRINT_SKP_DATA
-	CombineComponentDefinitions(definition_name);
   }
-}
-
-void CXmlExporter::CombineComponentDefinitions(std::vector<std::string> definition_name_list) {
-	//we need the right order of the component name list to get the face data
-	for (size_t i = 0; i < definition_name_list.size(); i++)
-	{
-		std::vector<SUTransformation> transform;
-		CXmlExporter::EntityList faces_data(2);
-
-		int index = 0;
-		if (skpdata_.behavior_[definition_name_list[i]].component_always_face_camera)
-			index = 1;
-
-		CombineEntities(&skpdata_.definitions_[definition_name_list[i]],
-                     faces_data,
-                     transform,
-                     index,
-                     true);
-
-		definition_faces_[definition_name_list[i]] = faces_data;
-
-#ifdef PRINT_SKP_DATA
-
-		cout << "Combined component index " << i
-        <<", Name "<< StringConvertUtils::UTF8_To_string(definition_name_list[i]) 
-        << ", Face size " << faces_data[0].face_num_ << " , " << faces_data[1].face_num_ << endl;
-#endif // PRINT_SKP_DATA
-	}
-
 }
 
 std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
@@ -443,12 +364,6 @@ std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp
 
 #endif // PRINT_SKP_DATA
 
-  SUEntitiesRef entities = SU_INVALID;
-  SUComponentDefinitionGetEntities(comp_def, &entities);
-  XmlEntitiesInfo entity_info;
-  WriteEntities(entities,&entity_info);
-  skpdata_.definitions_[def_name]= entity_info;
-
   SUComponentBehavior behavior;
   SUComponentDefinitionGetBehavior(comp_def, &behavior);
   skpdata_.behavior_[def_name]=behavior;
@@ -456,41 +371,11 @@ std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp
   return def_name;
 }
 
-SUMaterialRef CXmlExporter::GetMaterialRefByName(std::string mat_name)
-{
-	int mat_id = skpdata_.matname_id_map_[mat_name];
-	return skpdata_.materials_[mat_id].origin_ref_;
-}
-
 int CXmlExporter::GetMaterialIdByName(std::string mat_name)
 {
   return skpdata_.matname_id_map_[mat_name];
 }
 
-//void CXmlExporter::CheckFaceMaterial(std::vector<SUFaceRef> &faces, SUMaterialRef mat_ref)
-//{
-//      //size_t num_faces = 0;
-//      //SU_CALL(SUEntitiesGetNumFaces(entities, &num_faces));
-//
-//      //if (num_faces > 0) {
-//      //  std::vector<SUFaceRef> faces(num_faces);
-//      //  auto mat_ref=GetMaterialRefByName(mat_name);
-//      //  SU_CALL(SUEntitiesGetFaces(entities, num_faces, &faces[0], &num_faces));
-//      //
-//      //  for (size_t i = 0; i < num_faces; i++) {
-//
-//      //      SUMaterialRef front_material = SU_INVALID;
-//      //      SUFaceGetFrontMaterial(faces[i], &front_material);
-//      //      if(SUIsInvalid(front_material))
-//      //        SUFaceSetFrontMaterial(faces[i],mat_ref);
-//
-//      //      SUMaterialRef back_material = SU_INVALID;
-//      //      SUFaceGetBackMaterial(faces[i], &back_material);
-//      //      if(SUIsInvalid(back_material))
-//      //        SUFaceSetBackMaterial(faces[i],mat_ref);
-//      //  }
-//      //}
-//}
 
 void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_info) {
   // Component instances

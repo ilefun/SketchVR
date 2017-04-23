@@ -44,10 +44,6 @@ class CXmlExporter {
   
   const XmlEntitiesInfo* GroupById(int index){return &final_faces_.at(index);}
 
-  XmlMaterialInfo GetMaterialInfo(SUMaterialRef material);
-
-  SUMaterialRef GetMaterialRefByName(std::string mat_name);
-
   int GetMaterialIdByName(std::string mat_name);
 
 private:
@@ -60,7 +56,6 @@ private:
   void WriteMaterials();
   void WriteMaterial(SUMaterialRef material);
 
-  void CombineComponentDefinitions(std::vector<std::string> definition_name_list);
   void WriteComponentDefinitions();
   std::string WriteComponentDefinition(SUComponentDefinitionRef comp_def);
 
@@ -75,8 +70,7 @@ private:
   void CombineEntities(XmlEntitiesInfo *entities,
                 				EntityList &faces_group,
                         std::vector<SUTransformation> &transform,
-        			   		    size_t index=0,
-                        bool combine_component=false);
+        			   		    size_t index=0);
 
 private:
   CXmlOptions options_;
@@ -98,6 +92,7 @@ private:
   EntityList final_faces_;
   std::unordered_map<std::string, EntityList> definition_faces_;
 
+  bool facing_camera_;
 public:
 	XmlModelInfo skpdata_;
 };

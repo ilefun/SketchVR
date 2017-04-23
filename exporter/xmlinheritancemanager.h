@@ -19,9 +19,10 @@ class CInheritanceManager {
   virtual ~CInheritanceManager();
 
   void PushElement(SUGroupRef element);
-  void PushElement(SUComponentInstanceRef instance);
+  void PushElement(SUComponentInstanceRef element);
   void PushElement(SUFaceRef element);
   void PushElement(SUEdgeRef element);
+
   void PopElement();
 
   SULayerRef GetCurrentLayer() const;

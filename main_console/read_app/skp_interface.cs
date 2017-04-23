@@ -73,7 +73,7 @@ namespace SkpInterface
                                                 out bool has_texture,
                                                 out float tex_sscale,
                                                 out float tex_tscale,
-                                                out int origin_bits_pixel,
+                                                out int origin_bits_per_pixel,
                                                 out int bits_per_pixel,
                                                 out int width,
                                                 out int height,
