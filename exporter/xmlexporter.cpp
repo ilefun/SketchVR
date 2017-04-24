@@ -364,6 +364,14 @@ std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp
 
   skpdata_.defitions_[def_name]= def_info;
 
+#ifdef PRINT_SKP_DATA
+  if (def_info.behavior_.component_always_face_camera)
+	  std::cout << "\tBehavior : Face camera" << ", Insert point : " 
+				<< def_info.insert_point_.x << " " 
+				<< def_info.insert_point_.y << " " 
+				<< def_info.insert_point_.z << endl;
+#endif // PRINT_SKP_DATA
+
   return def_name;
 }
 
