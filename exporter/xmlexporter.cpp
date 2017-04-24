@@ -339,20 +339,15 @@ void CXmlExporter::WriteComponentDefinitions() {
   size_t num_comp_defs = 0;
   SU_CALL(SUModelGetNumComponentDefinitions(model_, &num_comp_defs));
   if (num_comp_defs > 0) {
-
+#ifdef PRINT_SKP_DATA
+	  std::cout << endl << "Component Num : " << num_comp_defs << std::endl;
+#endif // PRINT_SKP_DATA
 
     std::vector<SUComponentDefinitionRef> comp_defs(num_comp_defs);
     SU_CALL(SUModelGetComponentDefinitions(model_, num_comp_defs, &comp_defs[0],
                                            &num_comp_defs));
-#ifdef PRINT_SKP_DATA
-	std::cout << endl << "Component Num : " << num_comp_defs << std::endl;
-
-#endif // PRINT_SKP_DATA
-
-    for (size_t def = 0; def < num_comp_defs; ++def) {
-      SUComponentDefinitionRef comp_def = comp_defs[def];
-      WriteComponentDefinition(comp_def);
-    }
+    for (size_t def = 0; def < num_comp_defs; ++def)
+      WriteComponentDefinition(comp_defs[def]);
   }
 }
 
@@ -363,10 +358,11 @@ std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp
   std::cout << endl<<"Component Name : " << StringConvertUtils::UTF8_To_string(def_name) << std::endl;
 
 #endif // PRINT_SKP_DATA
+  DefinitionInfo def_info;
+  SUComponentDefinitionGetBehavior(comp_def, &def_info.behavior_);
+  SUComponentDefinitionGetInsertPoint(comp_def, &def_info.insert_point_);
 
-  SUComponentBehavior behavior;
-  SUComponentDefinitionGetBehavior(comp_def, &behavior);
-  skpdata_.behavior_[def_name]=behavior;
+  skpdata_.defitions_[def_name]= def_info;
 
   return def_name;
 }
@@ -396,6 +392,8 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       SUComponentDefinitionRef definition = SU_INVALID;
       SU_CALL(SUComponentInstanceGetDefinition(instance, &definition));
 
+	  auto definition_name = ExportUtils::GetComponentDefinitionName(definition);
+
 	  //push element------------------
 	  inheritance_manager_.PushElement(instance);
 
@@ -409,7 +407,6 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 
 
 #ifdef PRINT_SKP_DATA
-	  auto definition_name = ExportUtils::GetComponentDefinitionName(definition);
 	  std::cout << "\tInstance Index : " << c << " Name : " << StringConvertUtils::UTF8_To_string(definition_name) << std::endl;
 	  std::cout << "\tXform : " << endl;
 	  for (size_t i = 0; i < 4; i++) {

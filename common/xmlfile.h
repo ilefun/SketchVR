@@ -136,18 +136,22 @@ struct XmlComponentDefinitionInfo {
   XmlEntitiesInfo entities_;
 };
 
+struct DefinitionInfo
+{
+	SUComponentBehavior behavior_;
+	SUPoint3D insert_point_;
+};
+
 struct XmlModelInfo {
   std::vector<XmlLayerInfo> layers_;
   
   std::vector<XmlMaterialInfo> materials_;
   std::unordered_map<std::string, int> matname_id_map_;
 
-  std::unordered_map<std::string, XmlEntitiesInfo> definitions_;
-  std::unordered_map<std::string, SUComponentBehavior> behavior_;
+  std::unordered_map<std::string, DefinitionInfo> defitions_;
   
   XmlEntitiesInfo entities_;
   
-  void debug_print();
 };
 
 void print_entities(XmlEntitiesInfo *entities);
