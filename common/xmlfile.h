@@ -154,6 +154,4 @@ struct XmlModelInfo {
   
 };
 
-void print_entities(XmlEntitiesInfo *entities);
-
 #endif // SKPTOXML_COMMON_XMLFILE_H

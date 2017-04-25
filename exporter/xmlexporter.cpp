@@ -402,9 +402,6 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 
 	  auto definition_name = ExportUtils::GetComponentDefinitionName(definition);
 
-	  //push element------------------
-	  inheritance_manager_.PushElement(instance);
-
 	  // Write transformation
 	  XmlGroupInfo info;
       SU_CALL(SUComponentInstanceGetTransform(instance,&info.transform_));
@@ -428,14 +425,17 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 	  std::cout << endl << endl;
 #endif // PRINT_SKP_DATA
 
+	  //push element------------------
+	  inheritance_manager_.PushElement(instance);
+	  inheritance_manager_.PushComponentInfo(&skpdata_.defitions_[definition_name]);
 
 	  // Write entities
 	  WriteEntities(instance_entities, info.entities_);
 	  entity_info->groups_.push_back(info);
 
-	  //pop element-----------------------------------
+	  //pop element-------------------
 	  inheritance_manager_.PopElement();
-
+	  inheritance_manager_.PopComponentInfo();
     }
   }
 
