@@ -13,6 +13,7 @@ using namespace std;
 
 XmlGroupInfo::XmlGroupInfo() {
   entities_ = new XmlEntitiesInfo;
+  definition_info_=NULL;
 }
 
 XmlGroupInfo::XmlGroupInfo(const XmlGroupInfo& info) {

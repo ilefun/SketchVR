@@ -24,12 +24,9 @@ class CInheritanceManager {
   void PushElement(SUComponentInstanceRef element);
   void PushElement(SUFaceRef element);
   void PushElement(SUEdgeRef element);
-  void PushComponentInfo(const DefinitionInfo *def_info);
 
-  void PopComponentInfo();
   void PopElement();
 
-  const DefinitionInfo* GetCurrentComponentInfo() const;
   SULayerRef GetCurrentLayer() const;
   SUMaterialRef GetCurrentFrontMaterial() const;
   SUMaterialRef GetCurrentBackMaterial() const;
@@ -45,7 +42,6 @@ class CInheritanceManager {
   std::vector<SUMaterialRef> front_materials_;
   std::vector<SUMaterialRef> back_materials_;
   std::vector<SUColor> edge_colors_;
-  std::vector<const DefinitionInfo*> definition_infos_;
 };
 
 #endif // SKPTOXML_COMMON_XMLINHERITANCEMANAGER_H

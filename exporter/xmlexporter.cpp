@@ -404,7 +404,8 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 
 	  // Write transformation
 	  XmlGroupInfo info;
-      SU_CALL(SUComponentInstanceGetTransform(instance,&info.transform_));
+    SU_CALL(SUComponentInstanceGetTransform(instance,&info.transform_));
+    info.definition_info_=&skpdata_.defitions_[definition_name];
 
 	  SUEntitiesRef  instance_entities = SU_INVALID;
 	  SU_CALL(SUComponentDefinitionGetEntities(definition, &instance_entities));
@@ -427,7 +428,6 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 
 	  //push element------------------
 	  inheritance_manager_.PushElement(instance);
-	  inheritance_manager_.PushComponentInfo(&skpdata_.defitions_[definition_name]);
 
 	  // Write entities
 	  WriteEntities(instance_entities, info.entities_);
@@ -435,7 +435,6 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 
 	  //pop element-------------------
 	  inheritance_manager_.PopElement();
-	  inheritance_manager_.PopComponentInfo();
     }
   }
 

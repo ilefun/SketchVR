@@ -100,6 +100,12 @@ struct XmlFaceInfo {
 struct XmlEntitiesInfo;
 struct XmlComponentDefinitionInfo;
 
+struct DefinitionInfo
+{
+	SUComponentBehavior behavior_;
+	SUPoint3D insert_point_;
+};
+
 struct XmlGroupInfo {
   XmlGroupInfo();
   XmlGroupInfo(const XmlGroupInfo&);
@@ -108,6 +114,7 @@ struct XmlGroupInfo {
   
   XmlEntitiesInfo* entities_;
   SUTransformation transform_;
+  DefinitionInfo* definition_info_;
 };
 
 struct XmlComponentInstanceInfo {
@@ -134,12 +141,6 @@ struct XmlEntitiesInfo {
 struct XmlComponentDefinitionInfo {
   std::string name_;
   XmlEntitiesInfo entities_;
-};
-
-struct DefinitionInfo
-{
-	SUComponentBehavior behavior_;
-	SUPoint3D insert_point_;
 };
 
 struct XmlModelInfo {

@@ -97,28 +97,6 @@ void CInheritanceManager::PushElement(SUEdgeRef edge) {
   layers_.push_back(layer);
 }
 
-void CInheritanceManager::PushComponentInfo(const DefinitionInfo *def_info)
-{
-	definition_infos_.push_back(def_info);
-}
-
-void CInheritanceManager::PopComponentInfo()
-{
-	assert(definition_infos_.size() > 0);
-	definition_infos_.pop_back();
-}
-
-const DefinitionInfo* CInheritanceManager::GetCurrentComponentInfo() const
-{
-	int n = static_cast<int>(definition_infos_.size());
-	for (int i = n; --i >= 0;) {
-		if (definition_infos_[i]) {
-			return definition_infos_[i];
-		}
-	}
-	return NULL;
-}
-
 void CInheritanceManager::PopElement() {
   // Materials
   assert(front_materials_.size() > 0);
