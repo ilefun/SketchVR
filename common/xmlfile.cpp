@@ -13,12 +13,12 @@ using namespace std;
 
 XmlGroupInfo::XmlGroupInfo() {
   entities_ = new XmlEntitiesInfo;
-  definition_info_=NULL;
 }
 
 XmlGroupInfo::XmlGroupInfo(const XmlGroupInfo& info) {
   entities_ = new XmlEntitiesInfo(*info.entities_);
   transform_ = info.transform_;
+  component_name_ = info.component_name_;
 }
 
 XmlGroupInfo::~XmlGroupInfo() {
@@ -28,5 +28,6 @@ XmlGroupInfo::~XmlGroupInfo() {
 const XmlGroupInfo& XmlGroupInfo::operator = (const XmlGroupInfo& info) {
   *entities_ = *info.entities_;
   transform_ = info.transform_;
+  component_name_ = info.component_name_;
   return *this;
 }

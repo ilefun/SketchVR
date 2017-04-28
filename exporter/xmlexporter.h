@@ -46,6 +46,10 @@ class CXmlExporter {
 
   int GetMaterialIdByName(std::string mat_name);
 
+  void GetFacingCameraFaceId(int id[]);
+
+  int GetFacingCameraIdSize();
+
 private:
   // Clean up slapi objects
   void ReleaseModelObjects();
@@ -90,9 +94,10 @@ private:
   CInheritanceManager inheritance_manager_;
 
   EntityList final_faces_;
-  std::unordered_map<std::string, EntityList> definition_faces_;
+  std::vector<int> face_camera_id_;
 
-  bool facing_camera_;
+  std::unordered_map<std::string, EntityList> definition_faces_;
+  
 public:
 	XmlModelInfo skpdata_;
 };

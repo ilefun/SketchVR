@@ -114,7 +114,7 @@ struct XmlGroupInfo {
   
   XmlEntitiesInfo* entities_;
   SUTransformation transform_;
-  DefinitionInfo* definition_info_;
+  std::string component_name_;
 };
 
 struct XmlComponentInstanceInfo {

@@ -42,7 +42,6 @@ CXmlExporter::CXmlExporter() {
   SUSetInvalid(model_);
   SUSetInvalid(texture_writer_);
   SUSetInvalid(image_rep_);
-  facing_camera_=false;
 }
 
 CXmlExporter::~CXmlExporter() {
@@ -187,10 +186,14 @@ bool CXmlExporter::Convert(const std::string& from_file,
 	 {
 		 std::cout << "\tGroup index "<<i<<" Face num is : "<<final_faces_[i].face_num_ << std::endl;
 	 }
-
+	 std::cout << "\tFacing-camera face group id : ";
+	 for (size_t i = 0; i < face_camera_id_.size(); i++)
+	 {
+		 std::cout<<face_camera_id_[i]<<" ";
+	 }
 	  #endif // PRINT_SKP_DATA
 
-  	std::cout << "Export complete." << std::endl;
+  	std::cout << endl<<endl<<"Export complete." << std::endl;
     exported = true;
 
 	//SU_CALL(SUModelSaveToFile(model_,"D:\\sketchup\\test_skp_file\\out.skp"));
@@ -210,11 +213,18 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
   // get group
   for (int i = 0; i < entities->groups_.size(); ++i)
   {
+    size_t current_index=index;
+    auto comp_name=entities->groups_[i].component_name_;
+	if (!comp_name.empty() && skpdata_.defitions_[comp_name].behavior_.component_always_face_camera)
+	{
+		current_index = 1;
+		face_camera_id_.push_back(faces_group[current_index].face_num_);
+	}
     transforms.push_back(entities->groups_[i].transform_);
     CombineEntities(entities->groups_[i].entities_,
                     faces_group,
                     transforms,
-                    index );
+                    current_index );
     transforms.pop_back();
   }
   entities->groups_.clear();
@@ -380,6 +390,16 @@ int CXmlExporter::GetMaterialIdByName(std::string mat_name)
   return skpdata_.matname_id_map_[mat_name];
 }
 
+void CXmlExporter::GetFacingCameraFaceId(int id[])
+{
+	for (int j = 0; j < face_camera_id_.size(); j++)
+		id[j] = face_camera_id_[j];
+}
+
+int CXmlExporter::GetFacingCameraIdSize()
+{
+	return int(face_camera_id_.size());
+}
 
 void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_info) {
   // Component instances
@@ -405,8 +425,8 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 	  // Write transformation
 	  XmlGroupInfo info;
     SU_CALL(SUComponentInstanceGetTransform(instance,&info.transform_));
-    info.definition_info_=&skpdata_.defitions_[definition_name];
-
+    info.component_name_=definition_name;
+	//std::cout << info.component_name_ << "+++++++" << endl;
 	  SUEntitiesRef  instance_entities = SU_INVALID;
 	  SU_CALL(SUComponentDefinitionGetEntities(definition, &instance_entities));
 
