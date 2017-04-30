@@ -37,7 +37,14 @@ namespace SkpInterface
                                                 int[] vertex_num_per_face,
                                                 float[] face_normal);
 
+        
+        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int GetFacingCameraIdSize(IntPtr exporter);
 
+        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern void GetFacingCameraId(IntPtr exporter, 
+                                                            int[] id);
+        
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int GetFaceUVDSize(IntPtr exporter,

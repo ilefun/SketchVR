@@ -76,6 +76,15 @@ public class MyMesh : MonoBehaviour
                     int _group_num = SkpInterface.SkpDLL.GetGroupNum(_skp_exporter);
                     Debug.Log("group num =" + _group_num);
 
+                    //get facing camera faces id list
+                    int facing_cam_grp_size = SkpInterface.SkpDLL.GetFacingCameraIdSize(_skp_exporter);
+                    int[] facing_cam_id= new int[facing_cam_grp_size];
+                    SkpInterface.SkpDLL.GetFacingCameraId(_skp_exporter, facing_cam_id);
+                    Debug.Log("Facing camera group size : "+facing_cam_grp_size);
+                    for(int i = 0; i < facing_cam_grp_size; i++)
+                    {
+                        Debug.Log(facing_cam_id[i]);
+                    }
 
                     //get face data---------------------------------------------------
                     int _vertex_num = 0;
