@@ -77,6 +77,7 @@ public class MyMesh : MonoBehaviour
                     Debug.Log("group num =" + _group_num);
 
                     //get facing camera faces id list
+                    //0 2 4,means we have 2(size -1) groups.face id 0,1 are in a group, 2,3 are in a group.
                     int facing_cam_grp_size = SkpInterface.SkpDLL.GetFacingCameraIdSize(_skp_exporter);
                     int[] facing_cam_id= new int[facing_cam_grp_size];
                     SkpInterface.SkpDLL.GetFacingCameraId(_skp_exporter, facing_cam_id);
