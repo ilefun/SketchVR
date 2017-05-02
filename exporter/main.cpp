@@ -233,20 +233,26 @@ void group_id_data(CXmlExporter *exporter, int group_id) {
 void facing_camera_data(CXmlExporter *expoerter)
 {
 	int grp_size=GetFacingCameraIdSize(expoerter);
-	int *id_list = new int[grp_size];
-	GetFacingCameraId(expoerter, id_list);
-
+	int start;
+	int end;
 #ifdef PRINT_SKP_DATA
-	std::cout << "Facing camera grp size : " << grp_size << endl;
-	cout << "Facing camera id list : ";
-	for (size_t i = 0; i < grp_size; i++)
-	{
-		cout << id_list[i] << " ";
-	}
-	cout << endl;
+
+	cout << endl<<endl<<"Facing camera group size : " << grp_size << endl<<"Id list : ";
 #endif
 
-	delete id_list;
+	for (size_t i = 0; i < grp_size; i++)
+	{
+		GetFacingCameraId(expoerter, i,&start,&end);
+#ifdef PRINT_SKP_DATA
+		cout<< start << "-" << end <<", ";
+#endif
+
+	}
+#ifdef PRINT_SKP_DATA
+
+	cout << endl<<endl;
+#endif
+
 }
 int group_data(CXmlExporter *exporter )
 {
@@ -256,8 +262,6 @@ int group_data(CXmlExporter *exporter )
 	{
 		group_id_data(exporter, int(i));
 	}
-	
-	facing_camera_data(exporter);
 
 	return grp_num;
 }
@@ -274,6 +278,8 @@ int main(int argc,char *argv[])
   CXmlExporter *exporter=NULL;
   exporter=GetExporter(StringConvertUtils::string_To_UTF8(argv[1]).c_str());
   if (exporter) {
+	  facing_camera_data(exporter);
+
   	  //traverse material
 	  material(exporter);
 

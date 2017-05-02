@@ -186,11 +186,6 @@ bool CXmlExporter::Convert(const std::string& from_file,
 	 {
 		 std::cout << "\tGroup index "<<i<<" Face num is : "<<final_faces_[i].face_num_ << std::endl;
 	 }
-	 std::cout << "\tFacing-camera face group id : ";
-	 for (size_t i = 0; i < face_camera_id_.size(); i++)
-	 {
-		 std::cout<<face_camera_id_[i]<<" ";
-	 }
 	  #endif // PRINT_SKP_DATA
 
   	std::cout << endl<<endl<<"Export complete." << std::endl;
@@ -390,10 +385,19 @@ int CXmlExporter::GetMaterialIdByName(std::string mat_name)
   return skpdata_.matname_id_map_[mat_name];
 }
 
-void CXmlExporter::GetFacingCameraFaceId(int id[])
+void CXmlExporter::GetFacingCameraFaceId(int id, int *start_face, int *end_face)
 {
-	for (int j = 0; j < face_camera_id_.size(); j++)
-		id[j] = face_camera_id_[j];
+	auto total_size = face_camera_id_.size();
+	assert(id <= total_size-1);
+	if (id < total_size - 1) {
+		*start_face = face_camera_id_[id];
+		*end_face = face_camera_id_[id + 1]-1;
+	}
+	else if(id==total_size-1)
+	{
+		*start_face = face_camera_id_[id];
+		*end_face = final_faces_[1].face_num_-1;
+	}
 }
 
 int CXmlExporter::GetFacingCameraIdSize()

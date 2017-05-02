@@ -43,7 +43,9 @@ namespace SkpInterface
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern void GetFacingCameraId(IntPtr exporter, 
-                                                            int[] id);
+                                                            int id,
+                                                            out int start_face,
+                                                            out int end_face);
         
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]

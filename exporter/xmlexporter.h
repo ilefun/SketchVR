@@ -46,7 +46,7 @@ class CXmlExporter {
 
   int GetMaterialIdByName(std::string mat_name);
 
-  void GetFacingCameraFaceId(int id[]);
+  void GetFacingCameraFaceId(int id, int *start_face, int *end_face);
 
   int GetFacingCameraIdSize();
 

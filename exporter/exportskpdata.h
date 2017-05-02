@@ -68,7 +68,7 @@ EXPORT bool GetFace(CXmlExporter *exporter,
                         int vertex_num_per_face[],   //vertex num of each face
                         float face_normal[]);
 
-EXPORT void GetFacingCameraId(CXmlExporter *exporter, int id[]);
+EXPORT void GetFacingCameraId(CXmlExporter *exporter, int id,int *start_face,int *end_face);
 
 EXPORT int GetFacingCameraIdSize(CXmlExporter *exporter);
 
