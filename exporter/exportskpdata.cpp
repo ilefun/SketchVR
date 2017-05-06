@@ -1,12 +1,9 @@
 #include "./exportskpdata.h"
+#include "./exportutils.h"
 #include <assert.h>
 #include <SketchUpAPI/transformation.h>
 #include <algorithm> 
 using namespace std;
-
-inline float clamp(float n, float lower, float upper) {
-	return max(lower, min(n, upper));
-}
 
 void GetFaceData(int v_per_face_list[],
 					float vertices_list[],
@@ -120,44 +117,6 @@ void GetFaceMaterialData(CXmlExporter *exporter,
 	}
 }
 
-void GetTexturePixel(const XmlMaterialInfo &current_mat, float pixel_data[])
-{
-	if (current_mat.has_color_) {
-		float avg_color[3] = { 0,0,0 };
-		int size_per_pixel = 3;
-		if (current_mat.bits_per_pixel_ == 32)
-			size_per_pixel = 4;
-
-		int pixel_num = current_mat.data_size_ / size_per_pixel;
-		for (int j = 0; j < pixel_num; j++)
-		{
-			avg_color[0] += current_mat.pixel_data_[j * size_per_pixel + 2];
-			avg_color[1] += current_mat.pixel_data_[j * size_per_pixel + 1];
-			avg_color[2] += current_mat.pixel_data_[j * size_per_pixel];
-		}
-		avg_color[0] /= float(pixel_num);
-		avg_color[1] /= float(pixel_num);
-		avg_color[2] /= float(pixel_num);
-
-		for (size_t i = 0; i < pixel_num; ++i) {
-			pixel_data[i * size_per_pixel + 2] = clamp((current_mat.pixel_data_[i * size_per_pixel + 2] + current_mat.color_.red - avg_color[0]) / 255.0f, 0, 1);
-			pixel_data[i * size_per_pixel + 1] = clamp((current_mat.pixel_data_[i * size_per_pixel + 1] + current_mat.color_.green - avg_color[1]) / 255.0f, 0, 1);
-			pixel_data[i * size_per_pixel] = clamp((current_mat.pixel_data_[i * size_per_pixel] + current_mat.color_.blue - avg_color[2]) / 255.0f, 0, 1);
-		}
-
-		if(size_per_pixel==4)
-			for (size_t i = 0; i < pixel_num; ++i) {
-				pixel_data[i * size_per_pixel + 3] = float(current_mat.pixel_data_[i * size_per_pixel + 3]) / 255.f;
-			}
-
-	}
-	else {
-		for (size_t i = 0; i < current_mat.data_size_; ++i) {
-			pixel_data[i] = float(current_mat.pixel_data_[i]) / 255.0f;
-		}
-	}
-}
-
 EXPORT CXmlExporter* GetExporter(const char *from_file)
 {
 	bool m_bExportMaterials = true;
@@ -203,9 +162,9 @@ EXPORT void ReleaseExporter(CXmlExporter *exporter)
 	{
 		//release pixel data memory
 		for (size_t i = 0; i < exporter->skpdata_.materials_.size(); ++i)
-			if(exporter->skpdata_.materials_[i].pixel_data_){
-			    delete exporter->skpdata_.materials_[i].pixel_data_;
-			    exporter->skpdata_.materials_[i].pixel_data_=NULL;
+			if(exporter->skpdata_.materials_[i].tex_info_.pixel_data_){
+			    delete exporter->skpdata_.materials_[i].tex_info_.pixel_data_;
+			    exporter->skpdata_.materials_[i].tex_info_.pixel_data_=NULL;
 			}
 
 		delete exporter;
@@ -298,7 +257,7 @@ EXPORT int GetTexPixelDSize(CXmlExporter *exporter,
                             int material_id )
 {
 	if(exporter->skpdata_.materials_.at(material_id).has_texture_)
-		return exporter->skpdata_.materials_[material_id].data_size_;
+		return exporter->skpdata_.materials_[material_id].tex_info_.data_size_;
 	return 0;
 }
 
@@ -336,13 +295,13 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 
 	*has_texture=current_mat.has_texture_;
 	if(*has_texture) {
-		*tex_sscale=current_mat.texture_sscale_;
-		*tex_tscale=current_mat.texture_tscale_;
-		*bits_per_pixel=current_mat.bits_per_pixel_;
-		*origin_bits_per_pixel = current_mat.origin_bits_per_pixel_;
-		*width=current_mat.width_;
-		*height=current_mat.height_;
-		GetTexturePixel(current_mat, pixel_data);
+		*tex_sscale=current_mat.tex_info_.texture_sscale_;
+		*tex_tscale=current_mat.tex_info_.texture_tscale_;
+		*bits_per_pixel=current_mat.tex_info_.bits_per_pixel_;
+		*origin_bits_per_pixel = current_mat.tex_info_.origin_bits_per_pixel_;
+		*width=current_mat.tex_info_.width_;
+		*height=current_mat.tex_info_.height_;
+		ExportUtils::GetTexturePixel(current_mat, pixel_data);
 	}
 
 	return true;

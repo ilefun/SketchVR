@@ -29,7 +29,6 @@ void GetFaceMaterialData(CXmlExporter *exporter,
                          int back_id[],
                          const XmlEntitiesInfo *entities);
 
-void GetTexturePixel(const XmlMaterialInfo &current_mat, float pixel_data[]);
 
 //get the group num in su scene.
 //currently we have 2 groups by default,id 0 for normal face,1 for facing camera face

@@ -9,7 +9,11 @@
 
 #include <cassert>
 #include <vector>
+#include <iostream>
 
+inline float clamp(float n, float lower, float upper) {
+  return max(lower, min(n, upper));
+}
 
 std::string ExportUtils::GetMaterialName(SUMaterialRef material) {
   CSUString name;
@@ -28,6 +32,44 @@ std::string ExportUtils::GetComponentDefinitionName(
   CSUString name;
   SU_CALL(SUComponentDefinitionGetName(comp_def, name));
   return name.utf8();
+}
+
+void ExportUtils::GetTexturePixel(const XmlMaterialInfo &current_mat, float pixel_data[])
+{
+  if (current_mat.has_color_) {
+    float avg_color[3] = { 0,0,0 };
+    int size_per_pixel = 3;
+    if (current_mat.tex_info_.bits_per_pixel_ == 32)
+      size_per_pixel = 4;
+
+    int pixel_num = current_mat.tex_info_.data_size_ / size_per_pixel;
+    for (int j = 0; j < pixel_num; j++)
+    {
+      avg_color[0] += current_mat.tex_info_.pixel_data_[j * size_per_pixel + 2];
+      avg_color[1] += current_mat.tex_info_.pixel_data_[j * size_per_pixel + 1];
+      avg_color[2] += current_mat.tex_info_.pixel_data_[j * size_per_pixel];
+    }
+    avg_color[0] /= float(pixel_num);
+    avg_color[1] /= float(pixel_num);
+    avg_color[2] /= float(pixel_num);
+
+    for (size_t i = 0; i < pixel_num; ++i) {
+      pixel_data[i * size_per_pixel + 2] = clamp((current_mat.tex_info_.pixel_data_[i * size_per_pixel + 2] + current_mat.color_.red - avg_color[0]) / 255.0f, 0, 1);
+      pixel_data[i * size_per_pixel + 1] = clamp((current_mat.tex_info_.pixel_data_[i * size_per_pixel + 1] + current_mat.color_.green - avg_color[1]) / 255.0f, 0, 1);
+      pixel_data[i * size_per_pixel] = clamp((current_mat.tex_info_.pixel_data_[i * size_per_pixel] + current_mat.color_.blue - avg_color[2]) / 255.0f, 0, 1);
+    }
+
+    if(size_per_pixel==4)
+      for (size_t i = 0; i < pixel_num; ++i) {
+        pixel_data[i * size_per_pixel + 3] = float(current_mat.tex_info_.pixel_data_[i * size_per_pixel + 3]) / 255.f;
+      }
+
+  }
+  else {
+    for (size_t i = 0; i < current_mat.tex_info_.data_size_; ++i) {
+      pixel_data[i] = float(current_mat.tex_info_.pixel_data_[i]) / 255.0f;
+    }
+  }
 }
 
 XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRef image_rep) {
@@ -72,10 +114,10 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRe
     if (SUMaterialGetTexture(material, &texture) == SU_ERROR_NONE) {
       info.has_texture_ = true;
       // Texture path
-      // CSUString texture_path;
-      // SU_CALL(SUTextureGetFileName(texture, texture_path));
-      // info.texture_path_ = texture_path.utf8();
-
+      CSUString texture_path;
+      SU_CALL(SUTextureGetFileName(texture, texture_path));
+      std::string tex_path = texture_path.utf8();
+	  //cout <<endl<<"Tex path : " <<tex_path << endl;
       // Texture scale
       size_t width = 0;
       size_t height = 0;
@@ -83,17 +125,18 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRe
       double t_scale = 0.0;
       SU_CALL(SUTextureGetDimensions(texture, &width, &height,
                                      &s_scale, &t_scale));
-      info.texture_sscale_ = s_scale;
-      info.texture_tscale_ = t_scale;
-      info.width_ = width;
-      info.height_ = height;
-    
+      info.tex_info_.texture_sscale_ = s_scale;
+      info.tex_info_.texture_tscale_ = t_scale;
+      info.tex_info_.width_ = width;
+      info.tex_info_.height_ = height;
+      info.tex_info_.texture_path_=tex_path;
+
       //Texture data
       SU_CALL(SUTextureGetImageRep(texture,&image_rep));
 
       size_t data_size=0, bits_per_pixel=0;
       SU_CALL(SUImageRepGetDataSize(image_rep,&data_size,&bits_per_pixel));
-	  info.origin_bits_per_pixel_ = bits_per_pixel;
+	    info.tex_info_.origin_bits_per_pixel_ = bits_per_pixel;
 
 	  if (bits_per_pixel == 24)
 	  {
@@ -102,11 +145,11 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRe
 		  SU_CALL(SUImageRepGetDataSize(image_rep, &data_size, &bits_per_pixel));
 	  }
 
-      info.data_size_=data_size;
-      info.bits_per_pixel_=bits_per_pixel;
+      info.tex_info_.data_size_=data_size;
+      info.tex_info_.bits_per_pixel_=bits_per_pixel;
       int image_size = width*height*bits_per_pixel / 8;
-      info.pixel_data_=new SUByte[data_size];
-      SU_CALL(SUImageRepGetData(image_rep, data_size,info.pixel_data_));
+      info.tex_info_.pixel_data_=new SUByte[data_size];
+      SU_CALL(SUImageRepGetData(image_rep, data_size,info.tex_info_.pixel_data_));
     }
   }
   return info;

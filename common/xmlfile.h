@@ -16,26 +16,12 @@
 
 
 // Helper data transfer types storing model information.
+struct TextureInfo
+{
+    TextureInfo()
+    : texture_sscale_(0.0), texture_tscale_(0.0),pixel_data_(NULL) {}
 
-struct XmlMaterialInfo {
-  XmlMaterialInfo()
-    : pixel_data_(NULL),has_color_(false), has_alpha_(false), alpha_(0.0),
-      has_texture_(false), texture_sscale_(0.0), texture_tscale_(0.0) {}
-  
-  ~XmlMaterialInfo(){
-    //if(pixel_data_){
-    // delete pixel_data_;
-    // pixel_data_=NULL;
-    //}
-  }
-  SUMaterialRef origin_ref_;
-  std::string name_;
-  bool has_color_;
-  SUColor color_;
-  bool has_alpha_;
-  double alpha_;
-
-  bool has_texture_;
+  std::string texture_path_;
   double texture_sscale_;
   double texture_tscale_;
   size_t width_;
@@ -44,7 +30,24 @@ struct XmlMaterialInfo {
   size_t origin_bits_per_pixel_;
   size_t bits_per_pixel_;
   size_t data_size_;
-  SUByte *pixel_data_;
+  SUByte *pixel_data_;  
+};
+
+struct XmlMaterialInfo {
+  XmlMaterialInfo()
+    : has_color_(false), has_alpha_(false), alpha_(0.0),
+      has_texture_(false){}
+  
+  ~XmlMaterialInfo(){}
+  SUMaterialRef origin_ref_;
+  std::string name_;
+  bool has_color_;
+  SUColor color_;
+  bool has_alpha_;
+  double alpha_;
+
+  bool has_texture_;
+  TextureInfo tex_info_;
 };
 
 struct XmlLayerInfo {
