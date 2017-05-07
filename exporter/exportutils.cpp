@@ -157,17 +157,24 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRe
 
 void ExportUtils::GetTransformedFace(XmlEntitiesInfo *to_entities,
                                       XmlEntitiesInfo *from_entities,
-                                      std::vector<SUTransformation> &transforms)
+                                      std::vector<SUTransformation> &transforms,
+										bool only_translate)
 {
   for (int i = 0; i < from_entities->faces_.size(); ++i)
   {
     auto single_face=from_entities->faces_[i];
 
     for(int j=transforms.size()-1; j>=0; j--){
-      single_face.face_normal_.Transform(transforms[j].values);
+		auto transform_value = transforms[j].values;
+		if (only_translate) {
+			transform_value[0] = transform_value[5] = transform_value[10] = 1;
+			transform_value[1] = transform_value[2] =transform_value[4] = transform_value[6] =transform_value[8] = transform_value[9] = 0;
+		}
+	    if(!only_translate)
+			single_face.face_normal_.Transform(transform_value);
     
-      for(int k=0;k<single_face.vertices_.size();k++)
-        single_face.vertices_[k].vertex_.Transform(transforms[j].values);
+        for(int k=0;k<single_face.vertices_.size();k++)
+           single_face.vertices_[k].vertex_.Transform(transform_value);
     }
 
     to_entities->vertex_num_ += single_face.vertices_.size();

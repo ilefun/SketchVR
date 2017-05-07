@@ -228,7 +228,8 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
   //get face
   ExportUtils::GetTransformedFace(&faces_group[index],
                       entities,
-                      transforms);
+                      transforms,
+						index==1 ? true:false);
   entities->faces_.clear();
   vector <XmlFaceInfo>().swap(entities->faces_);
 
