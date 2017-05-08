@@ -147,7 +147,7 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRe
 
       info.tex_info_.data_size_=data_size;
       info.tex_info_.bits_per_pixel_=bits_per_pixel;
-      int image_size = width*height*bits_per_pixel / 8;
+      // int image_size = width*height*bits_per_pixel / 8;
       info.tex_info_.pixel_data_=new SUByte[data_size];
       SU_CALL(SUImageRepGetData(image_rep, data_size,info.tex_info_.pixel_data_));
     }

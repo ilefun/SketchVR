@@ -174,6 +174,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
   start = clock();
 #endif
      ExportUtils::FixNormal(final_faces_[0]);
+     ExportUtils::FixNormal(final_faces_[1]);
 #ifdef TIME_LOGGER
 
    end = clock();
