@@ -32,7 +32,7 @@ struct ExportUtils
     static void GetTransformedFace(XmlEntitiesInfo *to_entities,
                           XmlEntitiesInfo *from_entities,
                           std::vector<SUTransformation> &transforms,
-							bool only_translate=false);
+							bool remove_rotation=false);
 
     static void FixNormal(XmlEntitiesInfo &entity_info);
 
