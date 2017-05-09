@@ -14,3 +14,5 @@
 *.xml
 *.intermediate
 *.opendb
+*.iobj
+*.ipdb

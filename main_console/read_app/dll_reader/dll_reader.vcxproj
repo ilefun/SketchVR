@@ -108,7 +108,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <OutputFile>..\..\..\..\binaries\sketchup\x64\SkpReader.dll</OutputFile>
+      <OutputFile>..\..\..\bin\SkpReader.dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\..\binaries\sketchup\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SketchUpAPI.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -151,7 +151,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>SketchUpAPI.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\..\binaries\sketchup\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <OutputFile>..\..\..\..\binaries\sketchup\x64\SkpReader.dll</OutputFile>
+      <OutputFile>..\..\..\bin\SkpReader.dll</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
