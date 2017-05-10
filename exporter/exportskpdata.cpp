@@ -217,6 +217,11 @@ EXPORT int GetFacingCameraIdSize(CXmlExporter *exporter)
 	return exporter->GetFacingCameraIdSize();
 }
 
+EXPORT void GetFacingCameraDirection(CXmlExporter *exporter,int id, float direction[3])
+{
+	exporter->GetFacingCameraDirection(id, direction);
+}
+
 EXPORT int GetFaceUVDSize(CXmlExporter *exporter,
                         int group_id,
                         bool front_or_back )

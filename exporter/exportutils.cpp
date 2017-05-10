@@ -158,8 +158,7 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRe
 void ExportUtils::GetTransformedFace(XmlEntitiesInfo *to_entities,
                                       XmlEntitiesInfo *from_entities,
                                       std::vector<SUTransformation> &transforms,
-                                      CVector3d *face_direction,
-										                  bool face_camera)
+										XmlGeomUtils::CVector3d *face_direction)
 {
   for (int i = 0; i < from_entities->faces_.size(); ++i)
   {
@@ -178,7 +177,7 @@ void ExportUtils::GetTransformedFace(XmlEntitiesInfo *to_entities,
     to_entities->faces_.push_back(single_face);
   }
 
-  if(face_camera && face_direction)
+  if(face_direction)
   {
       face_direction->SetDirection(0,-1,0);
       for(int j=transforms.size()-1; j>=0; j--)
@@ -187,15 +186,14 @@ void ExportUtils::GetTransformedFace(XmlEntitiesInfo *to_entities,
 }
 
 void ExportUtils::FixNormal(XmlEntitiesInfo &entity_info){
-    //we only check and fix the normal of first group,faces in second group are always facing camera
     for (int j = 0; j < entity_info.faces_.size(); ++j)
     {
       for (int k = 0; k < entity_info.faces_[j].face_num_; ++k)
       {
-          if (!XmlGeomUtils::NormalEqual(entity_info.faces_[j].vertices_[k * 3].vertex_,
-              entity_info.faces_[j].vertices_[k * 3 + 1].vertex_,
-              entity_info.faces_[j].vertices_[k * 3 + 2].vertex_,
-              entity_info.faces_[j].face_normal_))
+		  if (!XmlGeomUtils::NormalEqual(entity_info.faces_[j].vertices_[k * 3].vertex_,
+			  entity_info.faces_[j].vertices_[k * 3 + 1].vertex_,
+			  entity_info.faces_[j].vertices_[k * 3 + 2].vertex_,
+			  entity_info.faces_[j].face_normal_))
               swap(entity_info.faces_[j].vertices_[k * 3], entity_info.faces_[j].vertices_[k * 3 + 2]);
       }
     }

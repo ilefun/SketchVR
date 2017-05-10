@@ -237,14 +237,18 @@ void facing_camera_data(CXmlExporter *expoerter)
 	int end;
 #ifdef PRINT_SKP_DATA
 
-	cout << endl<<endl<<"Facing camera group size : " << grp_size << endl<<"Id list : ";
+	cout << endl<<endl<<"Facing camera group size : " << grp_size << endl<<"Id list : "<<endl;
 #endif
-
+	float direction[3];
 	for (size_t i = 0; i < grp_size; i++)
 	{
 		GetFacingCameraId(expoerter, i,&start,&end);
+		GetFacingCameraDirection(expoerter, i, direction);
+
 #ifdef PRINT_SKP_DATA
-		cout<< start << "-" << end <<", ";
+		cout << start << "-" << end <<", ";
+		cout <<"("<< direction[0]<< "," << direction[1]<< ","<<direction[2]<<")"<<std::endl;
+
 #endif
 
 	}

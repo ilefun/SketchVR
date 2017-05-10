@@ -50,6 +50,8 @@ class CXmlExporter {
 
   int GetFacingCameraIdSize();
 
+  void GetFacingCameraDirection(int id, float direction[3]);
+
 private:
   // Clean up slapi objects
   void ReleaseModelObjects();
@@ -95,7 +97,7 @@ private:
 
   EntityList final_faces_;
   std::vector<int> face_camera_id_;
-  std::vector<CVector3d> face_camera_normal_;
+  std::vector<XmlGeomUtils::CVector3d> face_camera_normal_;
 
   // std::unordered_map<std::string, EntityList> definition_faces_;
   

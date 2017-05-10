@@ -190,6 +190,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
 	 {
 		 std::cout << "\tGroup index "<<i<<" Face num is : "<<final_faces_[i].face_num_ << std::endl;
 	 }
+	 std::cout <<endl<< "Face camera group size : " << face_camera_id_.size() << " , Face camera normal size : " << face_camera_normal_.size() << std::endl;
 	  #endif // PRINT_SKP_DATA
 
   	std::cout << endl<<endl<<"Export complete." << std::endl;
@@ -235,12 +236,11 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
                       entities,
                       transforms);
   else{
-    CVector3d temp_vec;
+	  XmlGeomUtils::CVector3d temp_vec;
     ExportUtils::GetTransformedFace(&faces_group[index],
                       entities,
                       transforms,
-                      &temp_vec,
-                      true);
+                      &temp_vec);
 
     face_camera_normal_.push_back(temp_vec);
   }
@@ -422,6 +422,14 @@ bool CXmlExporter::GetFacingCameraFaceId(int id, int *start_face, int *end_face)
 int CXmlExporter::GetFacingCameraIdSize()
 {
 	return int(face_camera_id_.size());
+}
+
+void CXmlExporter::GetFacingCameraDirection(int id, float direction[3])
+{
+	assert(id <= face_camera_normal_.size() - 1);
+	direction[0] = face_camera_normal_[id].x();
+	direction[1] = face_camera_normal_[id].y();
+	direction[2] = face_camera_normal_[id].z();
 }
 
 void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_info) {

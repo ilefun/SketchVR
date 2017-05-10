@@ -71,6 +71,7 @@ EXPORT bool GetFacingCameraId(CXmlExporter *exporter, int id,int *start_face,int
 
 EXPORT int GetFacingCameraIdSize(CXmlExporter *exporter);
 
+EXPORT void GetFacingCameraDirection(CXmlExporter *exporter, int id, float direction[3]);
 
 
 
