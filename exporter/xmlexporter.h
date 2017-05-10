@@ -11,7 +11,7 @@
 #include <SketchUpAPI/import_export/pluginprogresscallback.h>
 #include <SketchUpAPI/model/defs.h>
 
-#include <unordered_map>
+// #include <unordered_map>
 #include <vector>
 
 // su coordinate system is right-z-up,use matrix 
@@ -95,8 +95,9 @@ private:
 
   EntityList final_faces_;
   std::vector<int> face_camera_id_;
+  std::vector<CVector3d> face_camera_normal_;
 
-  std::unordered_map<std::string, EntityList> definition_faces_;
+  // std::unordered_map<std::string, EntityList> definition_faces_;
   
 public:
 	XmlModelInfo skpdata_;

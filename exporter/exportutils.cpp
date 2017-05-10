@@ -158,20 +158,16 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRe
 void ExportUtils::GetTransformedFace(XmlEntitiesInfo *to_entities,
                                       XmlEntitiesInfo *from_entities,
                                       std::vector<SUTransformation> &transforms,
-										bool remove_rotation)
+                                      CVector3d *face_direction,
+										                  bool face_camera)
 {
   for (int i = 0; i < from_entities->faces_.size(); ++i)
   {
     auto single_face=from_entities->faces_[i];
 
     for(int j=transforms.size()-1; j>=0; j--){
-		auto transform_value = transforms[j].values;
-		if (remove_rotation) {
-			//transform_value[0] = transform_value[5] = transform_value[10] = 1;
-			transform_value[1] = transform_value[2] =transform_value[4] = transform_value[6] =transform_value[8] = transform_value[9]=0;
-		}
-	    if(!remove_rotation)
-			single_face.face_normal_.Transform(transform_value);
+    		auto transform_value = transforms[j].values;
+  			single_face.face_normal_.Transform(transform_value);
     
         for(int k=0;k<single_face.vertices_.size();k++)
            single_face.vertices_[k].vertex_.Transform(transform_value);
@@ -180,6 +176,13 @@ void ExportUtils::GetTransformedFace(XmlEntitiesInfo *to_entities,
     to_entities->vertex_num_ += single_face.vertices_.size();
     to_entities->face_num_ += single_face.face_num_;
     to_entities->faces_.push_back(single_face);
+  }
+
+  if(face_camera && face_direction)
+  {
+      face_direction->SetDirection(0,-1,0);
+      for(int j=transforms.size()-1; j>=0; j--)
+        face_direction->Transform(transforms[j].values);
   }
 }
 

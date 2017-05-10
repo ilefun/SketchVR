@@ -72,6 +72,9 @@ bool CXmlExporter::Convert(const std::string& from_file,
   bool exported = false;
   skp_file_ = from_file;
 
+  face_camera_id_.clear();
+  face_camera_normal_.clear();
+
   try {
 
     // Initialize the SDK
@@ -211,11 +214,11 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
   {
     size_t current_index=index;
     auto comp_name=entities->groups_[i].component_name_;
-	if (!comp_name.empty() && skpdata_.defitions_[comp_name].behavior_.component_always_face_camera)
-	{
-		current_index = 1;
-		face_camera_id_.push_back(faces_group[current_index].face_num_);
-	}
+  	if (!comp_name.empty() && skpdata_.defitions_[comp_name].behavior_.component_always_face_camera)
+  	{
+  		current_index = 1;
+  		face_camera_id_.push_back(faces_group[current_index].face_num_);
+  	}
     transforms.push_back(entities->groups_[i].transform_);
     CombineEntities(entities->groups_[i].entities_,
                     faces_group,
@@ -227,10 +230,21 @@ void CXmlExporter::CombineEntities(XmlEntitiesInfo *entities,
   vector <XmlGroupInfo>().swap(entities->groups_);
 
   //get face
-  ExportUtils::GetTransformedFace(&faces_group[index],
+  if(index==0)
+    ExportUtils::GetTransformedFace(&faces_group[index],
+                      entities,
+                      transforms);
+  else{
+    CVector3d temp_vec;
+    ExportUtils::GetTransformedFace(&faces_group[index],
                       entities,
                       transforms,
-						index==1 ? true:false);
+                      &temp_vec,
+                      true);
+
+    face_camera_normal_.push_back(temp_vec);
+  }
+
   entities->faces_.clear();
   vector <XmlFaceInfo>().swap(entities->faces_);
 

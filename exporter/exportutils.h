@@ -32,7 +32,8 @@ struct ExportUtils
     static void GetTransformedFace(XmlEntitiesInfo *to_entities,
                           XmlEntitiesInfo *from_entities,
                           std::vector<SUTransformation> &transforms,
-							bool remove_rotation=false);
+                            CVector3d *face_direction=NULL,
+                            bool face_camera=false);
 
     static void FixNormal(XmlEntitiesInfo &entity_info);
 
