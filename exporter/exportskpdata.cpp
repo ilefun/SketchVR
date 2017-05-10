@@ -207,9 +207,9 @@ EXPORT bool GetFace(CXmlExporter *exporter,
 	return true;
 }
 
-EXPORT void GetFacingCameraId(CXmlExporter *exporter, int id,int *start_face, int *end_face)
+EXPORT bool GetFacingCameraId(CXmlExporter *exporter, int id,int *start_face, int *end_face)
 {
-	exporter->GetFacingCameraFaceId(id, start_face, end_face);
+	return exporter->GetFacingCameraFaceId(id, start_face, end_face);
 }
 
 EXPORT int GetFacingCameraIdSize(CXmlExporter *exporter)

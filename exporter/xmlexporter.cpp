@@ -387,7 +387,7 @@ int CXmlExporter::GetMaterialIdByName(std::string mat_name)
   return skpdata_.matname_id_map_[mat_name];
 }
 
-void CXmlExporter::GetFacingCameraFaceId(int id, int *start_face, int *end_face)
+bool CXmlExporter::GetFacingCameraFaceId(int id, int *start_face, int *end_face)
 {
 	auto total_size = face_camera_id_.size();
 	assert(id <= total_size-1);
@@ -400,6 +400,9 @@ void CXmlExporter::GetFacingCameraFaceId(int id, int *start_face, int *end_face)
 		*start_face = face_camera_id_[id];
 		*end_face = final_faces_[1].face_num_-1;
 	}
+  
+  if(*end_face<*start_face) return false;
+  return true;
 }
 
 int CXmlExporter::GetFacingCameraIdSize()

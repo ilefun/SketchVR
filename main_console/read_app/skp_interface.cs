@@ -42,7 +42,7 @@ namespace SkpInterface
         public static unsafe extern int GetFacingCameraIdSize(IntPtr exporter);
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern void GetFacingCameraId(IntPtr exporter, 
+        public static unsafe extern bool GetFacingCameraId(IntPtr exporter, 
                                                             int id,
                                                             out int start_face,
                                                             out int end_face);
