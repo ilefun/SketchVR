@@ -27,16 +27,16 @@ void face_data(CXmlExporter *exporter, int group_id) {
 	cout << "Face num is : " << face_num<< endl;
 	if (face_num > 0) {
 		cout << "Vertex num is : " << vertex_num << endl;
-		//for (int i = 0; i < vertex_num * 3; i += 3)
-		//	cout << vertices[i] << " " << vertices[i + 1] << " " << vertices[i + 2] << endl;
+		for (int i = 0; i < vertex_num * 3; i += 3)
+			cout << vertices[i] << " " << vertices[i + 1] << " " << vertices[i + 2] << endl;
 
 		cout << "Vertex num per face : " << endl;
-		//for (int i = 0; i < face_num; i++)
-		//	cout << vertex_num_per_face [i] << " ";
+		for (int i = 0; i < face_num; i++)
+			cout << vertex_num_per_face [i] << " ";
 
 		cout << endl << "Face normal : " << endl;
-		//for (int i = 0; i < face_num * 3; i += 3)
-		//	cout << face_normal[i] << " " << face_normal[i + 1] << " " << face_normal[i + 2] << endl;
+		for (int i = 0; i < face_num * 3; i += 3)
+			cout << face_normal[i] << " " << face_normal[i + 1] << " " << face_normal[i + 2] << endl;
 	}
 	cout <<endl<< "Debug data print ends------------------" << endl;
 

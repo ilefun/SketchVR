@@ -1,7 +1,8 @@
 // Copyright 2013 Trimble Navigation Limited. All Rights Reserved.
 
 #include "./xmlgeomutils.h"
-
+//#include <stdlib.h>
+#include <iostream>
 
 namespace XmlGeomUtils {
 
@@ -98,7 +99,8 @@ void CVector3d::Transform(double matrix[16])
 
 bool CVector3d::DirectionEqual(const CVector3d& vec)
 {
-  return (*this^vec)>0.999f ? true :false;
+  auto dir = (*this^vec)/std::sqrtf(*this^*this)/std::sqrtf(vec^vec);
+  return dir>0.999f ? true :false;
 }
 
 CVector3d CVector3d::operator+(const CVector3d& vec) const {

@@ -193,8 +193,9 @@ void ExportUtils::FixNormal(XmlEntitiesInfo &entity_info){
 		  if (!XmlGeomUtils::NormalEqual(entity_info.faces_[j].vertices_[k * 3].vertex_,
 			  entity_info.faces_[j].vertices_[k * 3 + 1].vertex_,
 			  entity_info.faces_[j].vertices_[k * 3 + 2].vertex_,
-			  entity_info.faces_[j].face_normal_))
-              swap(entity_info.faces_[j].vertices_[k * 3], entity_info.faces_[j].vertices_[k * 3 + 2]);
+			  entity_info.faces_[j].face_normal_)) {
+			  swap(entity_info.faces_[j].vertices_[k * 3], entity_info.faces_[j].vertices_[k * 3 + 2]);
+		  }
       }
     }
 }
