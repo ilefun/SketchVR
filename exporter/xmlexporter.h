@@ -62,6 +62,9 @@ private:
   void WriteMaterials();
   void WriteMaterial(SUMaterialRef material);
 
+  void WriteScenes();
+  void WriteScene(SUSceneRef scene);
+
   void WriteComponentDefinitions();
   std::string WriteComponentDefinition(SUComponentDefinitionRef comp_def);
 

@@ -111,6 +111,10 @@ bool CXmlExporter::Convert(const std::string& from_file,
     int major_ver = 0, minor_ver = 0, build_no = 0;
     SU_CALL(SUModelGetVersion(model_, &major_ver, &minor_ver, &build_no));
 
+    //Scenes
+    std::cout << "Exporting scenes..." << std::endl;
+    WriteScenes();
+
      // Layers
   	std::cout << "Exporting layers..." << std::endl;
     WriteLayers();
@@ -343,6 +347,36 @@ void CXmlExporter::WriteMaterial(SUMaterialRef material) {
     return;  
   skpdata_.materials_.push_back(ExportUtils::GetMaterialInfo(material,image_rep_));
 
+}
+
+void CXmlExporter::WriteScenes(){
+  size_t count = 0;
+  SU_CALL(SUModelGetNumScenes(model_, &count));
+  if (count > 0) {
+        std::vector<SUSceneRef> scenes(count);
+        SU_CALL(SUModelGetScenes(model_, count, &scenes[0], &count));
+        for (size_t i=0; i<count; i++) {
+          WriteScene(scenes[i]);
+        }
+  }
+}
+
+void CXmlExporter::WriteScene(SUSceneRef scene)
+{
+    if (SUIsInvalid(scene))
+        return;  
+
+    SceneInfo scene_info;
+    
+    CSUString name;
+    SU_CALL(SUSceneGetName (scene, name));
+    scene_info.scne_name_=name.utf8();
+
+    SUCameraRef camera;
+    SU_CALL(SUSceneGetCamera (scene,&camera));
+    SU_CALL(SUCameraGetViewTransformation (camera, &scene_info.camera_transform_));
+
+    skpdata_.scenes_.push_back(scene_info);
 }
 
 void CXmlExporter::WriteGeometry() {
