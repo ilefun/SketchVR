@@ -35,7 +35,7 @@ struct TextureInfo
 
 struct SceneInfo
 {
-  std::string scene_name_;
+  std::string name_;
   SUTransformation camera_transform_;
 };
 

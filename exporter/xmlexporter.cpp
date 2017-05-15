@@ -370,7 +370,7 @@ void CXmlExporter::WriteScene(SUSceneRef scene)
     
     CSUString name;
     SU_CALL(SUSceneGetName (scene, name));
-    scene_info.scne_name_=name.utf8();
+    scene_info.name_=name.utf8();
 
     SUCameraRef camera;
     SU_CALL(SUSceneGetCamera (scene,&camera));
@@ -451,6 +451,23 @@ bool CXmlExporter::GetFacingCameraFaceId(int id, int *start_face, int *end_face)
   
   if(*end_face<*start_face) return false;
   return true;
+}
+
+int CXmlExporter::GetSceneSize()
+{
+  return skpdata_.scenes_.size();
+}
+
+void CXmlExporter::GetSceneData(int id,char * scene_name,float matrix[16])
+{
+  assert(id <= skpdata_.scene_info.size() - 1);
+  strcpy_s(scene_name, 
+            skpdata_.scenes_[id].name_.length(), 
+            skpdata_.scenes_[id].name_.c_str());
+
+  auto trans=skpdata_.scenes_[id].camera_transform_.values
+  for (int i = 0; i < 16; ++i)
+      matrix[i]=trans[i];
 }
 
 int CXmlExporter::GetFacingCameraIdSize()

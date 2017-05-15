@@ -270,6 +270,29 @@ int group_data(CXmlExporter *exporter )
 	return grp_num;
 }
 
+void scene_data(CXmlExporter *exporter)
+{
+    int scene_num=GetSceneSize(exporter);
+#ifdef PRINT_SKP_DATA
+    cout<<endl<<"Scene num is : "<<scene_num<<endl;
+#endif
+    for (int i = 0; i < scene_num; ++i)
+    {
+        char *scene_name=[100];
+        float transform[16];
+        GetSceneData(exporter,i,scene_name,transform);
+#ifdef PRINT_SKP_DATA
+        cout<<"\tScene name : "<<StringConvertUtils::UTF8_To_string(scene_name)<<endl;
+        cout<<"\tScene transform : ";
+        for (int j = 0; j < 16; ++j)
+        {
+            cout<<transform[i]<<" ";
+        }
+        cout<<endl;
+#endif
+    }
+}
+
 int main(int argc,char *argv[])
 {
   cout<<argv[1]<<endl;
@@ -282,6 +305,8 @@ int main(int argc,char *argv[])
   CXmlExporter *exporter=NULL;
   exporter=GetExporter(StringConvertUtils::string_To_UTF8(argv[1]).c_str());
   if (exporter) {
+      scene_data(exporter);
+
 	  facing_camera_data(exporter);
 
   	  //traverse material
