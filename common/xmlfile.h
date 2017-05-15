@@ -33,6 +33,12 @@ struct TextureInfo
   SUByte *pixel_data_;  
 };
 
+struct SceneInfo
+{
+  std::string name_;
+  SUTransformation camera_transform_;
+};
+
 struct XmlMaterialInfo {
   XmlMaterialInfo()
     : has_color_(false), has_alpha_(false), alpha_(0.0),
@@ -152,6 +158,7 @@ struct XmlModelInfo {
   std::vector<XmlMaterialInfo> materials_;
   std::unordered_map<std::string, int> matname_id_map_;
 
+  std::vector<SceneInfo> scenes_;
   std::unordered_map<std::string, DefinitionInfo> defitions_;
   
   XmlEntitiesInfo entities_;

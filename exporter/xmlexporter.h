@@ -52,6 +52,10 @@ class CXmlExporter {
 
   void GetFacingCameraDirection(int id, float direction[3]);
 
+  int GetSceneSize();
+
+  void GetSceneData(int id,char * scene_name,float matrix[16]);
+
 private:
   // Clean up slapi objects
   void ReleaseModelObjects();
@@ -61,6 +65,9 @@ private:
 
   void WriteMaterials();
   void WriteMaterial(SUMaterialRef material);
+
+  void WriteScenes();
+  void WriteScene(SUSceneRef scene);
 
   void WriteComponentDefinitions();
   std::string WriteComponentDefinition(SUComponentDefinitionRef comp_def);

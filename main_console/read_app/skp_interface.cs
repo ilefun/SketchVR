@@ -53,6 +53,15 @@ namespace SkpInterface
                                                                 float[] direction);
 
 
+
+        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern int GetSceneSize(IntPtr exporter);
+        
+        [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        public static unsafe extern void GetSceneData(IntPtr exporter,int id, [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder scene_name, float[] transform);
+
+
+
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int GetFaceUVDSize(IntPtr exporter,
                                                     int group_id,
