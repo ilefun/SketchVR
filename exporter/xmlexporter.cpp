@@ -33,6 +33,9 @@
 #include <SketchUpAPI/model/uv_helper.h>
 #include <SketchUpAPI/model/vertex.h>
 #include <SketchUpAPI/model/image_rep.h>
+#include <SketchUpAPI/model/scene.h>
+#include <SketchUpAPI/model/camera.h>
+
 
 using namespace XmlGeomUtils;
 using namespace std;
@@ -369,11 +372,11 @@ void CXmlExporter::WriteScene(SUSceneRef scene)
     SceneInfo scene_info;
     
     CSUString name;
-    SU_CALL(SUSceneGetName (scene, name));
+    SU_CALL(SUSceneGetName(scene, name));
     scene_info.name_=name.utf8();
 
     SUCameraRef camera;
-    SU_CALL(SUSceneGetCamera (scene,&camera));
+    SU_CALL(SUSceneGetCamera(scene,&camera));
     SU_CALL(SUCameraGetViewTransformation (camera, &scene_info.camera_transform_));
 
     skpdata_.scenes_.push_back(scene_info);
@@ -460,12 +463,12 @@ int CXmlExporter::GetSceneSize()
 
 void CXmlExporter::GetSceneData(int id,char * scene_name,float matrix[16])
 {
-  assert(id <= skpdata_.scene_info.size() - 1);
+  assert(id <= skpdata_.scenes_.size() - 1);
   strcpy_s(scene_name, 
             skpdata_.scenes_[id].name_.length(), 
             skpdata_.scenes_[id].name_.c_str());
 
-  auto trans=skpdata_.scenes_[id].camera_transform_.values
+  auto trans = skpdata_.scenes_[id].camera_transform_.values;
   for (int i = 0; i < 16; ++i)
       matrix[i]=trans[i];
 }

@@ -229,7 +229,7 @@ EXPORT int GetSceneSize(CXmlExporter *exporter)
 
 EXPORT void GetSceneData(CXmlExporter *exporter,int id,char * scene_name,float transform[16])
 {
-	exporter->GetSceneData(id,scene_name,transform)
+	exporter->GetSceneData(id, scene_name, transform);
 }
 
 

@@ -278,15 +278,15 @@ void scene_data(CXmlExporter *exporter)
 #endif
     for (int i = 0; i < scene_num; ++i)
     {
-        char *scene_name=[100];
+        char scene_name[100];
         float transform[16];
         GetSceneData(exporter,i,scene_name,transform);
 #ifdef PRINT_SKP_DATA
-        cout<<"\tScene name : "<<StringConvertUtils::UTF8_To_string(scene_name)<<endl;
-        cout<<"\tScene transform : ";
+        cout<<"\Name : "<<StringConvertUtils::UTF8_To_string(scene_name)<<endl;
+        cout<<"\tTransform : ";
         for (int j = 0; j < 16; ++j)
         {
-            cout<<transform[i]<<" ";
+            cout<<transform[j]<<" ";
         }
         cout<<endl;
 #endif
