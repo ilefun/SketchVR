@@ -112,18 +112,17 @@ EXPORT int GetTexPixelDSize(CXmlExporter *exporter,
 EXPORT bool GetMaterialData(CXmlExporter *exporter, 
                             int material_id,
                             bool *has_color,
-							float color[3],
+                            float color[3],
                             bool *has_alpha,
                             float *alpha,
                             bool *has_texture,
                             float *tex_sscale,
                             float *tex_tscale,
-							int *origin_bits_per_pixel,
+                            int *origin_bits_per_pixel,
                             int *bits_per_pixel,
                             int *width,
                             int *height,
                             float pixel_data[]);
-
 
 
 

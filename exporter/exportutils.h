@@ -24,10 +24,12 @@ struct ExportUtils
     // Utility function to get a component definition's name
     static std::string GetComponentDefinitionName(SUComponentDefinitionRef comp_def);
 
-    static void GetTexturePixel(const XmlMaterialInfo &current_mat, float pixel_data[]);
+    static void GetTexturePixel(const XmlMaterialInfo &current_mat, const TextureInfo &tex_info, float pixel_data[]);
 
     //get material info from materialref
-    static XmlMaterialInfo GetMaterialInfo(SUMaterialRef material,SUImageRepRef image_rep);
+    static XmlMaterialInfo GetMaterialInfo(SUMaterialRef material,
+                                            SUImageRepRef image_rep,
+                                            std::unordered_map<std::string, TextureInfo> &texture_map);
 
     static void GetTransformedFace(XmlEntitiesInfo *to_entities,
                           XmlEntitiesInfo *from_entities,

@@ -291,7 +291,7 @@ void CXmlExporter::WriteLayer(SULayerRef layer) {
   info.has_material_info_ = false;
   if (SULayerGetMaterial(layer, &material) == SU_ERROR_NONE) {
     info.has_material_info_ = true;
-	info.material_info_=ExportUtils::GetMaterialInfo(material,image_rep_);
+	info.material_info_=ExportUtils::GetMaterialInfo(material,image_rep_,skpdata_.texture_map_);
   }
 
   // Visibility
@@ -348,7 +348,7 @@ void CXmlExporter::WriteMaterials() {
 void CXmlExporter::WriteMaterial(SUMaterialRef material) {
   if (SUIsInvalid(material))
     return;  
-  skpdata_.materials_.push_back(ExportUtils::GetMaterialInfo(material,image_rep_));
+  skpdata_.materials_.push_back(ExportUtils::GetMaterialInfo(material,image_rep_,skpdata_.texture_map_));
 
 }
 

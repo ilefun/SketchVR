@@ -53,7 +53,8 @@ struct XmlMaterialInfo {
   double alpha_;
 
   bool has_texture_;
-  TextureInfo tex_info_;
+  // TextureInfo tex_info_;
+  std::string texture_key_;
 };
 
 struct XmlLayerInfo {
@@ -157,6 +158,8 @@ struct XmlModelInfo {
   
   std::vector<XmlMaterialInfo> materials_;
   std::unordered_map<std::string, int> matname_id_map_;
+
+  std::unordered_map<std::string, TextureInfo> texture_map_;
 
   std::vector<SceneInfo> scenes_;
   std::unordered_map<std::string, DefinitionInfo> defitions_;

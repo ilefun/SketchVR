@@ -161,11 +161,13 @@ EXPORT void ReleaseExporter(CXmlExporter *exporter)
 	if (exporter)
 	{
 		//release pixel data memory
-		for (size_t i = 0; i < exporter->skpdata_.materials_.size(); ++i)
-			if(exporter->skpdata_.materials_[i].tex_info_.pixel_data_){
-			    delete exporter->skpdata_.materials_[i].tex_info_.pixel_data_;
-			    exporter->skpdata_.materials_[i].tex_info_.pixel_data_=NULL;
+		for (auto iter = exporter->skpdata_.texture_map_.begin(); iter != exporter->skpdata_.texture_map_.end(); ++iter)
+		{
+			if (iter->second.pixel_data_) {
+				delete iter->second.pixel_data_;
+				iter->second.pixel_data_ = NULL;
 			}
+		}
 
 		delete exporter;
 		exporter = NULL;
@@ -273,7 +275,10 @@ EXPORT int GetTexPixelDSize(CXmlExporter *exporter,
                             int material_id )
 {
 	if(exporter->skpdata_.materials_.at(material_id).has_texture_)
-		return exporter->skpdata_.materials_[material_id].tex_info_.data_size_;
+	{
+		auto tex_key=exporter->skpdata_.materials_[material_id].texture_key_;
+		return exporter->skpdata_.texture_map_[tex_key].data_size_;
+	}
 	return 0;
 }
 
@@ -311,13 +316,15 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 
 	*has_texture=current_mat.has_texture_;
 	if(*has_texture) {
-		*tex_sscale=current_mat.tex_info_.texture_sscale_;
-		*tex_tscale=current_mat.tex_info_.texture_tscale_;
-		*bits_per_pixel=current_mat.tex_info_.bits_per_pixel_;
-		*origin_bits_per_pixel = current_mat.tex_info_.origin_bits_per_pixel_;
-		*width=current_mat.tex_info_.width_;
-		*height=current_mat.tex_info_.height_;
-		ExportUtils::GetTexturePixel(current_mat, pixel_data);
+		auto tex_info=exporter->skpdata_.texture_map_[current_mat.texture_key_];
+		
+		*tex_sscale=tex_info.texture_sscale_;
+		*tex_tscale=tex_info.texture_tscale_;
+		*bits_per_pixel=tex_info.bits_per_pixel_;
+		*origin_bits_per_pixel = tex_info.origin_bits_per_pixel_;
+		*width=tex_info.width_;
+		*height=tex_info.height_;
+		ExportUtils::GetTexturePixel(current_mat, tex_info,pixel_data);
 	}
 
 	return true;

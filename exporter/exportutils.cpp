@@ -34,45 +34,47 @@ std::string ExportUtils::GetComponentDefinitionName(
   return name.utf8();
 }
 
-void ExportUtils::GetTexturePixel(const XmlMaterialInfo &current_mat, float pixel_data[])
+void ExportUtils::GetTexturePixel(const XmlMaterialInfo &current_mat, const TextureInfo &tex_info,float pixel_data[])
 {
   if (current_mat.has_color_) {
     float avg_color[3] = { 0,0,0 };
     int size_per_pixel = 3;
-    if (current_mat.tex_info_.bits_per_pixel_ == 32)
+    if (tex_info.bits_per_pixel_ == 32)
       size_per_pixel = 4;
 
-    int pixel_num = current_mat.tex_info_.data_size_ / size_per_pixel;
+    int pixel_num = tex_info.data_size_ / size_per_pixel;
     for (int j = 0; j < pixel_num; j++)
     {
-      avg_color[0] += current_mat.tex_info_.pixel_data_[j * size_per_pixel + 2];
-      avg_color[1] += current_mat.tex_info_.pixel_data_[j * size_per_pixel + 1];
-      avg_color[2] += current_mat.tex_info_.pixel_data_[j * size_per_pixel];
+      avg_color[0] += tex_info.pixel_data_[j * size_per_pixel + 2];
+      avg_color[1] += tex_info.pixel_data_[j * size_per_pixel + 1];
+      avg_color[2] += tex_info.pixel_data_[j * size_per_pixel];
     }
     avg_color[0] /= float(pixel_num);
     avg_color[1] /= float(pixel_num);
     avg_color[2] /= float(pixel_num);
 
     for (size_t i = 0; i < pixel_num; ++i) {
-      pixel_data[i * size_per_pixel + 2] = clamp((current_mat.tex_info_.pixel_data_[i * size_per_pixel + 2] + current_mat.color_.red - avg_color[0]) / 255.0f, 0, 1);
-      pixel_data[i * size_per_pixel + 1] = clamp((current_mat.tex_info_.pixel_data_[i * size_per_pixel + 1] + current_mat.color_.green - avg_color[1]) / 255.0f, 0, 1);
-      pixel_data[i * size_per_pixel] = clamp((current_mat.tex_info_.pixel_data_[i * size_per_pixel] + current_mat.color_.blue - avg_color[2]) / 255.0f, 0, 1);
+      pixel_data[i * size_per_pixel + 2] = clamp((tex_info.pixel_data_[i * size_per_pixel + 2] + current_mat.color_.red - avg_color[0]) / 255.0f, 0, 1);
+      pixel_data[i * size_per_pixel + 1] = clamp((tex_info.pixel_data_[i * size_per_pixel + 1] + current_mat.color_.green - avg_color[1]) / 255.0f, 0, 1);
+      pixel_data[i * size_per_pixel] = clamp((tex_info.pixel_data_[i * size_per_pixel] + current_mat.color_.blue - avg_color[2]) / 255.0f, 0, 1);
     }
 
     if(size_per_pixel==4)
       for (size_t i = 0; i < pixel_num; ++i) {
-        pixel_data[i * size_per_pixel + 3] = float(current_mat.tex_info_.pixel_data_[i * size_per_pixel + 3]) / 255.f;
+        pixel_data[i * size_per_pixel + 3] = float(tex_info.pixel_data_[i * size_per_pixel + 3]) / 255.f;
       }
 
   }
   else {
-    for (size_t i = 0; i < current_mat.tex_info_.data_size_; ++i) {
-      pixel_data[i] = float(current_mat.tex_info_.pixel_data_[i]) / 255.0f;
+    for (size_t i = 0; i < tex_info.data_size_; ++i) {
+      pixel_data[i] = float(tex_info.pixel_data_[i]) / 255.0f;
     }
   }
 }
 
-XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRef image_rep) {
+XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,
+                                            SUImageRepRef image_rep,
+                                            std::unordered_map<std::string, TextureInfo> &texture_map) {
   assert(!SUIsInvalid(material));
 
   XmlMaterialInfo info;
@@ -117,6 +119,12 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRe
       CSUString texture_path;
       SU_CALL(SUTextureGetFileName(texture, texture_path));
       std::string tex_path = texture_path.utf8();
+      info.texture_key_=tex_path;
+      if(texture_map.count(info.texture_key_))
+        return info;
+
+
+      TextureInfo tex_info;
 	  //cout <<endl<<"Tex path : " <<tex_path << endl;
       // Texture scale
       size_t width = 0;
@@ -125,18 +133,18 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRe
       double t_scale = 0.0;
       SU_CALL(SUTextureGetDimensions(texture, &width, &height,
                                      &s_scale, &t_scale));
-      info.tex_info_.texture_sscale_ = s_scale;
-      info.tex_info_.texture_tscale_ = t_scale;
-      info.tex_info_.width_ = width;
-      info.tex_info_.height_ = height;
-      info.tex_info_.texture_path_=tex_path;
+      tex_info.texture_sscale_ = s_scale;
+      tex_info.texture_tscale_ = t_scale;
+      tex_info.width_ = width;
+      tex_info.height_ = height;
+      tex_info.texture_path_=tex_path;
 
       //Texture data
       SU_CALL(SUTextureGetImageRep(texture,&image_rep));
 
       size_t data_size=0, bits_per_pixel=0;
       SU_CALL(SUImageRepGetDataSize(image_rep,&data_size,&bits_per_pixel));
-	    info.tex_info_.origin_bits_per_pixel_ = bits_per_pixel;
+	    tex_info.origin_bits_per_pixel_ = bits_per_pixel;
 
 	  if (bits_per_pixel == 24)
 	  {
@@ -145,11 +153,13 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,SUImageRepRe
 		  SU_CALL(SUImageRepGetDataSize(image_rep, &data_size, &bits_per_pixel));
 	  }
 
-      info.tex_info_.data_size_=data_size;
-      info.tex_info_.bits_per_pixel_=bits_per_pixel;
+      tex_info.data_size_=data_size;
+      tex_info.bits_per_pixel_=bits_per_pixel;
       // int image_size = width*height*bits_per_pixel / 8;
-      info.tex_info_.pixel_data_=new SUByte[data_size];
-      SU_CALL(SUImageRepGetData(image_rep, data_size,info.tex_info_.pixel_data_));
+      tex_info.pixel_data_=new SUByte[data_size];
+      SU_CALL(SUImageRepGetData(image_rep, data_size,tex_info.pixel_data_));
+
+      texture_map[info.texture_key_]=tex_info;
     }
   }
   return info;
