@@ -58,7 +58,12 @@ namespace SkpInterface
         public static unsafe extern int GetSceneSize(IntPtr exporter);
         
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern void GetSceneData(IntPtr exporter,int id, [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder scene_name, float[] transform);
+        public static unsafe extern void GetSceneData(IntPtr exporter,
+                                                    int id, 
+                                                    [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder scene_name, 
+                                                    float[] position,
+                                                    float[] target,
+                                                    float[] upvector);
 
 
 
