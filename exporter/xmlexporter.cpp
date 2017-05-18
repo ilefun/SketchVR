@@ -377,7 +377,7 @@ void CXmlExporter::WriteScene(SUSceneRef scene)
 
     SUCameraRef camera;
     SU_CALL(SUSceneGetCamera(scene,&camera));
-    SU_CALL(SUCameraGetViewTransformation (camera, &scene_info.camera_transform_));
+    SU_CALL(SUCameraGetOrientation (camera, &scene_info.position_,&scene_info.target_,&scene_info.up_vector_));
 
     skpdata_.scenes_.push_back(scene_info);
 }
@@ -461,16 +461,25 @@ int CXmlExporter::GetSceneSize()
   return skpdata_.scenes_.size();
 }
 
-void CXmlExporter::GetSceneData(int id,char * scene_name,float matrix[16])
+void CXmlExporter::GetSceneData(int id,char * scene_name,float position[3],float target[3],float up_vector[3])
 {
   assert(id <= skpdata_.scenes_.size() - 1);
   strcpy_s(scene_name, 
             skpdata_.scenes_[id].name_.length(), 
             skpdata_.scenes_[id].name_.c_str());
 
-  auto trans = skpdata_.scenes_[id].camera_transform_.values;
-  for (int i = 0; i < 16; ++i)
-      matrix[i]=trans[i];
+  position[0] = skpdata_.scenes_[id].position_.x;
+  position[1] = skpdata_.scenes_[id].position_.y;
+  position[2] = skpdata_.scenes_[id].position_.z;
+
+  target[0] = skpdata_.scenes_[id].target_.x;
+  target[1] = skpdata_.scenes_[id].target_.y;
+  target[2] = skpdata_.scenes_[id].target_.z;
+
+  up_vector[0] = skpdata_.scenes_[id].up_vector_.x;
+  up_vector[1] = skpdata_.scenes_[id].up_vector_.y;
+  up_vector[2] = skpdata_.scenes_[id].up_vector_.z;
+
 }
 
 int CXmlExporter::GetFacingCameraIdSize()

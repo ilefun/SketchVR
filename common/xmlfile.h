@@ -36,7 +36,9 @@ struct TextureInfo
 struct SceneInfo
 {
   std::string name_;
-  SUTransformation camera_transform_;
+  SUPoint3D position_;
+  SUPoint3D target_;
+  SUVector3D up_vector_;
 };
 
 struct XmlMaterialInfo {

@@ -279,16 +279,14 @@ void scene_data(CXmlExporter *exporter)
     for (int i = 0; i < scene_num; ++i)
     {
         char scene_name[100];
-        float transform[16];
-        GetSceneData(exporter,i,scene_name,transform);
+        float position[3],target[3],up_vector[3];
+        GetSceneData(exporter,i,scene_name,position,target,up_vector);
 #ifdef PRINT_SKP_DATA
         cout<<"\Name : "<<StringConvertUtils::UTF8_To_string(scene_name)<<endl;
-        cout<<"\tTransform : ";
-        for (int j = 0; j < 16; ++j)
-        {
-            cout<<transform[j]<<" ";
-        }
-        cout<<endl;
+		cout << "\tPosition : " << position[0] << " "<< position[1] << " "<< position[2] << endl;
+		cout << "\tTarget : " << target[0] << " " << target[1] << " " << target[2] << endl;
+		cout << "\tUpVector : " << up_vector[0] << " " << up_vector[1] << " " << up_vector[2] << endl;
+
 #endif
     }
 }

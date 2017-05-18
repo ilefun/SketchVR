@@ -75,7 +75,7 @@ EXPORT void GetFacingCameraDirection(CXmlExporter *exporter, int id, float direc
 
 EXPORT int GetSceneSize(CXmlExporter *exporter);
 
-EXPORT void GetSceneData(CXmlExporter *exporter,int id,char * scene_name,float transform[16]);
+EXPORT void GetSceneData(CXmlExporter *exporter,int id,char * scene_name, float position[3], float target[3], float up_vector[3]);
 
 
 
