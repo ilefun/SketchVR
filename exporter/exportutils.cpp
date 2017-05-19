@@ -77,8 +77,7 @@ void ExportUtils::GetTexturePixel(const TextureInfo &tex_info,
   }
 }
 
-XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,
-                                            SUImageRepRef image_rep,
+XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,                                          
                                             std::unordered_map<std::string, TextureInfo> &texture_map) {
   assert(!SUIsInvalid(material));
 
@@ -145,6 +144,11 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,
       tex_info.texture_path_=tex_path;
 
       //Texture data
+	  //allocate new image_rep
+	  SUImageRepRef image_rep;
+	  SUSetInvalid(image_rep);
+	  SU_CALL(SUImageRepCreate(&image_rep));
+
       SU_CALL(SUTextureGetImageRep(texture,&image_rep));
 
       size_t data_size=0, bits_per_pixel=0;
@@ -163,6 +167,12 @@ XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,
       // int image_size = width*height*bits_per_pixel / 8;
       tex_info.pixel_data_=new SUByte[data_size];
       SU_CALL(SUImageRepGetData(image_rep, data_size,tex_info.pixel_data_));
+
+	  //release image_rep
+	  if (!SUIsInvalid(image_rep)) {
+		  SUImageRepRelease(&image_rep);
+		  SUSetInvalid(image_rep);
+	  }
 
       texture_map[info.texture_key_]=tex_info;
     }

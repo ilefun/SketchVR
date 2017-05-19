@@ -25,17 +25,16 @@ struct ExportUtils
     static std::string GetComponentDefinitionName(SUComponentDefinitionRef comp_def);
 
     //get real pixel data based on material color hint
-    static void GetTexturePixel(const TextureInfo &tex_info,
-                                      float pixel_data[],
-                                      bool has_color ,
-                                      float red,
-                                      float green,
-                                      float blue)
+	static void GetTexturePixel(const TextureInfo &tex_info,
+								float pixel_data[],
+								bool has_color,
+								float red,
+								float green,
+								float blue);
 
 
     //get material info from materialref
     static XmlMaterialInfo GetMaterialInfo(SUMaterialRef material,
-                                            SUImageRepRef image_rep,
                                             std::unordered_map<std::string, TextureInfo> &texture_map);
 
     static void GetTransformedFace(XmlEntitiesInfo *to_entities,

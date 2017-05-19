@@ -64,7 +64,7 @@ private:
   void WriteLayer(SULayerRef layer);
 
   void WriteMaterials();
-  void WriteMaterial(SUMaterialRef material);
+  void WriteMaterial(SUMaterialRef material,int id);
 
   void WriteScenes();
   void WriteScene(SUSceneRef scene);

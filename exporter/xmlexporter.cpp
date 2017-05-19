@@ -5,6 +5,7 @@
 #include <cassert>
 #include <iostream>
 #include <ctime>
+#include <omp.h>
 
 #include "./xmlexporter.h"
 #include "./xmltexturehelper.h"
@@ -291,7 +292,7 @@ void CXmlExporter::WriteLayer(SULayerRef layer) {
   info.has_material_info_ = false;
   if (SULayerGetMaterial(layer, &material) == SU_ERROR_NONE) {
     info.has_material_info_ = true;
-	info.material_info_=ExportUtils::GetMaterialInfo(material,image_rep_,skpdata_.texture_map_);
+	info.material_info_=ExportUtils::GetMaterialInfo(material,skpdata_.texture_map_);
   }
 
   // Visibility
@@ -313,11 +314,12 @@ void CXmlExporter::WriteMaterials() {
         std::vector<SULayerRef> layers(num_layers);
         SU_CALL(SUModelGetLayers(model_, num_layers, &layers[0], &num_layers));
 
+		skpdata_.materials_.resize(num_layers);
         for (size_t i = 0; i < num_layers; i++)  {
           SULayerRef layer = layers[i];
           SUMaterialRef material = SU_INVALID;
           if (SULayerGetMaterial(layer, &material) == SU_ERROR_NONE) {
-            WriteMaterial(material);
+            WriteMaterial(material,i);
           }
         }
 
@@ -329,10 +331,14 @@ void CXmlExporter::WriteMaterials() {
 
         std::vector<SUMaterialRef> materials(count);
         SU_CALL(SUModelGetMaterials(model_, count, &materials[0], &count));
-        for (size_t i=0; i<count; i++) {
+
+		skpdata_.materials_.resize(count);
+
+		#pragma omp parallel for  
+		for (int i = 0; i < int(count); ++i) {
 			//std::cout <<std::endl<<"mat index : "<< i << std::endl;
-          WriteMaterial(materials[i]);
-        }
+			WriteMaterial(materials[i], i);
+		}
 
       }
     }
@@ -345,11 +351,9 @@ void CXmlExporter::WriteMaterials() {
   }
 }
 
-void CXmlExporter::WriteMaterial(SUMaterialRef material) {
-  if (SUIsInvalid(material))
-    return;  
-  skpdata_.materials_.push_back(ExportUtils::GetMaterialInfo(material,image_rep_,skpdata_.texture_map_));
-
+void CXmlExporter::WriteMaterial(SUMaterialRef material,int i) {
+  if (SUIsInvalid(material))    return;
+  skpdata_.materials_[i]=ExportUtils::GetMaterialInfo(material,skpdata_.texture_map_);
 }
 
 void CXmlExporter::WriteScenes(){
