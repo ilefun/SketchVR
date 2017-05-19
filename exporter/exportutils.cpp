@@ -34,9 +34,14 @@ std::string ExportUtils::GetComponentDefinitionName(
   return name.utf8();
 }
 
-void ExportUtils::GetTexturePixel(const XmlMaterialInfo &current_mat, const TextureInfo &tex_info,float pixel_data[])
+void ExportUtils::GetTexturePixel(const TextureInfo &tex_info,
+                                  float pixel_data[],
+                                  bool has_color ,
+                                  float red,
+                                  float green,
+                                  float blue)
 {
-  if (current_mat.has_color_) {
+  if (has_color) {
     float avg_color[3] = { 0,0,0 };
     int size_per_pixel = 3;
     if (tex_info.bits_per_pixel_ == 32)
@@ -54,9 +59,9 @@ void ExportUtils::GetTexturePixel(const XmlMaterialInfo &current_mat, const Text
     avg_color[2] /= float(pixel_num);
 
     for (size_t i = 0; i < pixel_num; ++i) {
-      pixel_data[i * size_per_pixel + 2] = clamp((tex_info.pixel_data_[i * size_per_pixel + 2] + current_mat.color_.red - avg_color[0]) / 255.0f, 0, 1);
-      pixel_data[i * size_per_pixel + 1] = clamp((tex_info.pixel_data_[i * size_per_pixel + 1] + current_mat.color_.green - avg_color[1]) / 255.0f, 0, 1);
-      pixel_data[i * size_per_pixel] = clamp((tex_info.pixel_data_[i * size_per_pixel] + current_mat.color_.blue - avg_color[2]) / 255.0f, 0, 1);
+      pixel_data[i * size_per_pixel + 2] = clamp((tex_info.pixel_data_[i * size_per_pixel + 2] + red - avg_color[0]) / 255.0f, 0, 1);
+      pixel_data[i * size_per_pixel + 1] = clamp((tex_info.pixel_data_[i * size_per_pixel + 1] + green - avg_color[1]) / 255.0f, 0, 1);
+      pixel_data[i * size_per_pixel] = clamp((tex_info.pixel_data_[i * size_per_pixel] + blue - avg_color[2]) / 255.0f, 0, 1);
     }
 
     if(size_per_pixel==4)

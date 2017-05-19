@@ -324,7 +324,13 @@ EXPORT bool GetMaterialData(CXmlExporter *exporter,
 		*origin_bits_per_pixel = tex_info.origin_bits_per_pixel_;
 		*width=tex_info.width_;
 		*height=tex_info.height_;
-		ExportUtils::GetTexturePixel(current_mat, tex_info,pixel_data);
+		ExportUtils::GetTexturePixel(tex_info,
+									pixel_data,
+									current_mat.has_color_,
+									current_mat.color_.red,
+									current_mat.color_.green,
+									current_mat.color_.blue
+									);
 	}
 
 	return true;

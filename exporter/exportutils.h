@@ -24,7 +24,14 @@ struct ExportUtils
     // Utility function to get a component definition's name
     static std::string GetComponentDefinitionName(SUComponentDefinitionRef comp_def);
 
-    static void GetTexturePixel(const XmlMaterialInfo &current_mat, const TextureInfo &tex_info, float pixel_data[]);
+    //get real pixel data based on material color hint
+    static void GetTexturePixel(const TextureInfo &tex_info,
+                                      float pixel_data[],
+                                      bool has_color ,
+                                      float red,
+                                      float green,
+                                      float blue)
+
 
     //get material info from materialref
     static XmlMaterialInfo GetMaterialInfo(SUMaterialRef material,
