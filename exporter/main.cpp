@@ -261,7 +261,7 @@ void facing_camera_data(CXmlExporter *expoerter)
 int group_data(CXmlExporter *exporter )
 {
 	int grp_num = GetGroupNum(exporter);
-	cout << "Group num is : "<< grp_num<< endl<<endl;
+	cout << endl<<"Group num is : "<< grp_num<< endl<<endl;
 	for (size_t i = 0; i < grp_num; i++)
 	{
 		group_id_data(exporter, int(i));

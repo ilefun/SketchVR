@@ -513,7 +513,8 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
     std::vector<SUComponentInstanceRef> instances(num_instances);
     SU_CALL(SUEntitiesGetInstances(entities, num_instances, &instances[0], &num_instances));
 
-    for (size_t c = 0; c < num_instances; c++) {
+	//#pragma omp parallel for num_threads(2)
+    for (int c = 0; c < int(num_instances); c++) {
       SUComponentInstanceRef instance = instances[c];
       SUComponentDefinitionRef definition = SU_INVALID;
       SU_CALL(SUComponentInstanceGetDefinition(instance, &definition));
@@ -524,7 +525,6 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 	  XmlGroupInfo info;
     SU_CALL(SUComponentInstanceGetTransform(instance,&info.transform_));
     info.component_name_=definition_name;
-	//std::cout << info.component_name_ << "+++++++" << endl;
 	  SUEntitiesRef  instance_entities = SU_INVALID;
 	  SU_CALL(SUComponentDefinitionGetEntities(definition, &instance_entities));
 
@@ -545,15 +545,15 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 #endif // PRINT_SKP_DATA
 
 	  //push element------------------
-	  inheritance_manager_.PushElement(instance);
+		  inheritance_manager_.PushElement(instance);
 
-	  // Write entities
-	  WriteEntities(instance_entities, info.entities_);
-	  entity_info->groups_.push_back(info);
+		  // Write entities
+		  WriteEntities(instance_entities, info.entities_);
+		  entity_info->groups_.push_back(info);
 
-	  //pop element-------------------
-	  inheritance_manager_.PopElement();
-    }
+		  //pop element-------------------
+		  inheritance_manager_.PopElement();
+	 }
   }
 
   // Groups
@@ -566,15 +566,15 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       SUGroupRef group = groups[g];
       SUEntitiesRef group_entities = SU_INVALID;
       SU_CALL(SUGroupGetEntities(group, &group_entities));
-      inheritance_manager_.PushElement(group);
 
       // Write transformation
       XmlGroupInfo info;
       SU_CALL(SUGroupGetTransform(group, &info.transform_));
 
       // Write entities
-      WriteEntities(group_entities,info.entities_);
+	  inheritance_manager_.PushElement(group);
 
+      WriteEntities(group_entities,info.entities_);
       entity_info->groups_.push_back(info);
 
       inheritance_manager_.PopElement();
@@ -605,36 +605,36 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
     }
   }
 
-  // Edges
-  if (options_.export_edges()) {
-    size_t num_edges = 0;
-    bool standAloneOnly = true; // Write only edges not connected to faces.
-    SU_CALL(SUEntitiesGetNumEdges(entities, standAloneOnly, &num_edges));
-    if (num_edges > 0) {
-      std::vector<SUEdgeRef> edges(num_edges);
-      SU_CALL(SUEntitiesGetEdges(entities, standAloneOnly, num_edges,
-                                 &edges[0], &num_edges));
-      for (size_t i = 0; i < num_edges; i++) {
-        inheritance_manager_.PushElement(edges[i]);
-        WriteEdge(edges[i],entity_info);
-        inheritance_manager_.PopElement();
-      }
-    }
-  }
+  //// Edges
+  //if (options_.export_edges()) {
+  //  size_t num_edges = 0;
+  //  bool standAloneOnly = true; // Write only edges not connected to faces.
+  //  SU_CALL(SUEntitiesGetNumEdges(entities, standAloneOnly, &num_edges));
+  //  if (num_edges > 0) {
+  //    std::vector<SUEdgeRef> edges(num_edges);
+  //    SU_CALL(SUEntitiesGetEdges(entities, standAloneOnly, num_edges,
+  //                               &edges[0], &num_edges));
+  //    for (size_t i = 0; i < num_edges; i++) {
+  //      inheritance_manager_.PushElement(edges[i]);
+  //      WriteEdge(edges[i],entity_info);
+  //      inheritance_manager_.PopElement();
+  //    }
+  //  }
+  //}
 
-  // Curves
-  if (options_.export_edges()) {
-    size_t num_curves = 0;
-    SU_CALL(SUEntitiesGetNumCurves(entities, &num_curves));
-    if (num_curves > 0) {
-      std::vector<SUCurveRef> curves(num_curves);
-      SU_CALL(SUEntitiesGetCurves(entities, num_curves,
-                                  &curves[0], &num_curves));
-      for (size_t i = 0; i < num_curves; i++) {
-        WriteCurve(curves[i],entity_info);
-      }
-    }
-  }
+  //// Curves
+  //if (options_.export_edges()) {
+  //  size_t num_curves = 0;
+  //  SU_CALL(SUEntitiesGetNumCurves(entities, &num_curves));
+  //  if (num_curves > 0) {
+  //    std::vector<SUCurveRef> curves(num_curves);
+  //    SU_CALL(SUEntitiesGetCurves(entities, num_curves,
+  //                                &curves[0], &num_curves));
+  //    for (size_t i = 0; i < num_curves; i++) {
+  //      WriteCurve(curves[i],entity_info);
+  //    }
+  //  }
+  //}
 }
 
 void CXmlExporter::WriteFace(SUFaceRef face,XmlEntitiesInfo *entity_info) {
