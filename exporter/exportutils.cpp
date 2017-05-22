@@ -6,6 +6,7 @@
 #include <SketchUpAPI/model/texture.h>
 #include <SketchUpAPI/model/image_rep.h>
 #include <SketchUpAPI/model/face.h>
+#include <SketchUpAPI/model/drawing_element.h>
 
 #include <cassert>
 #include <vector>
@@ -261,4 +262,13 @@ void ExportUtils::ClearFaceMaterial(std::vector<SUFaceRef> &faces, const std::ve
 			SUFaceSetBackMaterial(face, no_material);
 
 	}
+}
+
+bool ExportUtils::IsFaceHidden(SUFaceRef face) {
+
+	SUDrawingElementRef elem = SUFaceToDrawingElement(face);
+	bool hide_flag=false;
+	SU_CALL(SUDrawingElementGetHidden(elem, &hide_flag));
+	return hide_flag;
+
 }

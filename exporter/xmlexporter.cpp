@@ -640,6 +640,8 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 void CXmlExporter::WriteFace(SUFaceRef face,XmlEntitiesInfo *entity_info) {
   if (SUIsInvalid(face))
     return;
+  
+  if(ExportUtils::IsFaceHidden(face)) return;
 
   XmlFaceInfo info;
 
