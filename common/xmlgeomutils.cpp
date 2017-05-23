@@ -11,6 +11,10 @@ const double EqualTol = 1.0e-3;
 const double EqualTolSq = EqualTol * EqualTol;
 
 bool NormalEqual(const CPoint3d &a, const CPoint3d &b, const CPoint3d &c, const CVector3d &normal) {
+	//std::cout << a.x() << " " << a.y() << " " << a.z() << std::endl;
+	//std::cout << b.x() << " " << b.y() << " " << b.z() << std::endl;
+	//std::cout << c.x() << " " << c.y() << " " << c.z() << std::endl;
+
 	CVector3d a_b = CVector3d(b.x() - a.x(), b.y() - a.y(), b.z() - a.z());
 	CVector3d a_c = CVector3d(c.x() - a.x(), c.y() - a.y(), c.z() - a.z());
 	CVector3d my_normal = a_b % a_c;
@@ -100,7 +104,8 @@ void CVector3d::Transform(double matrix[16])
 bool CVector3d::DirectionEqual(const CVector3d& vec)
 {
   auto dir = (*this^vec)/std::sqrtf(*this^*this)/std::sqrtf(vec^vec);
-  return dir>0.999f ? true :false;
+  //std::cout <<"cos angle "<< dir << std::endl;
+  return dir>0 ? true :false;
 }
 
 CVector3d CVector3d::operator+(const CVector3d& vec) const {

@@ -213,7 +213,7 @@ void ExportUtils::GetTransformedFace(XmlEntitiesInfo *to_entities,
 
 void ExportUtils::FixNormal(XmlEntitiesInfo &entity_info){
     for (int j = 0; j < entity_info.faces_.size(); ++j)
-    {
+	{
       for (int k = 0; k < entity_info.faces_[j].face_num_; ++k)
       {
 		  if (!XmlGeomUtils::NormalEqual(entity_info.faces_[j].vertices_[k * 3].vertex_,
