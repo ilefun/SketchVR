@@ -7,6 +7,8 @@
 #include <SketchUpAPI/model/image_rep.h>
 #include <SketchUpAPI/model/face.h>
 #include <SketchUpAPI/model/drawing_element.h>
+#include <SketchUpAPI/model/component_instance.h>
+#include <SketchUpAPI/model/group.h>
 
 #include <cassert>
 #include <vector>
@@ -264,11 +266,27 @@ void ExportUtils::ClearFaceMaterial(std::vector<SUFaceRef> &faces, const std::ve
 	}
 }
 
-bool ExportUtils::IsFaceHidden(SUFaceRef face) {
+bool ExportUtils::IsGeoHidden(SUFaceRef face) {
 
 	SUDrawingElementRef elem = SUFaceToDrawingElement(face);
 	bool hide_flag=false;
 	SU_CALL(SUDrawingElementGetHidden(elem, &hide_flag));
 	return hide_flag;
 
+}
+
+bool ExportUtils::IsGeoHidden(SUComponentInstanceRef instance)
+{
+	SUDrawingElementRef elem = SUComponentInstanceToDrawingElement(instance);
+	bool hide_flag = false;
+	SU_CALL(SUDrawingElementGetHidden(elem, &hide_flag));
+	return hide_flag;
+}
+
+bool ExportUtils::IsGeoHidden(SUGroupRef group)
+{
+	SUDrawingElementRef elem = SUGroupToDrawingElement(group);
+	bool hide_flag = false;
+	SU_CALL(SUDrawingElementGetHidden(elem, &hide_flag));
+	return hide_flag;
 }

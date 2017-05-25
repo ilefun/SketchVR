@@ -516,6 +516,8 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 	//#pragma omp parallel for num_threads(2)
     for (int c = 0; c < int(num_instances); c++) {
       SUComponentInstanceRef instance = instances[c];
+	  if (ExportUtils::IsGeoHidden(instance)) continue;
+
       SUComponentDefinitionRef definition = SU_INVALID;
       SU_CALL(SUComponentInstanceGetDefinition(instance, &definition));
 
@@ -564,6 +566,8 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
     SU_CALL(SUEntitiesGetGroups(entities, num_groups, &groups[0], &num_groups));
     for (size_t g = 0; g < num_groups; g++) {
       SUGroupRef group = groups[g];
+	  if (ExportUtils::IsGeoHidden(group)) continue;
+
       SUEntitiesRef group_entities = SU_INVALID;
       SU_CALL(SUGroupGetEntities(group, &group_entities));
 
@@ -595,6 +599,8 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 		ExportUtils::CheckFaceMaterial(faces, current_mat,face_no_material);
 
       for (size_t i = 0; i < num_faces; i++) {
+		 if (ExportUtils::IsGeoHidden(faces[i])) continue;
+
         inheritance_manager_.PushElement(faces[i]);
         WriteFace(faces[i],entity_info);
         inheritance_manager_.PopElement();
@@ -641,8 +647,6 @@ void CXmlExporter::WriteFace(SUFaceRef face,XmlEntitiesInfo *entity_info) {
   if (SUIsInvalid(face))
     return;
   
-  if(ExportUtils::IsFaceHidden(face)) return;
-
   XmlFaceInfo info;
 
   // Get Current layer off of our stack and then get the id from it

@@ -48,7 +48,12 @@ struct ExportUtils
 
 	static void ClearFaceMaterial(std::vector<SUFaceRef> &faces, const std::vector<std::pair<size_t, bool>> &face_no_material);
 
-	static bool IsFaceHidden(SUFaceRef face);
+	static bool IsGeoHidden(SUFaceRef face);
+
+	static bool IsGeoHidden(SUComponentInstanceRef instance);
+	
+	static bool IsGeoHidden(SUGroupRef group);
+
 };
 
 #endif // SKPTOXML_EXPORTER_EXPORTUTILS_H
