@@ -668,19 +668,23 @@ void CXmlExporter::WriteFace(SUFaceRef face,XmlEntitiesInfo *entity_info) {
       info.has_front_texture_ =
           SUMaterialGetTexture(front_material, &texture_ref) == SU_ERROR_NONE;
     }
-    SUMaterialRef back_material =
-        inheritance_manager_.GetCurrentBackMaterial();
-    if (!SUIsInvalid(back_material)) {
-      // Material name
-      info.back_mat_name_ = ExportUtils::GetMaterialName(back_material);
 
-      // Has texture ?
-      SUTextureRef texture_ref = SU_INVALID;
-      info.has_back_texture_ =
-          SUMaterialGetTexture(back_material, &texture_ref) == SU_ERROR_NONE;
+    if(options_.get_both_sides())
+    {
+      SUMaterialRef back_material =
+          inheritance_manager_.GetCurrentBackMaterial();
+      if (!SUIsInvalid(back_material)) {
+        // Material name
+        info.back_mat_name_ = ExportUtils::GetMaterialName(back_material);
+
+        // Has texture ?
+        SUTextureRef texture_ref = SU_INVALID;
+        info.has_back_texture_ =
+            SUMaterialGetTexture(back_material, &texture_ref) == SU_ERROR_NONE;
+      }
     }
   }
-  bool has_texture = info.has_front_texture_ || info.has_back_texture_;
+  // bool has_texture = info.has_front_texture_ || (info.has_back_texture_ && options_.export_both_sides_);
 
   // Get face normal
   SUVector3D face_normal;
@@ -771,7 +775,7 @@ void CXmlExporter::WriteFace(SUFaceRef face,XmlEntitiesInfo *entity_info) {
 
     // Get UV coords.
     std::vector<SUPoint3D> front_stq(num_vertices);
-    std::vector<SUPoint3D> back_stq(num_vertices);
+    std::vector<SUPoint3D> back_stq;
     size_t count;
     if (info.has_front_texture_) {
       SU_CALL(SUMeshHelperGetFrontSTQCoords(mesh_ref, num_vertices,
@@ -779,6 +783,7 @@ void CXmlExporter::WriteFace(SUFaceRef face,XmlEntitiesInfo *entity_info) {
     }
 
     if (info.has_back_texture_) {
+      back_stq.resize(num_vertices);
       SU_CALL(SUMeshHelperGetBackSTQCoords(mesh_ref, num_vertices,
                                            &back_stq[0], &count));
     }

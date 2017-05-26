@@ -13,6 +13,7 @@ class CXmlOptions {
    export_layers_ = true;
    export_options_ = false;
    triangle_face_ = false;
+   export_both_sides_= false;
   }
 
   virtual ~CXmlOptions(void) {}
@@ -26,12 +27,8 @@ class CXmlOptions {
   inline bool export_edges() const { return export_edges_; }
   inline void set_export_edges(bool value) { export_edges_ = value; }
 
-  inline bool export_materials_by_layer() const {
-      return export_materials_by_layer_;
-  }
-  inline void set_export_materials_by_layer(bool value) {
-      export_materials_by_layer_ = value;
-  }
+  inline bool export_materials_by_layer() const {return export_materials_by_layer_; }
+  inline void set_export_materials_by_layer(bool value) {export_materials_by_layer_ = value; }
 
   inline bool export_layers() const { return export_layers_; }
   inline void set_export_layers(bool value) { export_layers_ = value; }
@@ -42,6 +39,9 @@ class CXmlOptions {
   inline bool get_triangle() const { return triangle_face_; }
   inline void set_triangle(bool value) { triangle_face_ = value; }
 
+  inline bool get_both_sides() const { return export_both_sides_; }
+  inline void set_both_sides(bool value) { export_both_sides_ = value; }
+
  private:
   bool export_materials_;
   bool export_faces_;
@@ -50,6 +50,8 @@ class CXmlOptions {
   bool export_layers_;
   bool export_options_;
   bool triangle_face_;
+  bool export_both_sides_;
+
 };
 
 #endif // SKPTOXML_COMMON_XMLOPTIONS_H

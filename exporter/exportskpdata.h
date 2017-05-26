@@ -40,7 +40,7 @@ EXPORT  int GetGroupNum(CXmlExporter *exporter);
 
 
 //get exporter instance for specified skp file,start with it
-EXPORT CXmlExporter* GetExporter(const char *from_file);
+EXPORT CXmlExporter* GetExporter(const char *from_file,bool both_sides=true);
 
 //release memory,end with it
 EXPORT void ReleaseExporter(CXmlExporter *exporter);

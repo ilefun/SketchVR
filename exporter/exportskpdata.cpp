@@ -117,7 +117,7 @@ void GetFaceMaterialData(CXmlExporter *exporter,
 	}
 }
 
-EXPORT CXmlExporter* GetExporter(const char *from_file)
+EXPORT CXmlExporter* GetExporter(const char *from_file,bool both_sides)
 {
 	bool m_bExportMaterials = true;
 	bool m_bExportFaces = true;
@@ -127,6 +127,7 @@ EXPORT CXmlExporter* GetExporter(const char *from_file)
 	bool m_bExportOptions = true;
 	bool m_bExportSelectionSet = false;
 	bool m_bTriangleFace = true;
+	bool m_both_sides = both_sides;
 	// int m_bExportMaxVertexNumPerGroup = 50000;
 
 	bool converted = false;
@@ -141,6 +142,7 @@ EXPORT CXmlExporter* GetExporter(const char *from_file)
 		options.set_export_layers(m_bExportLayers);
 		options.set_export_options(m_bExportOptions);
 		options.set_triangle(m_bTriangleFace);
+		options.set_both_sides(m_both_sides);
 		exporter->SetOptions(options);
 		// exporter->SetMaxVertexNumPerGroup(m_bExportMaxVertexNumPerGroup);
 		

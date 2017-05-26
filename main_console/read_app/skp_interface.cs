@@ -16,7 +16,7 @@ namespace SkpInterface
         public static unsafe extern IntPtr GetExporter(IntPtr from_file);
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern void ReleaseExporter(IntPtr exporter);
+        public static unsafe extern void ReleaseExporter(IntPtr exporter,bool both_sides=true);
 
 
         //group data func
