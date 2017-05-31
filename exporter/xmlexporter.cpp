@@ -530,33 +530,36 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 	  SUEntitiesRef  instance_entities = SU_INVALID;
 	  SU_CALL(SUComponentDefinitionGetEntities(definition, &instance_entities));
 
+	  //push element------------------
+	inheritance_manager_.PushElement(instance);
 
+	// Write entities
+	WriteEntities(instance_entities, info.entities_);
+	entity_info->groups_.push_back(info);
+
+	//pop element-------------------
+	inheritance_manager_.PopElement();
 
 #ifdef PRINT_SKP_DATA
-	  std::cout << "\tInstance Index : " << c << " Name : " << StringConvertUtils::UTF8_To_string(definition_name) << std::endl;
-	  std::cout << "\tXform : " << endl;
-	  for (size_t i = 0; i < 4; i++) {
-		  cout << "\t\t";
-		  for (size_t j = 0; j < 4; j++)
-		  {
-			  std::cout << info.transform_.values[i * 4 + j] << " ";
+		  std::cout << "\tInstance Index : " << c << " Name : " << StringConvertUtils::UTF8_To_string(definition_name) << std::endl;
+		  std::cout << "\tFace num : " << info.entities_->faces_.size() << std::endl;
+		  std::cout << "\tXform : " << endl;
+		  for (size_t i = 0; i < 4; i++) {
+			  cout << "\t\t";
+			  for (size_t j = 0; j < 4; j++)
+			  {
+				  std::cout << info.transform_.values[i * 4 + j] << " ";
+			  }
+			  cout << endl;
 		  }
-		  cout << endl;
-	  }
-	  std::cout << endl << endl;
+		  std::cout << endl << endl;
 #endif // PRINT_SKP_DATA
-
-	  //push element------------------
-		  inheritance_manager_.PushElement(instance);
-
-		  // Write entities
-		  WriteEntities(instance_entities, info.entities_);
-		  entity_info->groups_.push_back(info);
-
-		  //pop element-------------------
-		  inheritance_manager_.PopElement();
 	 }
   }
+
+  //size_t num_planes = 0;
+	 // SU_CALL(SUEntitiesGetNumPolyline3ds(entities, &num_planes));
+	 // cout << num_planes << "+++" << endl;
 
   // Groups
   size_t num_groups = 0;
@@ -589,6 +592,7 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
   if (options_.export_faces()) {
     size_t num_faces = 0;
     SU_CALL(SUEntitiesGetNumFaces(entities, &num_faces));
+
     if (num_faces > 0) {
       std::vector<SUFaceRef> faces(num_faces);
       SU_CALL(SUEntitiesGetFaces(entities, num_faces, &faces[0], &num_faces));
