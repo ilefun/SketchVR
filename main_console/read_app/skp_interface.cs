@@ -13,10 +13,10 @@ namespace SkpInterface
     {
         //get exporter
         [DllImport("SkpReader", ExactSpelling = true,CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern IntPtr GetExporter(IntPtr from_file);
+        public static unsafe extern IntPtr GetExporter(IntPtr from_file,bool both_sides=true);
 
         [DllImport("SkpReader", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern void ReleaseExporter(IntPtr exporter,bool both_sides=true);
+        public static unsafe extern void ReleaseExporter(IntPtr exporter);
 
 
         //group data func
