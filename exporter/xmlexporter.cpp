@@ -557,10 +557,6 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 	 }
   }
 
-  //size_t num_planes = 0;
-	 // SU_CALL(SUEntitiesGetNumPolyline3ds(entities, &num_planes));
-	 // cout << num_planes << "+++" << endl;
-
   // Groups
   size_t num_groups = 0;
   SU_CALL(SUEntitiesGetNumGroups(entities, &num_groups));
@@ -613,6 +609,18 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 	  if (SUIsValid(current_mat))
 		  ExportUtils::ClearFaceMaterial(faces, face_no_material);
     }
+  }
+
+  //Images
+  size_t num_images = 0;
+  SU_CALL(SUEntitiesGetNumImages(entities, &num_images));
+  if (num_images > 0)
+  {
+	  std::vector<SUImageRef> images(num_images);
+	  SU_CALL(SUEntitiesGetImages(entities, num_images, &images[0], &num_images));
+	  for (size_t i = 0; i < num_images; i++) {
+		  ExportUtils::GetImageObject(images[i]);
+	  }
   }
 
   //// Edges

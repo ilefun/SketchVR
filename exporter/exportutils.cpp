@@ -265,7 +265,25 @@ void ExportUtils::ClearFaceMaterial(std::vector<SUFaceRef> &faces, const std::ve
 
 	}
 }
+void ExportUtils::GetImageObject(SUImageRef image)
+{
+	SUTransformation transform;
+	SUImageGetTransform(image, &transform);
+#ifdef PRINT_SKP_DATA
 
+	std::cout << "\tXform : " << endl;
+	for (size_t i = 0; i < 4; i++) {
+		cout << "\t\t";
+		for (size_t j = 0; j < 4; j++)
+		{
+			std::cout << transform.values[i * 4 + j] << " ";
+		}
+		cout << endl;
+	}
+	std::cout << endl << endl;
+#endif // PRINT_SKP_DATA
+
+}
 bool ExportUtils::IsGeoHidden(SUFaceRef face) {
 
 	SUDrawingElementRef elem = SUFaceToDrawingElement(face);
