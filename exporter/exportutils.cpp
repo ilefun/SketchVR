@@ -80,6 +80,77 @@ void ExportUtils::GetTexturePixel(const TextureInfo &tex_info,
   }
 }
 
+int ExportUtils::GetImageTextureInfo(SUImageRef image,
+                                            std::unordered_map<std::string, TextureInfo> &texture_map ,
+                                            std::vector<XmlMaterialInfo> &materials,
+                                            std::unordered_map<std::string, int> &matname_id_map)
+{
+    CSUString texture_path;
+    SUImageGetFileName(image,texture_path);
+    std::string tex_path = texture_path.utf8();
+    std::string texture_key=std::string("image_object.")+tex_path;
+
+    if(matname_id_map.count(texture_key))
+      return matname_id_map[texture_key];
+
+    XmlMaterialInfo info;
+    info.has_texture_=true;
+    info.name_=texture_key;
+    info.texture_key_=texture_key; 
+    
+    if(!texture_map.count(texture_key))
+    {
+      TextureInfo tex_info;
+      tex_info.texture_path_=tex_path;
+
+      // Texture scale
+      size_t width = 0;
+      size_t height = 0;
+
+      SU_CALL(SUImageGetPixelDimensions(image,&width,&height));
+      tex_info.texture_sscale_ = 0.0;
+      tex_info.texture_tscale_ = 0.0;
+      tex_info.width_ = width;
+      tex_info.height_ = height;
+
+        //Texture data
+        //allocate new image_rep
+      SUImageRepRef image_rep;
+      SUSetInvalid(image_rep);
+      SU_CALL(SUImageRepCreate(&image_rep));
+      SUImageGetImageRep(image, &image_rep);
+
+      size_t data_size=0, bits_per_pixel=0;
+      SU_CALL(SUImageRepGetDataSize(image_rep,&data_size,&bits_per_pixel));
+      tex_info.origin_bits_per_pixel_ = bits_per_pixel;
+
+      if (bits_per_pixel == 24)
+      {
+        //to fix jpg bug,we convert all images to 32 bit
+        SUImageRepConvertTo32BitsPerPixel(image_rep);
+        SU_CALL(SUImageRepGetDataSize(image_rep, &data_size, &bits_per_pixel));
+      }
+
+      tex_info.data_size_=data_size;
+      tex_info.bits_per_pixel_=bits_per_pixel;
+      // int image_size = width*height*bits_per_pixel / 8;
+      tex_info.pixel_data_=new SUByte[data_size];
+      SU_CALL(SUImageRepGetData(image_rep, data_size,tex_info.pixel_data_));
+      
+      texture_map[texture_key]=tex_info;
+
+      //release image_rep
+      if (!SUIsInvalid(image_rep)) {
+        SUImageRepRelease(&image_rep);
+        SUSetInvalid(image_rep);
+      }
+    }
+
+    materials.push_back(info);
+    matname_id_map[texture_key]=materials.size()-1;
+    return matname_id_map[texture_key];
+}
+
 XmlMaterialInfo ExportUtils::GetMaterialInfo(SUMaterialRef material,                                          
                                             std::unordered_map<std::string, TextureInfo> &texture_map) {
   assert(!SUIsInvalid(material));
@@ -269,8 +340,11 @@ void ExportUtils::GetImageObject(SUImageRef image)
 {
 	SUTransformation transform;
 	SUImageGetTransform(image, &transform);
-#ifdef PRINT_SKP_DATA
+  double width,height;
+  SUImageGetDimensions(image,&width,&height);
 
+#ifdef PRINT_SKP_DATA
+  std::cout<<width<<" "<<height<<endl;
 	std::cout << "\tXform : " << endl;
 	for (size_t i = 0; i < 4; i++) {
 		cout << "\t\t";

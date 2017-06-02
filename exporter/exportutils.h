@@ -33,6 +33,10 @@ struct ExportUtils
 								float green,
 								float blue);
 
+	int GetImageTextureInfo(SUImageRef image,
+                            std::unordered_map<std::string, TextureInfo> &texture_map ,
+                            std::vector<XmlMaterialInfo> &materials,
+                            std::unordered_map<std::string, int> &matname_id_map);
 
     //get material info from materialref
     static XmlMaterialInfo GetMaterialInfo(SUMaterialRef material,
