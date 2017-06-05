@@ -33,7 +33,7 @@ struct ExportUtils
 								float green,
 								float blue);
 
-	int GetImageTextureInfo(SUImageRef image,
+	static int GetImageTextureInfo(SUImageRef image,
                             std::unordered_map<std::string, TextureInfo> &texture_map ,
                             std::vector<XmlMaterialInfo> &materials,
                             std::unordered_map<std::string, int> &matname_id_map);
@@ -53,7 +53,7 @@ struct ExportUtils
 
 	static void ClearFaceMaterial(std::vector<SUFaceRef> &faces, const std::vector<std::pair<size_t, bool>> &face_no_material);
 
-	static void GetImageObject(SUImageRef image);
+	static void GetVerticesFromRectangle(int width, int height, const SUTransformation &transform, std::vector<XmlFaceVertex> &out_vertices);
 
 	static bool IsGeoHidden(SUFaceRef face);
 

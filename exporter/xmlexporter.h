@@ -77,6 +77,7 @@ private:
   void WriteFace(SUFaceRef face,XmlEntitiesInfo *entity_info);
   void WriteEdge(SUEdgeRef edge,XmlEntitiesInfo *entity_info);
   void WriteCurve(SUCurveRef curve,XmlEntitiesInfo *entity_info);
+  void WriteImageObject(SUImageRef image,XmlEntitiesInfo *entity_info);
 
   XmlEdgeInfo GetEdgeInfo(SUEdgeRef edge) const;
 

@@ -619,7 +619,7 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 	  std::vector<SUImageRef> images(num_images);
 	  SU_CALL(SUEntitiesGetImages(entities, num_images, &images[0], &num_images));
 	  for (size_t i = 0; i < num_images; i++) {
-		  ExportUtils::GetImageObject(images[i]);
+		  WriteImageObject(images[i], entity_info);
 	  }
   }
 
@@ -653,6 +653,27 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
   //    }
   //  }
   //}
+}
+
+void CXmlExporter::WriteImageObject(SUImageRef image, XmlEntitiesInfo *entity_info)
+{
+	int mat_id=ExportUtils::GetImageTextureInfo(image, skpdata_.texture_map_, skpdata_.materials_, skpdata_.matname_id_map_);
+
+	XmlFaceInfo info;
+	info.front_mat_name_ = skpdata_.materials_[mat_id].name_;
+	info.back_mat_name_ = skpdata_.materials_[mat_id].name_;
+    cout << info.front_mat_name_<<endl;
+	//auto tex = skpdata_.texture_map_[skpdata_.materials_[mat_id].texture_key_];
+	//SUTransformation transform;
+	//SUImageGetTransform(image, &transform);
+
+	//ExportUtils::GetVerticesFromRectangle(tex.width_,
+	//										tex.height_, 
+	//										transform,
+	//										info.vertices_);
+	//entity_info->faces_.push_back(info);
+
+ //   stats_.AddFace();
 }
 
 void CXmlExporter::WriteFace(SUFaceRef face,XmlEntitiesInfo *entity_info) {

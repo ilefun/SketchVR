@@ -88,7 +88,9 @@ int ExportUtils::GetImageTextureInfo(SUImageRef image,
     CSUString texture_path;
     SUImageGetFileName(image,texture_path);
     std::string tex_path = texture_path.utf8();
-    std::string texture_key=std::string("image_object.")+tex_path;
+    auto tmp_str=StringConvertUtils::replace_all(tex_path,string("\\"),string("_"));
+    tmp_str = StringConvertUtils::replace_all(tmp_str, string(":"), string("_"));
+    std::string texture_key=std::string("image_object__")+ StringConvertUtils::replace_all(tmp_str, string("."), string("_"));
 
     if(matname_id_map.count(texture_key))
       return matname_id_map[texture_key];
@@ -107,18 +109,18 @@ int ExportUtils::GetImageTextureInfo(SUImageRef image,
       size_t width = 0;
       size_t height = 0;
 
-      SU_CALL(SUImageGetPixelDimensions(image,&width,&height));
-      tex_info.texture_sscale_ = 0.0;
-      tex_info.texture_tscale_ = 0.0;
-      tex_info.width_ = width;
-      tex_info.height_ = height;
-
-        //Texture data
-        //allocate new image_rep
+      //Texture data
+      //allocate new image_rep
       SUImageRepRef image_rep;
       SUSetInvalid(image_rep);
       SU_CALL(SUImageRepCreate(&image_rep));
       SUImageGetImageRep(image, &image_rep);
+
+      SU_CALL(SUImageRepGetPixelDimensions(image_rep,&width,&height));
+      tex_info.texture_sscale_ = 0.0;
+      tex_info.texture_tscale_ = 0.0;
+      tex_info.width_ = width;
+      tex_info.height_ = height;
 
       size_t data_size=0, bits_per_pixel=0;
       SU_CALL(SUImageRepGetDataSize(image_rep,&data_size,&bits_per_pixel));
@@ -336,28 +338,24 @@ void ExportUtils::ClearFaceMaterial(std::vector<SUFaceRef> &faces, const std::ve
 
 	}
 }
-void ExportUtils::GetImageObject(SUImageRef image)
+
+void ExportUtils::GetVerticesFromRectangle(int width,int height, const SUTransformation &transform,std::vector<XmlFaceVertex> &out_vertices)
 {
-	SUTransformation transform;
-	SUImageGetTransform(image, &transform);
-  double width,height;
-  SUImageGetDimensions(image,&width,&height);
-
 #ifdef PRINT_SKP_DATA
-  std::cout<<width<<" "<<height<<endl;
-	std::cout << "\tXform : " << endl;
-	for (size_t i = 0; i < 4; i++) {
-		cout << "\t\t";
-		for (size_t j = 0; j < 4; j++)
-		{
-			std::cout << transform.values[i * 4 + j] << " ";
-		}
-		cout << endl;
-	}
-	std::cout << endl << endl;
+    std::cout << width << " " << height << endl;
+    std::cout << "\tXform : " << endl;
+    for (size_t i = 0; i < 4; i++) {
+        cout << "\t\t";
+        for (size_t j = 0; j < 4; j++)
+        {
+            std::cout << transform.values[i * 4 + j] << " ";
+        }
+        cout << endl;
+    }
+    std::cout << endl << endl;
 #endif // PRINT_SKP_DATA
-
 }
+
 bool ExportUtils::IsGeoHidden(SUFaceRef face) {
 
 	SUDrawingElementRef elem = SUFaceToDrawingElement(face);
