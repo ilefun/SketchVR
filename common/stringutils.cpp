@@ -54,6 +54,41 @@ std::string StringConvertUtils::string_To_UTF8(const std::string & str)
   return retStr;
 }
 
+std::vector<std::string> StringConvertUtils::splitpath(const std::string& str , const std::set<char> delimiters)
+{
+  std::vector<std::string> result;
+
+  char const* pch = str.c_str();
+  char const* start = pch;
+  for(; *pch; ++pch)
+  {
+    if (delimiters.find(*pch) != delimiters.end())
+    {
+      if (start != pch)
+      {
+        std::string str(start, pch);
+        result.push_back(str);
+      }
+      else
+      {
+        result.push_back("");
+      }
+      start = pch + 1;
+    }
+  }
+  result.push_back(start);
+
+  return result;
+}
+
+std::string StringConvertUtils::file_name(const std::string &path)
+{
+    std::set<char> delims{ '\\' };
+    std::vector<std::string> path_sp = splitpath(path, delims);
+    return path_sp.back();
+
+}
+
 string&   StringConvertUtils::replace_all(string&   str,const   string&   old_value,const   string&   new_value)   
 {   
     while(true)   {   

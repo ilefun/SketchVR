@@ -666,11 +666,13 @@ void CXmlExporter::WriteImageObject(SUImageRef image, XmlEntitiesInfo *entity_in
 	auto tex = skpdata_.texture_map_[skpdata_.materials_[mat_id].texture_key_];
 	SUTransformation transform;
 	SUImageGetTransform(image, &transform);
-  
-  info.face_num_=2;
-  info.face_normal_.SetDirection(0,0,1);
-  info.face_normal_.Transform(transform.values);
-  info.has_single_loop_=false;
+    info.has_back_texture_ = true;
+    info.has_front_texture_ = true;
+
+    info.face_num_=2;
+    info.face_normal_.SetDirection(0,0,1);
+    info.face_normal_.Transform(transform.values);
+    info.has_single_loop_=false;
 
 	ExportUtils::GetVerticesFromRectangle(tex.width_,
 											tex.height_, 

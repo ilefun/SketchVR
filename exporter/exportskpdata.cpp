@@ -269,7 +269,7 @@ EXPORT int GetMaterialNum(CXmlExporter *exporter)
 }
 
 EXPORT const bool GetMaterialNameByID(CXmlExporter *exporter,int id,char *mat_name){
-	strcpy_s(mat_name, exporter->skpdata_.materials_[id].name_.length(), exporter->skpdata_.materials_[id].name_.c_str());
+	strcpy_s(mat_name,sizeof(exporter->skpdata_.materials_[id].name_), exporter->skpdata_.materials_[id].name_.c_str());
 	return true;
 }
 

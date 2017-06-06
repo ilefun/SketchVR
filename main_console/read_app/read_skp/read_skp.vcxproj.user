@@ -8,6 +8,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerCommand>D:\sketchup\skp\SketchVR\bin\read_skp_debug.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>D:\sketchup\test_skp_file\2nd_period\170430-绕轴旋转.skp &gt; D:\sketchup\test_skp_file\2nd_period\170430-绕轴旋转.txt</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>D:\sketchup\test_skp_file\2nd_period\植物材质02.skp &gt; D:\sketchup\test_skp_file\2nd_period\植物材质02.txt</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

@@ -88,9 +88,11 @@ int ExportUtils::GetImageTextureInfo(SUImageRef image,
     CSUString texture_path;
     SUImageGetFileName(image,texture_path);
     std::string tex_path = texture_path.utf8();
-    auto tmp_str=StringConvertUtils::replace_all(tex_path,string("\\"),string("_"));
-    tmp_str = StringConvertUtils::replace_all(tmp_str, string(":"), string("_"));
-    std::string texture_key=std::string("image_object__")+ StringConvertUtils::replace_all(tmp_str, string("."), string("_"));
+
+    std::hash<std::string> h;
+    auto path_hash_str=std::to_string(int(h(tex_path)));
+    std::string texture_key=std::string("image_object__")+ path_hash_str;
+    cout << texture_key << endl;
 
     if(matname_id_map.count(texture_key))
       return matname_id_map[texture_key];
@@ -128,10 +130,11 @@ int ExportUtils::GetImageTextureInfo(SUImageRef image,
 
       if (bits_per_pixel == 24)
       {
-        //to fix jpg bug,we convert all images to 32 bit
-        SUImageRepConvertTo32BitsPerPixel(image_rep);
-        SU_CALL(SUImageRepGetDataSize(image_rep, &data_size, &bits_per_pixel));
+          //to fix jpg bug,we convert all images to 32 bit
+          SUImageRepConvertTo32BitsPerPixel(image_rep);
+          SU_CALL(SUImageRepGetDataSize(image_rep, &data_size, &bits_per_pixel));
       }
+
 
       tex_info.data_size_=data_size;
       tex_info.bits_per_pixel_=bits_per_pixel;
@@ -341,30 +344,35 @@ void ExportUtils::ClearFaceMaterial(std::vector<SUFaceRef> &faces, const std::ve
 
 void ExportUtils::GetVerticesFromRectangle(int width,
                                 int height,
-                                const SUTransformation &transform,
+                                SUTransformation &transform,
                                 std::vector<XmlFaceVertex> &out_vertices)
 {
     XmlFaceVertex vertex_info[4];
     vertex_info[0].vertex_.SetLocation(0,0,0);
     vertex_info[0].vertex_.Transform(transform.values);
-    vertex_info[0].front_texture_coord_ = CPoint3d(0,0, 0);
+    vertex_info[0].front_texture_coord_.SetLocation(0,0,0);
+    vertex_info[0].back_texture_coord_.SetLocation(0,0,0);
 
     vertex_info[1].vertex_.SetLocation(width,0,0);
     vertex_info[1].vertex_.Transform(transform.values);
-    vertex_info[1].front_texture_coord_ = CPoint3d(1,0, 0);
+    vertex_info[1].front_texture_coord_.SetLocation(1,0, 0);
+    vertex_info[1].back_texture_coord_.SetLocation(1,0, 0);
 
     vertex_info[2].vertex_.SetLocation(width,height,0);
     vertex_info[2].vertex_.Transform(transform.values);
-    vertex_info[2].front_texture_coord_ = CPoint3d(1,1, 0);
+    vertex_info[2].front_texture_coord_.SetLocation(1,1, 0);
+    vertex_info[2].back_texture_coord_.SetLocation(1,1, 0);
 
     vertex_info[3].vertex_.SetLocation(0,height,0);
     vertex_info[3].vertex_.Transform(transform.values);
-    vertex_info[3].front_texture_coord_ = CPoint3d(0,1, 0);
+    vertex_info[3].front_texture_coord_.SetLocation(0,1, 0);
+    vertex_info[3].back_texture_coord_.SetLocation(0,1, 0);
 
-    int id_list[6]={0,1,3,1,2,3};
+    int id_list[6]={1,3,0,3,1,2};
     for (int i = 0; i < 6; ++i)
     {
-      out_vertices.push_back(vertex_info[i]);
+        //cout << vertex_info[id_list[i]].vertex_.x() << " " << vertex_info[id_list[i]].vertex_.y() << " " << vertex_info[id_list[i]].vertex_.z() << endl;
+      out_vertices.push_back(vertex_info[id_list[i]]);
     }
 }
 

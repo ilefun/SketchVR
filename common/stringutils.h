@@ -3,12 +3,17 @@
 
 #include <string>
 #include <SketchUpAPI/unicodestring.h>
+#include <set>
+#include <vector>
 
 using namespace std;
 struct StringConvertUtils
 {
   static std::string UTF8_To_string(const std::string & str);
   static std::string string_To_UTF8(const std::string & str);
+  static std::vector<std::string> splitpath(const std::string& str, const std::set<char> delimiters);
+  static std::string file_name(const std::string &path);
+
   static string&   StringConvertUtils::replace_all(string&   str,const   string&   old_value,const   string&   new_value)  ;
   static string&   StringConvertUtils::replace_all_distinct(string&   str,const   string&   old_value,const   string&   new_value);
 

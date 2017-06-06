@@ -65,8 +65,8 @@ void face_uv(CXmlExporter *exporter, bool front_or_back, int group_id) {
 	else
 		cout << "[Back UV]" << endl;
 		cout << "UV num is : " << uv_num << endl;
-	//for (int j = 0; j < uv_num; j++)
-	//	cout << u[j] << " " << v[j] << endl;
+	for (int j = 0; j < uv_num; j++)
+		cout << u[j] << " " << v[j] << endl;
 
 	cout << endl << "Debug face uv data print ends------------------" << endl;
 
@@ -150,7 +150,10 @@ void material(CXmlExporter *exporter) {
 		#endif
 		_ASSERTE(_CrtCheckMemory());
 		if(data_size && pixel_data)
+		{
 			delete pixel_data;
+			pixel_data=NULL;
+		}
 	}
 }
 

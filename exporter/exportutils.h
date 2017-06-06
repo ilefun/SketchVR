@@ -53,7 +53,7 @@ struct ExportUtils
 
 	static void ClearFaceMaterial(std::vector<SUFaceRef> &faces, const std::vector<std::pair<size_t, bool>> &face_no_material);
 
-	static void GetVerticesFromRectangle(int width, int height, const SUTransformation &transform, std::vector<XmlFaceVertex> &out_vertices);
+	static void GetVerticesFromRectangle(int width, int height, SUTransformation &transform, std::vector<XmlFaceVertex> &out_vertices);
 
 	static bool IsGeoHidden(SUFaceRef face);
 
