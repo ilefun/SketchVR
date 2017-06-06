@@ -662,18 +662,24 @@ void CXmlExporter::WriteImageObject(SUImageRef image, XmlEntitiesInfo *entity_in
 	XmlFaceInfo info;
 	info.front_mat_name_ = skpdata_.materials_[mat_id].name_;
 	info.back_mat_name_ = skpdata_.materials_[mat_id].name_;
-    cout << info.front_mat_name_<<endl;
-	//auto tex = skpdata_.texture_map_[skpdata_.materials_[mat_id].texture_key_];
-	//SUTransformation transform;
-	//SUImageGetTransform(image, &transform);
 
-	//ExportUtils::GetVerticesFromRectangle(tex.width_,
-	//										tex.height_, 
-	//										transform,
-	//										info.vertices_);
-	//entity_info->faces_.push_back(info);
+	auto tex = skpdata_.texture_map_[skpdata_.materials_[mat_id].texture_key_];
+	SUTransformation transform;
+	SUImageGetTransform(image, &transform);
+  
+  info.face_num_=2;
+  info.face_normal_.SetDirection(0,0,1);
+  info.face_normal_.Transform(transform.values);
+  info.has_single_loop_=false;
 
- //   stats_.AddFace();
+	ExportUtils::GetVerticesFromRectangle(tex.width_,
+											tex.height_, 
+											transform,
+											info.vertices_);
+	
+  entity_info->faces_.push_back(info);
+
+  stats_.AddFace();
 }
 
 void CXmlExporter::WriteFace(SUFaceRef face,XmlEntitiesInfo *entity_info) {

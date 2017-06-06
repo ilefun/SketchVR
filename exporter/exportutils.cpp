@@ -339,21 +339,33 @@ void ExportUtils::ClearFaceMaterial(std::vector<SUFaceRef> &faces, const std::ve
 	}
 }
 
-void ExportUtils::GetVerticesFromRectangle(int width,int height, const SUTransformation &transform,std::vector<XmlFaceVertex> &out_vertices)
+void ExportUtils::GetVerticesFromRectangle(int width,
+                                int height,
+                                const SUTransformation &transform,
+                                std::vector<XmlFaceVertex> &out_vertices)
 {
-#ifdef PRINT_SKP_DATA
-    std::cout << width << " " << height << endl;
-    std::cout << "\tXform : " << endl;
-    for (size_t i = 0; i < 4; i++) {
-        cout << "\t\t";
-        for (size_t j = 0; j < 4; j++)
-        {
-            std::cout << transform.values[i * 4 + j] << " ";
-        }
-        cout << endl;
+    XmlFaceVertex vertex_info[4];
+    vertex_info[0].vertex_.SetLocation(0,0,0);
+    vertex_info[0].vertex_.Transform(transform.values);
+    vertex_info[0].front_texture_coord_ = CPoint3d(0,0, 0);
+
+    vertex_info[1].vertex_.SetLocation(width,0,0);
+    vertex_info[1].vertex_.Transform(transform.values);
+    vertex_info[1].front_texture_coord_ = CPoint3d(1,0, 0);
+
+    vertex_info[2].vertex_.SetLocation(width,height,0);
+    vertex_info[2].vertex_.Transform(transform.values);
+    vertex_info[2].front_texture_coord_ = CPoint3d(1,1, 0);
+
+    vertex_info[3].vertex_.SetLocation(0,height,0);
+    vertex_info[3].vertex_.Transform(transform.values);
+    vertex_info[3].front_texture_coord_ = CPoint3d(0,1, 0);
+
+    int id_list[6]={0,1,3,1,2,3};
+    for (int i = 0; i < 6; ++i)
+    {
+      out_vertices.push_back(vertex_info[i]);
     }
-    std::cout << endl << endl;
-#endif // PRINT_SKP_DATA
 }
 
 bool ExportUtils::IsGeoHidden(SUFaceRef face) {
