@@ -518,25 +518,27 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       SUComponentInstanceRef instance = instances[c];
 	  if (ExportUtils::IsGeoHidden(instance)) continue;
 
-      SUComponentDefinitionRef definition = SU_INVALID;
-      SU_CALL(SUComponentInstanceGetDefinition(instance, &definition));
 
-	  auto definition_name = ExportUtils::GetComponentDefinitionName(definition);
+          SUComponentDefinitionRef definition = SU_INVALID;
+          SU_CALL(SUComponentInstanceGetDefinition(instance, &definition));
 
-	  // Write transformation
-	  XmlGroupInfo info;
-    SU_CALL(SUComponentInstanceGetTransform(instance,&info.transform_));
-    info.component_name_=definition_name;
-	  SUEntitiesRef  instance_entities = SU_INVALID;
-	  SU_CALL(SUComponentDefinitionGetEntities(definition, &instance_entities));
+	      auto definition_name = ExportUtils::GetComponentDefinitionName(definition);
 
-	  //push element------------------
-	inheritance_manager_.PushElement(instance);
+	      // Write transformation
+	      XmlGroupInfo info;
+        SU_CALL(SUComponentInstanceGetTransform(instance,&info.transform_));
+        info.component_name_=definition_name;
+	      SUEntitiesRef  instance_entities = SU_INVALID;
+	      SU_CALL(SUComponentDefinitionGetEntities(definition, &instance_entities));
 
-	// Write entities
-	WriteEntities(instance_entities, info.entities_);
-	entity_info->groups_.push_back(info);
-
+    //push element------------------
+    inheritance_manager_.PushElement(instance);
+    if (IsCurrentLayerVisible())
+    {
+        // Write entities
+        WriteEntities(instance_entities, info.entities_);
+        entity_info->groups_.push_back(info);
+    }
 	//pop element-------------------
 	inheritance_manager_.PopElement();
 
@@ -567,19 +569,21 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       SUGroupRef group = groups[g];
 	  if (ExportUtils::IsGeoHidden(group)) continue;
 
-      SUEntitiesRef group_entities = SU_INVALID;
-      SU_CALL(SUGroupGetEntities(group, &group_entities));
 
-      // Write transformation
-      XmlGroupInfo info;
-      SU_CALL(SUGroupGetTransform(group, &info.transform_));
+          SUEntitiesRef group_entities = SU_INVALID;
+          SU_CALL(SUGroupGetEntities(group, &group_entities));
 
-      // Write entities
-	  inheritance_manager_.PushElement(group);
+          // Write transformation
+          XmlGroupInfo info;
+          SU_CALL(SUGroupGetTransform(group, &info.transform_));
 
-      WriteEntities(group_entities,info.entities_);
-      entity_info->groups_.push_back(info);
-
+          // Write entities
+          inheritance_manager_.PushElement(group);
+          if (IsCurrentLayerVisible())
+          {
+          WriteEntities(group_entities, info.entities_);
+          entity_info->groups_.push_back(info);
+      }
       inheritance_manager_.PopElement();
     }
   }
@@ -602,7 +606,8 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 		 if (ExportUtils::IsGeoHidden(faces[i])) continue;
 
         inheritance_manager_.PushElement(faces[i]);
-        WriteFace(faces[i],entity_info);
+        if(IsCurrentLayerVisible())
+            WriteFace(faces[i],entity_info);
         inheritance_manager_.PopElement();
       }
 
@@ -925,6 +930,15 @@ void CXmlExporter::WriteCurve(SUCurveRef curve,XmlEntitiesInfo *entity_info) {
   
   entity_info->curves_.push_back(info);
   // skpdata_.entities_.curves_.push_back(info);
+}
 
+bool CXmlExporter::IsCurrentLayerVisible()
+{
+    SULayerRef layer = inheritance_manager_.GetCurrentLayer();
+    bool is_visible = true;
 
+    if (!SUIsInvalid(layer))
+        SULayerGetVisibility(layer, &is_visible);
+    
+    return is_visible;
 }

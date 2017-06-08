@@ -56,6 +56,8 @@ class CXmlExporter {
 
   void GetSceneData(int id,char * scene_name, float position[3], float target[3], float up_vector[3]);
 
+  bool IsCurrentLayerVisible();
+
 private:
   // Clean up slapi objects
   void ReleaseModelObjects();
