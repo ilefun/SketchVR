@@ -92,7 +92,6 @@ int ExportUtils::GetImageTextureInfo(SUImageRef image,
     std::hash<std::string> h;
     auto path_hash_str=std::to_string(int(h(tex_path)));
     std::string texture_key=std::string("image_object__")+ path_hash_str;
-    cout << texture_key << endl;
 
     if(matname_id_map.count(texture_key))
       return matname_id_map[texture_key];

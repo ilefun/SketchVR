@@ -27,15 +27,15 @@ void face_data(CXmlExporter *exporter, int group_id) {
 	cout << "Face num is : " << face_num<< endl;
 	if (face_num > 0) {
 		cout << "Vertex num is : " << vertex_num << endl;
-		for (int i = 0; i < vertex_num * 3; i += 3)
+		for (int i = 0; i < min(vertex_num, 10) * 3; i += 3)
 			cout << vertices[i] << " " << vertices[i + 1] << " " << vertices[i + 2] << endl;
 
 		cout << "Vertex num per face : " << endl;
-		for (int i = 0; i < face_num; i++)
+		for (int i = 0; i < min(face_num, 10); i++)
 			cout << vertex_num_per_face [i] << " ";
 
 		cout << endl << "Face normal : " << endl;
-		for (int i = 0; i < face_num * 3; i += 3)
+		for (int i = 0; i < min(face_num, 10) * 3; i += 3)
 			cout << face_normal[i] << " " << face_normal[i + 1] << " " << face_normal[i + 2] << endl;
 	}
 	cout <<endl<< "Debug data print ends------------------" << endl;
@@ -65,9 +65,9 @@ void face_uv(CXmlExporter *exporter, bool front_or_back, int group_id) {
 	else
 		cout << "[Back UV]" << endl;
 		cout << "UV num is : " << uv_num << endl;
-	for (int j = 0; j < uv_num; j++)
-		cout << u[j] << " " << v[j] << endl;
-
+	for (int j = 0; j < min(uv_num,10); j++)
+		cout << u[j] << " " << v[j] << ", ";
+    cout << endl;
 	cout << endl << "Debug face uv data print ends------------------" << endl;
 
 	#endif // PRINT_SKP_DATA
@@ -79,9 +79,8 @@ void face_uv(CXmlExporter *exporter, bool front_or_back, int group_id) {
 
 
 void material(CXmlExporter *exporter) {
-
 	int mat_num = GetMaterialNum(exporter);
-	cout << "Material num is : " << mat_num;
+	cout << "Material num is : " << mat_num<<endl;
 
 	for (int i = 0; i < mat_num; ++i)
 	{
@@ -175,13 +174,13 @@ void material(CXmlExporter *exporter) {
 	cout << endl << "Face material print starts--------------" << endl;
 
 	cout << "Front mat id per face :" << endl;
-	for (int i = 0; i < face_num; ++i)
+	for (int i = 0; i < min(face_num,10); ++i)
 	{
 		cout << front_material_id_per_face[i] << " ";
 	}
 
 	cout << endl << "Back mat id per face :" << endl;
-	for (int i = 0; i < face_num; ++i)
+	for (int i = 0; i < min(face_num,10); ++i)
 	{
 		cout << back_material_id_per_face[i] << " ";
 	}
@@ -306,14 +305,18 @@ int main(int argc,char *argv[])
   CXmlExporter *exporter=NULL;
   exporter=GetExporter(StringConvertUtils::string_To_UTF8(argv[1]).c_str());
   if (exporter) {
+      cout <<endl<< "Test scene data" << endl;
       scene_data(exporter);
 
+      cout << endl<<"Test facing camera data" << endl;
 	  facing_camera_data(exporter);
 
   	  //traverse material
+      cout <<endl<< "Test material data" << endl;
 	  material(exporter);
 
 	  //traverse group
+      cout << endl<<"Test group data" << endl;
 	  int grp_num = group_data(exporter);
 	  
 	  //release memory in the end
@@ -322,6 +325,6 @@ int main(int argc,char *argv[])
   else
 	  cout << "Failed to open file "<<argv[1] << endl;
   end = clock();
-  cout<<"Time Logger : Finshed in : "<<(float((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
+  cout<<endl<<"Time Logger : Finshed in : "<<(float((end - start)) / CLOCKS_PER_SEC)<<"s"<<endl;
   //system("pause");
 }

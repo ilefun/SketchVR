@@ -55,20 +55,24 @@ void CXmlExporter::ReleaseModelObjects() {
   if (!SUIsInvalid(texture_writer_)) {
     SUTextureWriterRelease(&texture_writer_);
     SUSetInvalid(texture_writer_);
+    cout << "Released texture write." << endl;
   }
-
+  
   if (!SUIsInvalid(image_rep_)) {
     SUImageRepRelease(&image_rep_);
     SUSetInvalid(image_rep_);
+    cout << "Release image rep." << endl;
   }
-
+  
   if (!SUIsInvalid(model_)) {
     SUModelRelease(&model_);
     SUSetInvalid(model_);
+    cout << "Released su model." << endl;
   }
 
   // Terminate the SDK
   SUTerminate();
+  cout << "Terminated sdk." << endl;
 }
 
 bool CXmlExporter::Convert(const std::string& from_file,
@@ -114,7 +118,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
     // Write file header
     int major_ver = 0, minor_ver = 0, build_no = 0;
     SU_CALL(SUModelGetVersion(model_, &major_ver, &minor_ver, &build_no));
-
+    
     //Scenes
     std::cout << "Exporting scenes..." << std::endl;
     WriteScenes();
@@ -201,7 +205,7 @@ bool CXmlExporter::Convert(const std::string& from_file,
 	 std::cout <<endl<< "Face camera group size : " << face_camera_id_.size() << " , Face camera normal size : " << face_camera_normal_.size() << std::endl;
 	  #endif // PRINT_SKP_DATA
 
-  	std::cout << endl<<endl<<"Export complete." << std::endl;
+  	std::cout << endl<<endl<<"Export completed,data is ready." << std::endl;
     exported = true;
 
 	//SU_CALL(SUModelSaveToFile(model_,"D:\\sketchup\\test_skp_file\\out.skp"));
@@ -357,6 +361,14 @@ void CXmlExporter::WriteMaterial(SUMaterialRef material,int i) {
 }
 
 void CXmlExporter::WriteScenes(){
+    cout << "Get active camera data and save it as first scene." << endl;
+    SceneInfo scene_info;
+    scene_info.name_ = string("Start");
+    SUCameraRef camera;
+    SU_CALL(SUModelGetCamera(model_, &camera));
+    SU_CALL(SUCameraGetOrientation(camera, &scene_info.position_, &scene_info.target_, &scene_info.up_vector_));
+    skpdata_.scenes_.push_back(scene_info);
+
   size_t count = 0;
   SU_CALL(SUModelGetNumScenes(model_, &count));
   if (count > 0) {
@@ -468,9 +480,7 @@ int CXmlExporter::GetSceneSize()
 void CXmlExporter::GetSceneData(int id,char * scene_name,float position[3],float target[3],float up_vector[3])
 {
   assert(id <= skpdata_.scenes_.size() - 1);
-  strcpy_s(scene_name, 
-            skpdata_.scenes_[id].name_.length(), 
-            skpdata_.scenes_[id].name_.c_str());
+  memcpy(scene_name, skpdata_.scenes_[id].name_.c_str(),skpdata_.scenes_[id].name_.size());
 
   position[0] = skpdata_.scenes_[id].position_.x;
   position[1] = skpdata_.scenes_[id].position_.y;
@@ -541,18 +551,21 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
       	inheritance_manager_.PopElement();
 
 #ifdef PRINT_SKP_DATA
-		  std::cout << "\tInstance Index : " << c << " Name : " << StringConvertUtils::UTF8_To_string(definition_name) << std::endl;
-		  std::cout << "\tFace num : " << info.entities_->faces_.size() << std::endl;
-		  std::cout << "\tXform : " << endl;
-		  for (size_t i = 0; i < 4; i++) {
-			  cout << "\t\t";
-			  for (size_t j = 0; j < 4; j++)
-			  {
-				  std::cout << info.transform_.values[i * 4 + j] << " ";
-			  }
-			  cout << endl;
-		  }
-		  std::cout << endl << endl;
+        if (c < 5)
+        {
+            std::cout << "\tInstance Index : " << c << " Name : " << StringConvertUtils::UTF8_To_string(definition_name) << std::endl;
+            std::cout << "\tFace num : " << info.entities_->faces_.size() << std::endl;
+            std::cout << "\tXform : " << endl;
+            for (size_t i = 0; i < 4; i++) {
+                cout << "\t\t";
+                for (size_t j = 0; j < 4; j++)
+                {
+                    std::cout << info.transform_.values[i * 4 + j] << " ";
+                }
+                cout << endl;
+            }
+            std::cout << endl << endl;
+        }
 #endif // PRINT_SKP_DATA
 	 }
   }
@@ -932,6 +945,8 @@ void CXmlExporter::WriteCurve(SUCurveRef curve,XmlEntitiesInfo *entity_info) {
 
 bool CXmlExporter::IsDrawingElementVisible(SUDrawingElementRef element)
 {
+    if (SUIsInvalid(element)) return true;
+
     bool is_visible = true;
 
     SULayerRef layer = SU_INVALID;

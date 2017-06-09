@@ -162,6 +162,7 @@ EXPORT void ReleaseExporter(CXmlExporter *exporter)
 {
 	if (exporter)
 	{
+        cout <<endl<< "Start to release exporter." << endl;
 		//release pixel data memory
 		for (auto iter = exporter->skpdata_.texture_map_.begin(); iter != exporter->skpdata_.texture_map_.end(); ++iter)
 		{
@@ -170,10 +171,11 @@ EXPORT void ReleaseExporter(CXmlExporter *exporter)
 				iter->second.pixel_data_ = NULL;
 			}
 		}
+        cout << endl << "Released skp pixel data." << endl;
 
 		delete exporter;
 		exporter = NULL;
-		cout << endl<<"Release skp exporter memory." << endl;
+		cout << endl<<"Released exporter." << endl;
 	}
 }
 
@@ -269,7 +271,7 @@ EXPORT int GetMaterialNum(CXmlExporter *exporter)
 }
 
 EXPORT const bool GetMaterialNameByID(CXmlExporter *exporter,int id,char *mat_name){
-	strcpy_s(mat_name,sizeof(exporter->skpdata_.materials_[id].name_), exporter->skpdata_.materials_[id].name_.c_str());
+    memcpy(mat_name, exporter->skpdata_.materials_[id].name_.c_str(), exporter->skpdata_.materials_[id].name_.size());
 	return true;
 }
 
