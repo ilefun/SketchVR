@@ -24,6 +24,7 @@ class CInheritanceManager {
   void PushElement(SUComponentInstanceRef element);
   void PushElement(SUFaceRef element);
   void PushElement(SUEdgeRef element);
+  void PushElement(SUDrawingElementRef drawing_element);
 
   void PopElement();
 

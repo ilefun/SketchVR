@@ -516,8 +516,9 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 	//#pragma omp parallel for num_threads(2)
     for (int c = 0; c < int(num_instances); c++) {
       SUComponentInstanceRef instance = instances[c];
-	  if (ExportUtils::IsGeoHidden(instance)) continue;
-
+  	  if (ExportUtils::IsGeoHidden(instance)) continue;
+      auto draw_element=SUComponentInstanceToDrawingElement(instance);
+      if (!IsDrawingElementVisible(draw_element)) continue;
 
           SUComponentDefinitionRef definition = SU_INVALID;
           SU_CALL(SUComponentInstanceGetDefinition(instance, &definition));
@@ -531,16 +532,13 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 	      SUEntitiesRef  instance_entities = SU_INVALID;
 	      SU_CALL(SUComponentDefinitionGetEntities(definition, &instance_entities));
 
-    //push element------------------
-    inheritance_manager_.PushElement(instance);
-    if (IsCurrentLayerVisible())
-    {
+        //push element------------------
+        inheritance_manager_.PushElement(draw_element);
         // Write entities
         WriteEntities(instance_entities, info.entities_);
         entity_info->groups_.push_back(info);
-    }
-	//pop element-------------------
-	inheritance_manager_.PopElement();
+      	//pop element-------------------
+      	inheritance_manager_.PopElement();
 
 #ifdef PRINT_SKP_DATA
 		  std::cout << "\tInstance Index : " << c << " Name : " << StringConvertUtils::UTF8_To_string(definition_name) << std::endl;
@@ -568,6 +566,8 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
     for (size_t g = 0; g < num_groups; g++) {
       SUGroupRef group = groups[g];
 	  if (ExportUtils::IsGeoHidden(group)) continue;
+    auto draw_element=SUGroupToDrawingElement(group);
+    if (!IsDrawingElementVisible(draw_element)) continue;
 
 
           SUEntitiesRef group_entities = SU_INVALID;
@@ -578,13 +578,11 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
           SU_CALL(SUGroupGetTransform(group, &info.transform_));
 
           // Write entities
-          inheritance_manager_.PushElement(group);
-          if (IsCurrentLayerVisible())
-          {
+          inheritance_manager_.PushElement(draw_element);
           WriteEntities(group_entities, info.entities_);
           entity_info->groups_.push_back(info);
-      }
-      inheritance_manager_.PopElement();
+      
+          inheritance_manager_.PopElement();
     }
   }
 
@@ -604,10 +602,10 @@ void CXmlExporter::WriteEntities(SUEntitiesRef entities,XmlEntitiesInfo *entity_
 
       for (size_t i = 0; i < num_faces; i++) {
 		 if (ExportUtils::IsGeoHidden(faces[i])) continue;
+     if (!IsDrawingElementVisible(SUFaceToDrawingElement(faces[i]))) continue;
 
         inheritance_manager_.PushElement(faces[i]);
-        if(IsCurrentLayerVisible())
-            WriteFace(faces[i],entity_info);
+        WriteFace(faces[i],entity_info);
         inheritance_manager_.PopElement();
       }
 
@@ -932,13 +930,13 @@ void CXmlExporter::WriteCurve(SUCurveRef curve,XmlEntitiesInfo *entity_info) {
   // skpdata_.entities_.curves_.push_back(info);
 }
 
-bool CXmlExporter::IsCurrentLayerVisible()
+bool CXmlExporter::IsDrawingElementVisible(SUDrawingElementRef element)
 {
-    SULayerRef layer = inheritance_manager_.GetCurrentLayer();
     bool is_visible = true;
 
-    if (!SUIsInvalid(layer))
-        SULayerGetVisibility(layer, &is_visible);
+    SULayerRef layer = SU_INVALID;
+    SUDrawingElementGetLayer(element, &layer);
+    if (!SUIsInvalid(layer)) SULayerGetVisibility(layer, &is_visible);
     
     return is_visible;
 }
