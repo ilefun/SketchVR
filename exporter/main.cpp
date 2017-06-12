@@ -284,7 +284,7 @@ void scene_data(CXmlExporter *exporter)
         float position[3],target[3],up_vector[3];
         GetSceneData(exporter,i,scene_name,position,target,up_vector);
 #ifdef PRINT_SKP_DATA
-		cout << endl << "Name : " << StringConvertUtils::UTF8_To_string(scene_name) << endl;
+		cout << endl << "Name : " <<StringConvertUtils::UTF8_To_string(scene_name) << endl;
 		cout << "\tPosition : " << position[0] << " "<< position[1] << " "<< position[2] << endl;
 		cout << "\tTarget : " << target[0] << " " << target[1] << " " << target[2] << endl;
 		cout << "\tUpVector : " << up_vector[0] << " " << up_vector[1] << " " << up_vector[2] << endl;

@@ -363,7 +363,7 @@ void CXmlExporter::WriteMaterial(SUMaterialRef material,int i) {
 void CXmlExporter::WriteScenes(){
     cout << "Get active camera data and save it as first scene." << endl;
     SceneInfo scene_info;
-    scene_info.name_ = string("Start");
+    scene_info.name_=string("Start",5);
     SUCameraRef camera;
     SU_CALL(SUModelGetCamera(model_, &camera));
     SU_CALL(SUCameraGetOrientation(camera, &scene_info.position_, &scene_info.target_, &scene_info.up_vector_));
@@ -481,6 +481,7 @@ void CXmlExporter::GetSceneData(int id,char * scene_name,float position[3],float
 {
   assert(id <= skpdata_.scenes_.size() - 1);
   memcpy(scene_name, skpdata_.scenes_[id].name_.c_str(),skpdata_.scenes_[id].name_.size());
+  scene_name[skpdata_.scenes_[id].name_.size()] = '\0';
 
   position[0] = skpdata_.scenes_[id].position_.x;
   position[1] = skpdata_.scenes_[id].position_.y;
