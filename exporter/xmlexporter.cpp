@@ -430,7 +430,9 @@ std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp
 
 #ifdef PRINT_SKP_DATA
   std::cout << endl<<"Component Name : " << StringConvertUtils::UTF8_To_string(def_name) << std::endl;
-
+  //SUComponentType comp_type;
+  //SUComponentDefinitionGetType(comp_def, &comp_type);
+  //std::cout << endl<< comp_type<< endl;
 #endif // PRINT_SKP_DATA
   DefinitionInfo def_info;
   SUComponentDefinitionGetBehavior(comp_def, &def_info.behavior_);

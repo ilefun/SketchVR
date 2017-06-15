@@ -114,6 +114,12 @@ struct XmlComponentDefinitionInfo;
 
 struct DefinitionInfo
 {
+  DefinitionInfo(bool GetEntities=false);
+  DefinitionInfo(const DefinitionInfo&);
+  ~DefinitionInfo();
+  const DefinitionInfo& operator = (const DefinitionInfo&);
+
+  XmlEntitiesInfo* entities_;
 	SUComponentBehavior behavior_;
 	SUPoint3D insert_point_;
 };

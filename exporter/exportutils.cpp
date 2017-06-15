@@ -399,3 +399,10 @@ bool ExportUtils::IsGeoHidden(SUGroupRef group)
 	SU_CALL(SUDrawingElementGetHidden(elem, &hide_flag));
 	return hide_flag;
 }
+
+// bool ExportUtils::HasComponent(SUEntitiesRef entities)
+// {
+//   SUEntitiesRef entities = SU_INVALID;
+//   SUComponentDefinitionGetEntities(comp_def, &entities);
+
+// }
