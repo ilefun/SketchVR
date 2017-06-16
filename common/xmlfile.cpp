@@ -34,10 +34,7 @@ const XmlGroupInfo& XmlGroupInfo::operator = (const XmlGroupInfo& info) {
 
 
 //------------------------------------------------------------------------------
-DefinitionInfo::DefinitionInfo(bool GetEntities) {
-  if(GetEntities)
-  	entities_ = new XmlEntitiesInfo;
-  else
+DefinitionInfo::DefinitionInfo() {
   	entities_=NULL;
 }
 
@@ -53,9 +50,19 @@ DefinitionInfo::~DefinitionInfo() {
   	delete entities_;
 }
 
+void DefinitionInfo::SetEntities(bool HasEntities)
+{
+    if (HasEntities)
+        entities_ = new XmlEntitiesInfo;
+}
+
 const DefinitionInfo& DefinitionInfo::operator = (const DefinitionInfo& info) {
   if(info.entities_)
+  {
+  	if(!entities_)
+  		SetEntities(true);
   	*entities_ = *info.entities_;
+  }
   behavior_ = info.behavior_;
   insert_point_ = info.insert_point_;
   return *this;

@@ -114,10 +114,11 @@ struct XmlComponentDefinitionInfo;
 
 struct DefinitionInfo
 {
-  DefinitionInfo(bool GetEntities=false);
+  DefinitionInfo();
   DefinitionInfo(const DefinitionInfo&);
   ~DefinitionInfo();
   const DefinitionInfo& operator = (const DefinitionInfo&);
+  void SetEntities(bool HasEntities);
 
   XmlEntitiesInfo* entities_;
 	SUComponentBehavior behavior_;

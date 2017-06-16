@@ -61,7 +61,7 @@ struct ExportUtils
 	
 	static bool IsGeoHidden(SUGroupRef group);
 
-    // static bool IsComponentSingle(SUComponentDefinitionRef comp_def);
+    static bool HasComponent(SUEntitiesRef entities);
 };
 
 #endif // SKPTOXML_EXPORTER_EXPORTUTILS_H

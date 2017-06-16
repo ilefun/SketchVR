@@ -427,6 +427,7 @@ void CXmlExporter::WriteComponentDefinitions() {
 
 std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp_def) {
   auto def_name = ExportUtils::GetComponentDefinitionName(comp_def);
+  
 
 #ifdef PRINT_SKP_DATA
   std::cout << endl<<"Component Name : " << StringConvertUtils::UTF8_To_string(def_name) << std::endl;
@@ -434,20 +435,27 @@ std::string CXmlExporter::WriteComponentDefinition(SUComponentDefinitionRef comp
   //SUComponentDefinitionGetType(comp_def, &comp_type);
   //std::cout << endl<< comp_type<< endl;
 #endif // PRINT_SKP_DATA
+
+  SUEntitiesRef entities = SU_INVALID;
+  SUComponentDefinitionGetEntities(comp_def, &entities);
+  auto has_component=ExportUtils::HasComponent(entities);
+
   DefinitionInfo def_info;
+  // if this is a simple component which has no other component,
+  // we store the geometry data for later using
+  if(!has_component){
+    def_info.SetEntities(!has_component);
+    #ifdef PRINT_SKP_DATA
+    std::cout << "\tGet geometry data of simple component.\n";
+    #endif // PRINT_SKP_DATA
+
+    WriteEntities(entities,def_info.entities_);
+  }
+  
   SUComponentDefinitionGetBehavior(comp_def, &def_info.behavior_);
   SUComponentDefinitionGetInsertPoint(comp_def, &def_info.insert_point_);
 
   skpdata_.defitions_[def_name]= def_info;
-
-#ifdef PRINT_SKP_DATA
-  if (def_info.behavior_.component_always_face_camera)
-	  std::cout << "\tBehavior : Face camera" << ", Insert point : " 
-				<< def_info.insert_point_.x << " " 
-				<< def_info.insert_point_.y << " " 
-				<< def_info.insert_point_.z << endl;
-#endif // PRINT_SKP_DATA
-
   return def_name;
 }
 

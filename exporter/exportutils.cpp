@@ -9,7 +9,8 @@
 #include <SketchUpAPI/model/drawing_element.h>
 #include <SketchUpAPI/model/component_instance.h>
 #include <SketchUpAPI/model/group.h>
-
+#include <SketchUpAPI/model/entities.h>
+#include <SketchUpAPI/model/entity.h>
 #include <cassert>
 #include <vector>
 #include <iostream>
@@ -400,9 +401,29 @@ bool ExportUtils::IsGeoHidden(SUGroupRef group)
 	return hide_flag;
 }
 
-// bool ExportUtils::HasComponent(SUEntitiesRef entities)
-// {
-//   SUEntitiesRef entities = SU_INVALID;
-//   SUComponentDefinitionGetEntities(comp_def, &entities);
+bool ExportUtils::HasComponent(SUEntitiesRef entities)
+{ 
+  size_t num_instances = 0;
+  SU_CALL(SUEntitiesGetNumInstances(entities, &num_instances));
+  if (num_instances > 0) return true;
 
-// }
+
+  // Groups
+  size_t num_groups = 0;
+  SU_CALL(SUEntitiesGetNumGroups(entities, &num_groups));
+  if (num_groups > 0) {
+    std::vector<SUGroupRef> groups(num_groups);
+    SU_CALL(SUEntitiesGetGroups(entities, num_groups, &groups[0], &num_groups));
+    for (size_t g = 0; g < num_groups; g++) {
+          SUGroupRef group = groups[g];
+
+          SUEntitiesRef group_entities = SU_INVALID;
+          SU_CALL(SUGroupGetEntities(group, &group_entities));
+
+          auto has_component=HasComponent(group_entities);
+          if(has_component)return true;
+      }
+  }
+
+  return false;
+}
